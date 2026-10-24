@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sniglet } from "next/font/google";
 import { SiteHeader } from "@/app/_components/SiteHeader";
 import "./globals.css";
@@ -18,6 +18,13 @@ const displayFont = Sniglet({
 export const metadata: Metadata = {
   title: "freshly",
   description: "Know what's in your fridge and use it before it goes bad.",
+};
+
+// Cover lets env(safe-area-inset-*) in globals.css report the notch and home bar on iOS.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
