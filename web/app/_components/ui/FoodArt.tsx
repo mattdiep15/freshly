@@ -18,7 +18,7 @@ const artByKeyword: [RegExp, Art][] = [
   [/pasta|noodle|spaghetti|macaroni/, { file: "pasta", width: 518, height: 317 }],
 ];
 
-// Catch-all for packaged foods no keyword matches; swap the file for the designer's drawing when it lands.
+// TODO(release): box.png is a placeholder; replace it (and the size below) with the designer's catch-all icon.
 const packagedArt: Art = { file: "box", width: 433, height: 350 };
 
 function artFor(name: string, packaged: boolean): Art | undefined {
