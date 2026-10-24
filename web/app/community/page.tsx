@@ -24,7 +24,7 @@ function NumbersView() {
     { label: "this week", summary: week },
     { label: "this month", summary: month },
     { label: "all time", summary: all },
-  ].map(({ label, summary }) => ({ label, rescued: summary.itemsUsed, lbsWasted: summary.wastedLbs, usedRate: summary.usedRate }));
+  ].map(({ label, summary }) => ({ label, rescued: summary.itemsUsed, lbsWasted: summary.wastedLbs, centsWasted: summary.wastedCents, usedRate: summary.usedRate }));
 
   return (
     <div className="numbers-view">

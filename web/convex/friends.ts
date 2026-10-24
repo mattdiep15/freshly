@@ -115,7 +115,8 @@ export const leaderboard = query({
     const rows = [];
     for (const id of [userId, ...friendships.map((f) => f.friendId)]) {
       const profile = await profileFor(ctx, id);
-      const week = summarizeWaste(await loadResolved(ctx, id), "week", now);
+      // Each person's own calendar week, starting Monday.
+      const week = summarizeWaste(await loadResolved(ctx, id), "week", now, profile?.utcOffsetMinutes ?? 0);
       rows.push({
         userId: id,
         name: profile?.displayName ?? "friend",

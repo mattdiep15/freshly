@@ -36,7 +36,7 @@ Streak, in `lib/streak.ts`: `streakDays({ lastWasteAt, firstItemAt, now, utcOffs
 
 Example: a user's first item was 12 days ago and they tossed yogurt 4 days ago, so the streak is 4. An item expiring today that they have not swiped resets it to 0.
 
-Leaderboard: `friends.leaderboard()` returns the caller and their friends for the current week (`range: "week"` in `summarizeWaste`):
+Leaderboard: `friends.leaderboard()` returns the caller and their friends for the current calendar week, Monday 00:00 in each person's time zone (`range: "week"` in `summarizeWaste`):
 
 - each row is `{ userId, name, lbsWasted, usedRate, streakDays, isYou }`, with `lbsWasted` rounded to one decimal
 - sorted by `usedRate` high to low, users with no resolved items this week last, ties broken by lower `lbsWasted`
@@ -129,11 +129,14 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: Added `friends.invitePreview({ code })`, a query returning `{ status: "ok" | "friends" | "self" | "unknown", name? }`, so the invite link can say "add <name> as a friend?" before anything is written.
 - 2026-10-24: Leaderboard ties after `lbsWasted` break by name, so the order is stable. A friend list is capped at 50 (`MAX_FRIENDS`).
 - 2026-10-24: v6's period table had no used-rate column, so "% used" became its fourth column when the streak took the third circle.
+- 2026-10-24: Stats use calendar periods, not rolling windows (team call). "Week" starts Monday 00:00 and "month" on the 1st, both in the user's time zone (`periodStart` in `lib/wasteStats.ts`). With rolling windows, ranks shifted every day as old items aged out; now they move only when someone resolves an item, and everyone resets on Monday. This changes p1-03's `summarizeWaste`, which now takes `utcOffsetMinutes`.
+- 2026-10-24: Dollars wasted shows to the user as a "$ wasted" column in the period table (team call). The leaderboard does not return it, so friends never see it.
 - 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
 
 ## Surprises
 
-- A streak of 7 or more days means nothing was wasted this week, so the old fixture's rows (theo: 0.7 lbs this week, 9-day streak) cannot happen. The seeded friends follow the definition: maya and theo show 0 lbs.
+- A streak longer than the days since Monday means nothing was wasted this week, so the old fixture's rows (theo: 0.7 lbs this week, 9-day streak) cannot happen. The seeded friends follow the definition: maya and theo show 0 lbs.
 - The seeded demo user ranks 4th of 5. The p1 seed resolves three of its four items this week as wasted (25% used). Its streak starts at 1, since its three swipe cards expired yesterday; tossing one drops it to 0.
+- The p1 seed places the demo user's resolved items 1 to 11 days back, so a reseed early in the week puts most of them in last week. On a Monday the demo user has nothing resolved this week and ranks last. The friends' seed places this week's items inside the current week on any day.
 - The fridge holds a swipe decision for a 5-second undo window, and a full page reload inside that window drops the decision without saving it.
 - The worktree's `web/.env.local` pointed at the team dev deployment. Testing used a local anonymous deployment instead (`CONVEX_AGENT_MODE=anonymous npx convex dev`), with `ALLOW_DEMO_USER=true` set on it.

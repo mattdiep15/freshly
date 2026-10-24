@@ -31,10 +31,15 @@ export async function streakInputs(ctx: QueryCtx, userId: Id<"users">) {
   return { lastWasteAt, firstItemAt };
 }
 
-export async function streakFor(ctx: QueryCtx, userId: Id<"users">, now: number): Promise<number> {
+// Periods and streak days follow the user's local calendar.
+export async function utcOffsetFor(ctx: QueryCtx, userId: Id<"users">): Promise<number> {
   const profile = await ctx.db
     .query("profiles")
     .withIndex("by_user", (q) => q.eq("userId", userId))
     .unique();
-  return streakDays({ ...(await streakInputs(ctx, userId)), now, utcOffsetMinutes: profile?.utcOffsetMinutes ?? 0 });
+  return profile?.utcOffsetMinutes ?? 0;
+}
+
+export async function streakFor(ctx: QueryCtx, userId: Id<"users">, now: number): Promise<number> {
+  return streakDays({ ...(await streakInputs(ctx, userId)), now, utcOffsetMinutes: await utcOffsetFor(ctx, userId) });
 }

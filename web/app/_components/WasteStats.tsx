@@ -5,7 +5,7 @@ import { Leekly } from "@/app/_components/ui/Leekly";
 
 // approximate is true when some wasted items have no weight, so lbs wasted is a floor.
 type Totals = { rescued: number; lbsWasted: number; streakDays: number; approximate: boolean };
-type Period = { label: string; rescued: number; lbsWasted: number; usedRate: number | null };
+type Period = { label: string; rescued: number; lbsWasted: number; centsWasted: number; usedRate: number | null };
 
 const FIRST_DRAW_MS = 1400;
 const REPLAY_DRAW_MS = 1000;
@@ -148,18 +148,27 @@ export function PeriodTable({ periods }: { periods: Period[] }) {
           <span className="mobile-table-label">lbs</span>
         </span>
         <span>
+          <span className="desktop-table-label">$ wasted</span>
+          <span className="mobile-table-label">$</span>
+        </span>
+        <span>
           <span className="desktop-table-label">% used</span>
           <span className="mobile-table-label">used</span>
         </span>
       </div>
       {periods.map((period) => (
         <div className="thin-row" key={period.label}>
-          <strong>{period.label}</strong>
+          {/* Phones drop "this " so "week" and "month" fit beside five columns. */}
+          <strong>
+            {period.label.startsWith("this ") && <span className="desktop-unit">this </span>}
+            {period.label.replace(/^this /, "")}
+          </strong>
           <span>{period.rescued}</span>
           <span>
             {period.lbsWasted.toFixed(1)}
             <span className="desktop-unit"> lbs</span>
           </span>
+          <span>${(period.centsWasted / 100).toFixed(2)}</span>
           <span>{period.usedRate === null ? "-" : `${Math.round(period.usedRate * 100)}%`}</span>
         </div>
       ))}
