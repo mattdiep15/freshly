@@ -1,38 +1,50 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import { freshness, type Freshness } from "@/lib/freshness";
 import type { FridgeItem } from "@/lib/types";
 import { FoodCard } from "@/app/_components/FoodCard";
-
-const COLLAPSED_COUNT = 4;
+import { Leekly } from "@/app/_components/ui/Leekly";
 
 export function FoodList({
   items,
   now,
+  extendedIds,
+  checkInIds,
   onMarkUsed,
   onReviewExpired,
-  aside,
 }: {
   items: FridgeItem[];
   now: number;
+  extendedIds: readonly string[];
+  checkInIds: readonly string[];
   onMarkUsed: (item: FridgeItem) => void;
   onReviewExpired: (item: FridgeItem) => void;
-  aside?: ReactNode;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [showAll, setShowAll] = useState(false);
-  const visible = showAll ? items : items.slice(0, COLLAPSED_COUNT);
+  const counts: Record<Freshness, number> = { expired: 0, soon: 0, fresh: 0, unknown: 0 };
+  for (const item of items) counts[freshness(item.expiresAt, now)] += 1;
+  const urgent = counts.expired + counts.soon;
 
   return (
-    <>
-      <div className="fridge-list-stage">
+    <div className="fridge-list-stage">
+      <div className="fridge-list-main">
+        <div className="fridge-count-header">
+          <strong>{items.length} items</strong>
+          <span>
+            {counts.expired} expired · {counts.soon} use soon · {counts.fresh} fresh
+            {counts.unknown > 0 && ` · ${counts.unknown} no date`}
+          </span>
+        </div>
         <div className="food-list">
-          {visible.map((item) => (
+          {items.map((item) => (
             <FoodCard
               key={item.id}
               item={item}
               now={now}
               expanded={expanded === item.id}
+              extended={extendedIds.includes(item.id)}
+              checkIn={checkInIds.includes(item.id)}
               onToggle={() => setExpanded(expanded === item.id ? null : item.id)}
               onHover={() => {
                 // Hover-to-open is a desktop affordance; on touch it would fight the tap toggle.
@@ -43,13 +55,13 @@ export function FoodList({
             />
           ))}
         </div>
-        {aside}
       </div>
-      {!showAll && items.length > COLLAPSED_COUNT && (
-        <button className="quiet-link centered" onClick={() => setShowAll(true)}>
-          see all {items.length} <span>→</span>
-        </button>
-      )}
-    </>
+      <aside className="fridge-leek-gutter" aria-label="Fridge status">
+        <div className={`fridge-status-bubble ${urgent === 0 ? "is-all-fresh" : ""}`}>
+          {urgent === 0 ? "all fresh!" : `${counts.expired} expired, ${counts.soon} use soon`}
+        </div>
+        <Leekly pose="point" className="leek-point fridge-leek-point" />
+      </aside>
+    </div>
   );
 }

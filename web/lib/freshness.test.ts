@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysLeftLabel, daysUntil, freshness, numberWord, sortByUrgency, pickUseSoon } from "./freshness";
+import { daysLeftLabel, daysUntil, expiredLabel, freshness, numberWord, sortByUrgency, pickUseSoon } from "./freshness";
 
 // Local-time dates keep the tests independent of the machine's timezone.
 const now = new Date(2026, 9, 23, 10, 0).getTime();
@@ -39,6 +39,14 @@ describe("daysLeftLabel", () => {
     expect(daysLeftLabel(at(23), now)).toBe("today");
     expect(daysLeftLabel(at(24), now)).toBe("1 day");
     expect(daysLeftLabel(at(29), now)).toBe("6 days");
+  });
+});
+
+describe("expiredLabel", () => {
+  it("counts calendar days since expiry", () => {
+    expect(expiredLabel(at(23, 8), now)).toBe("expired today");
+    expect(expiredLabel(at(22), now)).toBe("expired 1 day ago");
+    expect(expiredLabel(at(19), now)).toBe("expired 4 days ago");
   });
 });
 
