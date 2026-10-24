@@ -4317,31 +4317,6 @@ footer {
   }
 }
 
-/* The mobile receipt scanner fits in place and does not scroll. */
-@media (max-width: 767px) {
-  body .app-shell:has(.add-screen) {
-    overflow: hidden;
-  }
-
-  .mobile-page-scroll:has(.add-screen) {
-    height: 100%;
-    min-height: 0;
-    flex: 1 1 auto;
-    overflow: hidden;
-    padding-bottom: 0;
-  }
-
-  .mobile-page-scroll:has(.add-screen) .add-screen {
-    height: 100%;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .mobile-page-scroll:has(.add-screen) .mobile-page-end-spacer {
-    display: none;
-  }
-}
-
 .filter-tab-meta {
   display: inline-flex;
   gap: 6px;
@@ -5818,6 +5793,18 @@ footer {
 /* Line art is black; flip it so it shows on the black expired row. */
 .food-card--expired .food-icon {
   filter: invert(1);
+}
+
+/* Pin each hidden file input over its own card; unpinned, the upload input covered the camera card. */
+.receipt-choice {
+  position: relative;
+}
+
+.receipt-choice input {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
 }
 
 /* Decorative art would start a native image drag and swallow the swipe. */
