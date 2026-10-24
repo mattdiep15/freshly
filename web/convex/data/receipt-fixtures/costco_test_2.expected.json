@@ -1,0 +1,33 @@
+{
+  "file": "costco_test_2.jpeg",
+  "isReceipt": true,
+  "storeName": "Costco",
+  "purchasedAt": "2026-10-06",
+  "totalCents": 11411,
+  "lines": [
+    {"rawText":"33724 GROUND BEEF","displayName":"Ground beef","quantity":1,"unit":null,"priceCents":3061,"weightGrams":null,"foodName":"ground beef","newFood":null},
+    {"rawText":"96923 KRAFT AM.CHS","displayName":"Kraft American cheese","quantity":1,"unit":null,"priceCents":1259,"weightGrams":null,"foodName":"cheese, processed slices","newFood":null},
+    {
+      "rawText": "711509 SF RED BULL",
+      "displayName": "Sugar-free Red Bull",
+      "quantity": 1,
+      "unit": null,
+      "priceCents": 4249,
+      "weightGrams": null,
+      "foodName": null,
+      "newFood": {
+        "name": "energy drink",
+        "category": "beverages",
+        "defaultLocation": "pantry",
+        "defaultWeightGrams": 6000,
+        "storageTip": "Store unopened cans at room temperature; chill before drinking.",
+        "freshnessHint": "Drink opened cans the same day.",
+        "hasPrintedDate": true
+      }
+    },
+    {"rawText":"689917 KING HAWAII","displayName":"King's Hawaiian rolls","quantity":1,"unit":null,"priceCents":699,"weightGrams":null,"foodName":"commercial bread products, including pan breads, flat breads, rolls, and buns","newFood":null},
+    {"rawText":"1551952 BIMBO BUNS","displayName":"Bimbo buns","quantity":1,"unit":null,"priceCents":419,"weightGrams":null,"foodName":"commercial bread products, including pan breads, flat breads, rolls, and buns","newFood":null},
+    {"rawText":"433677 STEAK SEASNG","displayName":"Steak seasoning","quantity":1,"unit":null,"priceCents":759,"weightGrams":null,"foodName":"seasoning blends","newFood":null},
+    {"rawText":"1551952 BIMBO BUNS","displayName":"Bimbo buns","quantity":1,"unit":null,"priceCents":419,"weightGrams":null,"foodName":"commercial bread products, including pan breads, flat breads, rolls, and buns","newFood":null}
+  ]
+}

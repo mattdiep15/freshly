@@ -1,0 +1,16 @@
+{
+  "file": "tj_test_1.pdf",
+  "isReceipt": true,
+  "storeName": "Trader Joe's",
+  "purchasedAt": "2026-10-15",
+  "totalCents": 3241,
+  "lines": [
+    {"rawText":"BAKING MIX GF UBE MOCHI","displayName":"Gluten-free ube mochi baking mix","quantity":2,"unit":null,"priceCents":798,"weightGrams":null,"foodName":"cake, brownie, bread mixes","newFood":null},
+    {"rawText":"HOL PUMPKIN BREAD & MUFF","displayName":"Pumpkin bread and muffin mix","quantity":2,"unit":null,"priceCents":698,"weightGrams":null,"foodName":"cake, brownie, bread mixes","newFood":null},
+    {"rawText":"HOL PUMPKIN SPICE SNICKE","displayName":"Pumpkin spice snickerdoodles","quantity":1,"unit":null,"priceCents":399,"weightGrams":null,"foodName":"cookies, crispy","newFood":null},
+    {"rawText":"JOE JOES CHOCOLATE VANIL","displayName":"Joe-Joe's chocolate vanilla cookies","quantity":1,"unit":null,"priceCents":349,"weightGrams":null,"foodName":"cookies, crispy","newFood":null},
+    {"rawText":"EGGS LARGE CAGE FREE WHI","displayName":"Large cage-free eggs","quantity":1,"unit":null,"priceCents":299,"weightGrams":null,"foodName":"eggs","newFood":null},
+    {"rawText":"BUTTER QUARTERS UNSALTED","displayName":"Unsalted butter","quantity":1,"unit":null,"priceCents":299,"weightGrams":null,"foodName":"butter","newFood":null},
+    {"rawText":"SEMI SWEET CHOCOLATE CHU","displayName":"Semi-sweet chocolate chunks","quantity":1,"unit":null,"priceCents":399,"weightGrams":null,"foodName":"chocolate, unsweetened and semi-sweet, solid","newFood":null}
+  ]
+}
