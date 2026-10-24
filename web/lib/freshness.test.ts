@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { daysLeftLabel, daysUntil, expiredLabel, freshness, numberWord, sortByUrgency, pickUseSoon } from "./freshness";
+import {
+  dateInputValue,
+  daysLeftLabel,
+  daysUntil,
+  endOfLocalDay,
+  expiredLabel,
+  freshness,
+  numberWord,
+  sortByUrgency,
+  pickUseSoon,
+} from "./freshness";
 
 // Local-time dates keep the tests independent of the machine's timezone.
 const now = new Date(2026, 9, 23, 10, 0).getTime();
@@ -86,5 +96,16 @@ describe("numberWord", () => {
   it("spells small numbers and falls back to digits", () => {
     expect(numberWord(3)).toBe("three");
     expect(numberWord(12)).toBe("12");
+  });
+});
+
+describe("endOfLocalDay and dateInputValue", () => {
+  it("turns a picked date into the end of that local day", () => {
+    expect(endOfLocalDay("2026-10-30")).toBe(new Date(2026, 9, 30, 23, 59).getTime());
+  });
+
+  it("round-trips through the date input value", () => {
+    expect(dateInputValue(endOfLocalDay("2026-01-05"))).toBe("2026-01-05");
+    expect(dateInputValue(at(23, 0))).toBe("2026-10-23");
   });
 });

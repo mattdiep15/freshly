@@ -22,7 +22,7 @@ export function SwipeTakeover({
   onResolve,
   onBack,
 }: {
-  item: { name: string; freshnessHint?: SourcedText };
+  item: { name: string; freshnessHint?: SourcedText | null };
   expiredText: string;
   // False when there is no sourced shelf life left to extend into, or it was already extended.
   canExtend: boolean;

@@ -1,10 +1,11 @@
-import { daysLeftLabel, expiredLabel, freshness } from "@/lib/freshness";
-import type { FridgeItem, SourcedText } from "@/lib/types";
+import type { ItemView } from "@/convex/items";
+import { daysLeftLabel, endOfLocalDay, expiredLabel, freshness } from "@/lib/freshness";
+import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 import { StatusPill } from "@/app/_components/ui/StatusPill";
 
-function DetailLine({ label, value, missing }: { label: string; value?: SourcedText; missing: string }) {
+function DetailLine({ label, value, missing }: { label: string; value?: SourcedText | null; missing: string }) {
   return (
     <div className="detail-line">
       <span>{label}</span>
@@ -20,6 +21,26 @@ function DetailLine({ label, value, missing }: { label: string; value?: SourcedT
   );
 }
 
+// Undated items never expire on their own, and packaged ones should use the printed date.
+function DateForm({ item, onSetDate }: { item: ItemView; onSetDate: (expiresAt: number) => void }) {
+  return (
+    <form
+      className="date-form"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const date = new FormData(event.currentTarget).get("date");
+        if (typeof date === "string" && date) onSetDate(endOfLocalDay(date));
+      }}
+    >
+      <label>
+        {item.expiresAt === undefined ? "no sourced shelf life. set a date." : "check the date on the package."}
+        <input type="date" name="date" required aria-label={`date for ${item.name}`} />
+      </label>
+      <button className="outline-button">set date</button>
+    </form>
+  );
+}
+
 export function FoodCard({
   item,
   now,
@@ -30,8 +51,9 @@ export function FoodCard({
   onHover,
   onMarkUsed,
   onReviewExpired,
+  onSetDate,
 }: {
-  item: FridgeItem;
+  item: ItemView;
   now: number;
   expanded: boolean;
   extended?: boolean;
@@ -40,9 +62,12 @@ export function FoodCard({
   onHover: () => void;
   onMarkUsed: () => void;
   onReviewExpired: () => void;
+  onSetDate: (expiresAt: number) => void;
 }) {
   const status = freshness(item.expiresAt, now);
   const isExpired = status === "expired";
+  // The swipe card needs the backend's expired status; the cron sets it up to an hour after the date passes.
+  const needsReview = item.status === "expired";
 
   return (
     <article
@@ -76,9 +101,12 @@ export function FoodCard({
         </div>
         <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />
         <DetailLine label="check" value={item.freshnessHint} missing="no sourced freshness hint yet." />
-        <button className="used-button" onClick={isExpired ? onReviewExpired : onMarkUsed}>
-          {isExpired ? "review expired item" : "mark as used"}
-        </button>
+        <div className="card-actions">
+          {(item.expiresAt === undefined || item.checkLabel) && <DateForm item={item} onSetDate={onSetDate} />}
+          <button className="used-button" onClick={needsReview ? onReviewExpired : onMarkUsed}>
+            {needsReview ? "review expired item" : "mark as used"}
+          </button>
+        </div>
       </div>
     </article>
   );
