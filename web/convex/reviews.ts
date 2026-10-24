@@ -16,8 +16,9 @@ export const pending = query({
     return await Promise.all(
       views.map(async (view) => {
         const food = view.foodId ? await ctx.db.get(view.foodId) : null;
-        // Tells the UI whether the second card offers "1-2 more days" or only "toss".
-        return { ...view, canExtend: extendedExpiry(view, food, now) !== null };
+        // Tells the UI whether the second card offers "1-2 more days", and the sourced date it would move to.
+        const extendsTo = extendedExpiry(view, food, now);
+        return { ...view, canExtend: extendsTo !== null, extendsTo };
       }),
     );
   },

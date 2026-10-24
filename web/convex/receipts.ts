@@ -1,8 +1,9 @@
 import { v, type Infer } from "convex/values";
-import { expiryFor, needsLabelDate } from "../lib/expiry";
+import { expiryFor } from "../lib/expiry";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import { toItemViews } from "./items";
 import { getUserId } from "./model/auth";
 import { location } from "./schema";
 
@@ -71,13 +72,10 @@ export const get = query({
       .query("items")
       .withIndex("by_receipt", (q) => q.eq("receiptId", receiptId))
       .collect();
-    const drafts = await Promise.all(
-      items
-        .filter((i) => i.status === "draft")
-        .map(async (i) => {
-          const food = i.foodId ? await ctx.db.get(i.foodId) : null;
-          return { ...i, checkLabel: needsLabelDate(food, i.expirySource) };
-        }),
+    const drafts = await toItemViews(
+      ctx,
+      receipt.userId,
+      items.filter((i) => i.status === "draft"),
     );
     return { ...receipt, drafts };
   },

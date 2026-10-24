@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { daysLeft } from "../lib/digest";
+import { needsLabelDate } from "../lib/expiry";
 import { extendExpiry, sourcedRange } from "../lib/extension";
 import { DEFAULT_WASTED_FRACTION } from "../lib/wasteStats";
 import type { Doc, Id } from "./_generated/dataModel";
@@ -15,6 +16,7 @@ export type ItemView = Doc<"items"> & {
   storageTip: Doc<"foods">["storageTip"] | null;
   freshnessHint: Doc<"foods">["freshnessHint"] | null;
   showTip: boolean;
+  checkLabel: boolean;
 };
 
 // New expiresAt for "1-2 more days", or null when the item has no sourced high end left.
@@ -32,7 +34,7 @@ async function utcOffsetFor(ctx: QueryCtx, userId: Id<"users">): Promise<number>
   return profile?.utcOffsetMinutes ?? 0;
 }
 
-// Adds days left, the food's tips with their sources, and whether to still teach the tip.
+// Adds days left, the food's tips with their sources, whether to still teach the tip, and whether to ask for the printed date.
 export async function toItemViews(ctx: QueryCtx, userId: Id<"users">, items: Doc<"items">[]): Promise<ItemView[]> {
   const now = Date.now();
   const offset = await utcOffsetFor(ctx, userId);
@@ -54,6 +56,7 @@ export async function toItemViews(ctx: QueryCtx, userId: Id<"users">, items: Doc
       storageTip,
       freshnessHint,
       showTip: (storageTip !== null || freshnessHint !== null) && (entry?.tipViews ?? 0) < TIP_VIEWS_UNTIL_FAMILIAR,
+      checkLabel: needsLabelDate(entry?.food ?? null, item.expirySource),
     };
   });
 }

@@ -3,16 +3,18 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Leekly } from "@/app/_components/ui/Leekly";
 
-type Totals = { rescued: number; lbsWasted: number; streakDays: number };
-type Week = { label: string; rescued: number; lbsWasted: number };
+// approximate is true when some wasted items have no weight, so lbs wasted is a floor.
+type Totals = { rescued: number; lbsWasted: number; usedRate: number | null; approximate: boolean };
+type Period = { label: string; rescued: number; lbsWasted: number };
 
 const FIRST_DRAW_MS = 1400;
 const REPLAY_DRAW_MS = 1000;
 const STAGGER_MS = 200;
 
-function StatCircle({ value, decimals = 0, delay, label, tooltip, positive = false }: {
+function StatCircle({ value, decimals = 0, suffix = "", delay, label, tooltip, positive = false }: {
   value: number;
   decimals?: number;
+  suffix?: string;
   delay: number;
   label: string;
   tooltip: string;
@@ -76,7 +78,10 @@ function StatCircle({ value, decimals = 0, delay, label, tooltip, positive = fal
             d="M153 12C224 9 283 65 288 137C294 211 239 278 165 287C91 296 24 247 13 174C2 101 48 33 119 16C133 12 145 11 158 13C166 14 171 16 177 20"
           />
         </svg>
-        <strong>{display}</strong>
+        <strong>
+          {display}
+          {suffix}
+        </strong>
       </span>
       <span className="stat-label">
         {label.split(" ").map((word, index) => (
@@ -99,7 +104,7 @@ export function StatCircles({ totals }: { totals: Totals }) {
         value={totals.rescued}
         delay={0}
         label="items rescued"
-        tooltip="foods you finished before they expired"
+        tooltip="foods you marked as used this month"
         positive
       />
       <StatCircle
@@ -107,13 +112,14 @@ export function StatCircles({ totals }: { totals: Totals }) {
         decimals={1}
         delay={STAGGER_MS}
         label="lbs wasted"
-        tooltip="estimated food discarded this month"
+        tooltip={totals.approximate ? "at least this much food discarded this month; some items have no weight" : "estimated food discarded this month"}
       />
       <StatCircle
-        value={totals.streakDays}
+        value={totals.usedRate === null ? 0 : Math.round(totals.usedRate * 100)}
+        suffix="%"
         delay={STAGGER_MS * 2}
-        label="day streak"
-        tooltip="days in a row with no expired food"
+        label="% used"
+        tooltip="share of the foods you resolved this month that you used"
         positive
       />
     </section>
@@ -129,11 +135,11 @@ export function StatsMascot() {
   return <div className="stats-leek-preview">{pose && <Leekly pose={pose} className="stats-mascot" />}</div>;
 }
 
-export function WeekTable({ weeks }: { weeks: Week[] }) {
+export function PeriodTable({ periods }: { periods: Period[] }) {
   return (
     <div className="thin-list week-list">
       <div className="thin-row list-labels">
-        <span>week</span>
+        <span>period</span>
         <span>
           <span className="desktop-table-label">items rescued</span>
           <span className="mobile-table-label">rescued</span>
@@ -143,12 +149,12 @@ export function WeekTable({ weeks }: { weeks: Week[] }) {
           <span className="mobile-table-label">lbs</span>
         </span>
       </div>
-      {weeks.map((week) => (
-        <div className="thin-row" key={week.label}>
-          <strong>{week.label}</strong>
-          <span>{week.rescued}</span>
+      {periods.map((period) => (
+        <div className="thin-row" key={period.label}>
+          <strong>{period.label}</strong>
+          <span>{period.rescued}</span>
           <span>
-            {week.lbsWasted}
+            {period.lbsWasted.toFixed(1)}
             <span className="desktop-unit"> lbs</span>
           </span>
         </div>

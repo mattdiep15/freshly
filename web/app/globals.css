@@ -612,6 +612,32 @@ h1 {
   letter-spacing: 0.13em;
 }
 
+.card-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.date-form {
+  display: grid;
+  gap: 8px;
+}
+
+.date-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.date-form input {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 6px 2px;
+  background: transparent;
+  font-size: 12px;
+}
+
 .food-card--expired .used-button {
   border-color: var(--ink);
   color: var(--ink);
@@ -4173,5 +4199,90 @@ footer {
 @media (max-width: 767px) {
   .food-card--expired .card-summary {
     grid-template-columns: 48px minmax(0, 1fr) 44px;
+  }
+}
+
+/* Scan check list: editable name, date, and a remove toggle per draft line. */
+.parsed-name {
+  width: 100%;
+  border: 0;
+  padding: 6px 0;
+  background: transparent;
+  font: inherit;
+}
+
+.parsed-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.parsed-controls label {
+  flex: 1;
+}
+
+.remove-line {
+  border: 1px solid var(--ink);
+  padding: 4px 8px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.parsed-row.needs-date {
+  border-left: 4px solid var(--good);
+  padding-left: 10px;
+}
+
+.parsed-row.is-removed .parsed-name,
+.parsed-row.is-removed label {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.tip-card .outline-button {
+  display: block;
+  margin-top: 12px;
+}
+
+.scan-error {
+  margin: 14px 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.manual-add {
+  margin-top: 36px;
+}
+
+.manual-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.manual-fields label {
+  display: grid;
+  gap: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.manual-fields input {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 7px 3px;
+  background: transparent;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .manual-fields {
+    grid-template-columns: 1fr;
   }
 }

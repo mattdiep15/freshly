@@ -1,11 +1,27 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { demoParsedReceipt } from "@/app/_demo/fixtures";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import type { Id } from "@/convex/_generated/dataModel";
 import { ScanFlow } from "@/app/_components/ScanFlow";
 
-export default function ScanPage() {
+function Scan() {
   const router = useRouter();
-  // TODO(release): upload to Convex storage and read parsed lines from the p1-02 receipt query.
-  return <ScanFlow parsedLines={demoParsedReceipt} onDone={() => router.push("/fridge")} />;
+  // The receipt id lives in the URL so a reload resumes instead of paying for a second parse; Convex validates it.
+  const receiptId = useSearchParams().get("receipt") as Id<"receipts"> | null;
+  return (
+    <ScanFlow
+      receiptId={receiptId}
+      onReceipt={(id) => router.replace(id ? `/scan?receipt=${id}` : "/scan")}
+      onDone={() => router.push("/fridge")}
+    />
+  );
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense>
+      <Scan />
+    </Suspense>
+  );
 }

@@ -37,6 +37,18 @@ export function expiredLabel(expiresAt: number, now: number): string {
   return days === 1 ? "expired 1 day ago" : `expired ${days} days ago`;
 }
 
+// A picked calendar date means "good through that day", so it expires at the end of it.
+export function endOfLocalDay(date: string): number {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(y, m - 1, d, 23, 59).getTime();
+}
+
+// The YYYY-MM-DD value an <input type="date"> expects, in local time.
+export function dateInputValue(t: number): string {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 const URGENCY_RANK: Record<Freshness, number> = { soon: 0, fresh: 1, unknown: 2, expired: 3 };
 
 // Expired items sink to the bottom because they wait for a swipe, not for cooking.

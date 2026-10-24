@@ -1,18 +1,20 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { numberWord, pickUseSoon } from "@/lib/freshness";
-import { demoFridge } from "@/app/_demo/fixtures";
+import { api } from "@/convex/_generated/api";
+import { numberWord, pickUseSoon, USE_SOON_DAYS } from "@/lib/freshness";
 import { UseSoonList } from "@/app/_components/UseSoonList";
 import { Leekly } from "@/app/_components/ui/Leekly";
 import { useNow } from "@/app/_components/useNow";
 
 export default function HomePage() {
   const now = useNow();
-  if (now === null) return <main className="home-screen" aria-busy="true" />;
+  const useSoon = useQuery(api.items.useSoon, { days: USE_SOON_DAYS });
+  const resolve = useMutation(api.items.resolve);
+  if (now === null || useSoon === undefined) return <main className="home-screen" aria-busy="true" />;
 
-  // TODO(release): read from the p1-03 use-soon query instead of demo fixtures.
-  const items = pickUseSoon(demoFridge(now), now);
+  const items = pickUseSoon(useSoon, now);
   const today = new Date(now)
     .toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
     .toLowerCase();
@@ -38,7 +40,14 @@ export default function HomePage() {
         </Link>
       </section>
 
-      <UseSoonList items={items} now={now} />
+      <UseSoonList
+        items={items}
+        now={now}
+        onUse={(item) => {
+          // An item resolved elsewhere throws here; the live query drops it either way.
+          resolve({ itemId: item._id, outcome: "used" }).catch(() => {});
+        }}
+      />
 
       <Link className="quiet-link" href="/fridge">
         everything in my fridge <span>→</span>

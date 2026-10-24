@@ -26,6 +26,21 @@ npm test           # vitest run
 Run lint and typecheck before every commit. Backend functions are testable in the browser through JSON routes under
 `web/app/api/` (see `docs/exec-plans/p1-01-backend-foundation.md`).
 
+### Testing against the team dev deployment
+
+The main checkout's `web/.env.local` points at Leo's Convex dev deployment in the team project
+(`dev:secret-opossum-432`, shown as `dev/leo-huang`), which has the Anthropic key, the auth keys, and `ALLOW_DEMO_USER`
+set. A worktree's local anonymous deployment has none of them, so receipt parsing fails there.
+To test a branch end to end before merging, copy that `.env.local` into the worktree's `web/`
+and run `npm run dev` from `web/`.
+
+`convex dev` pushes the branch's functions and schema to that deployment and replaces what
+was there, so run it from one checkout at a time. When you finish, put main's functions back:
+in the worktree, `git checkout origin/main -- web/convex`, run `npx convex dev --once`, then
+`git checkout HEAD -- web/convex`. Pushing from the main checkout also works if its
+`node_modules` is current. `/api/dev/seed` resets the demo user's data for everyone using the
+deployment. Never copy a production env.
+
 ### Where code goes
 
 The root holds only `web/` (everything that runs: code, config, `package.json`), `docs/`,

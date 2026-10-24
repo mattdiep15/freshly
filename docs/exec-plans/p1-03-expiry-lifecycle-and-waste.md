@@ -113,30 +113,7 @@ This plan owns `convex/items.ts` (`list`, `get`, `useSoon`, `resolve`, and the i
 
 ## Swipe card interactions (for frontend integration)
 
-Frontend integration waits until every P1 backend function exists, which means p1-02 (receipts, `items.update`, `foods.ackTip`) has to land as well. This section specifies the interactions so the frontend can wire them up then. `web/app/_components/SwipeTakeover.tsx` on `main` already has the first card with drag, "← wasted" and "used →" buttons, and the ArrowLeft and ArrowRight keys. It takes only `itemName` and has no second card.
-
-Queue. The takeover reads `reviews.pending` with `useQuery` and shows one card per item, oldest expiry first. It opens while the list is non-empty. Because the query is live, a card resolved in another tab drops out by itself.
-
-Input. Every choice can be made three ways: drag past the threshold, click the button, or press the arrow key. Left always means the negative answer and right the positive one, on both cards. The buttons are real `<button>` elements, so Tab and Enter also work. Keys are ignored while a card's exit animation runs, so a held key cannot answer two cards.
-
-Card 1, "did you use it?":
-
-| Input | Call | Next |
-| --- | --- | --- |
-| Right: drag, "used →", ArrowRight | `items.resolve({ itemId, outcome: "used" })` | next card |
-| Left: drag, "← not used", ArrowLeft, item has `canExtend: true` | none yet | card 2 for the same item |
-| Left, item has `canExtend: false` | `items.resolve({ itemId, outcome: "wasted" })` | next card |
-
-Card 2, "does your food look spoiled?", shows the item's `freshnessHint.text`. When `freshnessHint.source` is `"llm"`, the card labels it as general guidance (README open question 3). When `freshnessHint` is null, the card says the food has no freshness hint yet.
-
-| Input | Call | Next |
-| --- | --- | --- |
-| Left: drag, "← yes, toss :(", ArrowLeft | `items.resolve({ itemId, outcome: "wasted" })` | next card |
-| Right: drag, "no, 1-2 more days →", ArrowRight | `items.extend({ itemId })` | next card; the item returns to the use-soon list |
-
-A "wasted" result without `fractionWasted` is stored as 0.5 for now. When the frontend adds a "how much?" choice, it passes `fractionWasted` and the default stops mattering. If a mutation throws (for example, the item was already resolved elsewhere), the card moves on and the live query catches up. P1 has no undo.
-
-What `SwipeTakeover` needs to change: take the whole pending item (`_id`, `name`, `canExtend`, `freshnessHint`) instead of `itemName`, keep a `stage: 1 | 2` state, and call `onResolve` with `"used" | "wasted" | "extended"` so the page can make the matching mutation.
+Moved to the "Swipe cards" section of `p1-04-frontend-integration.md` on 2026-10-24.
 
 ## Interfaces delivered
 
