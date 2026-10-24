@@ -6,7 +6,8 @@ export default function FriendsPage() {
   // TODO(release): leaderboard is P2 (p2-social-and-shopping); this is demo data only.
   return (
     <main className="friends-page">
-      <section className="compact-heading heading-with-action">
+      <section className="compact-heading heading-with-action friends-heading">
+        <Leekly pose="friends" className="friends-header-art" />
         <div>
           <p className="eyebrow">this week</p>
           <h1>you + friends.</h1>
@@ -17,7 +18,6 @@ export default function FriendsPage() {
       </section>
       <div className="friends-stage">
         <Leaderboard entries={demoLeaderboard} />
-        <Leekly pose="point" className="leek-point friends-leek-point" />
       </div>
     </main>
   );
