@@ -47,28 +47,28 @@ A card for an undated item, or one with `checkLabel: true`, shows a date input l
 
 This section moved here from p1-03 on 2026-10-24.
 
-Queue. The takeover reads `reviews.pending` with `useQuery` and shows one card per item, oldest expiry first. It opens on `/` and `/fridge` while the list is non-empty. "Review expired item" on a fridge card opens the queue at that item. Because the query is live, a card resolved in another tab drops out by itself.
+Frontend v3 (#9) redesigned this flow, and this plan wires v3's design to Convex. The takeover opens when the user taps "review expired item" on a fridge card, or taps a card tagged "check in". It does not open by itself.
 
-Input. Every choice can be made three ways: drag past the threshold, click the button, or press the arrow key. Left always means the negative answer and right the positive one, on both cards. The buttons are real `<button>` elements, so Tab and Enter also work. Keys are ignored while a card's exit animation runs, so a held key cannot answer two cards.
+Input. Every choice can be made three ways: drag past 40% of the card width, click the button, or press the arrow key. Left is the negative answer and right the positive one, on both cards. Escape or the "back" button closes card 1 and tags the item "check in" for this visit, or returns from card 2 to card 1.
 
 Card 1, "did you use it?":
 
-| Input | Call | Next |
-| --- | --- | --- |
-| Right: drag, "used →", ArrowRight | `items.resolve({ itemId, outcome: "used" })` | next card |
-| Left: drag, "← not used", ArrowLeft, item has `canExtend: true` | none yet | card 2 for the same item |
-| Left, item has `canExtend: false` | `items.resolve({ itemId, outcome: "wasted" })` | next card |
+| Input | Result |
+| --- | --- |
+| Right: drag, "used →", ArrowRight | used |
+| Left: drag, "← wasted", ArrowLeft, item has `canExtend: true` | card 2 for the same item |
+| Left, item has `canExtend: false` | wasted |
 
-Card 2, "does your food look spoiled?", shows the item's `freshnessHint.text`. When `freshnessHint.source` is `"llm"`, the card labels it as general guidance (README open question 3). When `freshnessHint` is null, the card says the food has no freshness hint yet.
+Card 2, "does it look spoiled?", shows the item's `freshnessHint` with its source, or says there is no sourced hint yet.
 
-| Input | Call | Next |
-| --- | --- | --- |
-| Left: drag, "← yes, toss :(", ArrowLeft | `items.resolve({ itemId, outcome: "wasted" })` | next card |
-| Right: drag, "no, 1-2 more days →", ArrowRight | `items.extend({ itemId })` | next card; the item returns to the use-soon list |
+| Input | Result |
+| --- | --- |
+| Left: drag, "← yes, toss :(", ArrowLeft | wasted |
+| Right: drag, "no, 1-2 more days →", ArrowRight | extended |
 
-A "wasted" result without `fractionWasted` is stored as 0.5. If a mutation throws (for example, the item was already resolved elsewhere), the card moves on and the live query catches up.
+Every result, and "mark as used" on a fridge card, waits 5 seconds behind an undo toast (`useDelayedCommit`) before the fridge page calls `items.resolve` or `items.extend`. Undoing a swipe reopens its card. Leaving the page saves the pending decision. During the wait, an extended item shows `extendsTo` from `reviews.pending`, the exact sourced date `items.extend` will set. The "extended" and "check in" tags last only for the visit, because the backend does not record them.
 
-`SwipeTakeover` takes the whole pending item (`_id`, `name`, `canExtend`, `freshnessHint`) instead of `itemName`, keeps a `stage: 1 | 2` state, and calls `onResolve` with `"used" | "wasted" | "extended"`. A small wrapper component owns the queue and makes the matching mutation.
+A "wasted" result without `fractionWasted` is stored as 0.5. If a mutation throws (for example, the item was already resolved elsewhere), the live query catches up.
 
 ### Scan (`/scan`)
 
@@ -88,7 +88,7 @@ Manual add is a third choice on step 1, "type it instead": a name field and an o
 
 ### Stats (`/stats`)
 
-The page becomes a client component. The circles read `stats.summary({ range: "month" })`, matching the "this month" tooltip: "items rescued" is `itemsUsed` and "lbs wasted" is `wastedLbs` rounded to one decimal. When `itemsMissingWeight` is above 0 the tooltip says the number is a floor. The streak circle shows `usedRate` as "% used" until P2 adds streaks.
+The page becomes a client component. The circles read `stats.summary({ range: "month" })`, matching the "this month" tooltip: "items rescued" is `itemsUsed` and "lbs wasted" is `wastedLbs` rounded to one decimal. When `itemsMissingWeight` is above 0 the tooltip says the number is a floor. The third circle, a streak in v3, shows `usedRate` as "% used" until P2 adds streaks. v3's count-up animation and random mascot pose are kept.
 
 The table shows three rows from three `stats.summary` calls, "this week", "this month", and "all time", instead of four calendar weeks. The backend has no per-week history, and a rolling range needs no new query.
 
@@ -101,7 +101,7 @@ No change. It stays on `demoLeaderboard` with its existing `TODO(release)`.
 - [x] 1. Backend additions and shared plumbing (2026-10-24: no page calls Convex yet, so the error page was checked with a throwaway page that called `items.list` before seeding)
 - [x] 2. Home use-soon list (2026-10-24: verified on a fresh seed; checking saves after 900 ms, see Decision log)
 - [x] 3. Fridge list and setting dates (2026-10-24: `endOfLocalDay` and `dateInputValue` in `lib/freshness.ts` turn a picked date into the end of that local day)
-- [x] 4. Swipe card queue with the second card (2026-10-24: `SwipeQueue` owns the query and mutations; a held arrow key is ignored through `event.repeat`)
+- [x] 4. Swipe card queue with the second card (2026-10-24: built as `SwipeQueue`, then replaced by v3's tap-to-review flow in the rebase; see Decision log)
 - [x] 5. Stats page (2026-10-24: matches `/api/stats/summary` for all three ranges after the step 4 swipes)
 - [x] 6. Scan upload and live parse status (2026-10-24: a 61 MB generated PNG uploaded as a 1.85 MB JPEG; with no API key the receipt failed and showed the key message with a retake button)
 - [x] 7. Scan check list, tips, and confirm (2026-10-24: mock `costco_test_2` through `receipts.devCreateParsed`; 6 of 7 lines confirmed, the typed Red Bull date stored as `user`)
@@ -155,7 +155,7 @@ No change. It stays on `demoLeaderboard` with its existing `TODO(release)`.
 - Click-through from a fresh `/api/dev/seed`, in the running app at phone width and desktop width: swipe all 3 cards, check one item off the home list, set a date on the milk, scan `costco_test_2.jpeg` (live or through the mock route), remove one line, confirm, and add "spinach" by hand. The stats page changes after each resolve without a reload.
 - Every date on screen comes from `expirySource` `fda_chart`, `foodkeeper`, or `user`. Items with no date say so.
 
-Result on 2026-10-24, against a local deployment (`localhost:3270`) with no `ANTHROPIC_API_KEY`: lint, typecheck, 49 tests, and `next build` pass. `grep -r "TODO(release)" app` lists only the friends page, `Leaderboard`, `app/_demo/fixtures.ts` (for `demoFullness` and `demoLeaderboard`), the dev push page, and the parse-test mock route. From a fresh seed: the takeover opened with 3 cards (beef wasted, spinach extended to 2 days, strawberries used), two home tasks were checked off, the milk got a typed date, the mock `costco_test_2` receipt was reviewed and confirmed with one line removed, and "spinach" and "eggs" were added by hand. The stats page matched `/api/stats/summary` for all three ranges. Home, fridge, swipe cards, scan, and stats fit 375 px with no horizontal scroll. Not covered: a live receipt parse through the UI (the local deployment has no key; the failure path was checked instead) and anything a real phone camera does differently from the generated test image.
+Result on 2026-10-24, against a local deployment (`localhost:3270`) with no `ANTHROPIC_API_KEY`: lint, typecheck, 49 tests, and `next build` pass. `grep -r "TODO(release)" app` lists only the friends page, `Leaderboard`, `app/_demo/fixtures.ts` (for `demoFullness` and `demoLeaderboard`), the dev push page, and the parse-test mock route. From a fresh seed: the takeover opened with 3 cards (beef wasted, spinach extended to 2 days, strawberries used), two home tasks were checked off, the milk got a typed date, the mock `costco_test_2` receipt was reviewed and confirmed with one line removed, and "spinach" and "eggs" were added by hand. The stats page matched `/api/stats/summary` for all three ranges. Home, fridge, swipe cards, scan, and stats fit 375 px with no horizontal scroll. After the v3 rebase the same click-through passed on the merged code, with the swipe flow driven through v3's cards: back, check in, undo, and a 5-second commit. Not covered: a live receipt parse through the UI (the local deployment has no key; the failure path was checked instead) and anything a real phone camera does differently from the generated test image.
 
 ## Decision log
 
@@ -165,11 +165,13 @@ Result on 2026-10-24, against a local deployment (`localhost:3270`) with no `ANT
 - 2026-10-24: The stats table shows this week, this month, and all time instead of four calendar weeks, so no new query is needed. A per-week query can come with P2's `userStats` table.
 - 2026-10-24: The UI computes days left in the browser and ignores the backend's `daysLeft`, so labels roll over at local midnight without a data change.
 - 2026-10-24: The third stats circle shows `usedRate` ("% used") instead of being hidden. Hiding it left the 3-column circle grid off-center at every breakpoint, and the used rate is real data.
+- 2026-10-24: Rebased onto frontend v3 (#9). v3's swipe cards, undo toast, and "check in" tags replace this plan's auto-opening `SwipeQueue`, which was deleted. v3 already had the second card, so its `SwipeTakeover` is kept with one change: `freshnessHint` may be `null`, as the backend returns it.
+- 2026-10-24: `reviews.pending` returns `extendsTo`, the date `items.extend` would set. v3 previewed an extension as now plus 2 days, which can pass the sourced range's high end and would show an unsourced date during the undo window.
 - 2026-10-24: A checked use-soon task waits 900 ms before calling `items.resolve`, so the check mark shows and a misclick can be unchecked before it is saved. Leaving the page during the wait saves the check instead of dropping it.
 
 ## Open questions
 
-1. Should the swipe takeover have a "later" button? The p1-03 spec has none, so pending cards block `/` and `/fridge` until answered.
+1. Expired items only prompt when the user opens the fridge (v3's flow). Decide whether home should also surface them, for example as a line linking to the fridge.
 2. Does the designer want a screen for manual add, the push opt-in, and the notification feed? This plan builds only manual add, with existing styles.
 3. The streak circle shows the used rate from `stats.summary` until P2 (see Decision log). Confirm with the designer, or pick something else.
 4. Sign-in and setting `utcOffsetMinutes` have no plan. Real users need both before launch.
@@ -177,7 +179,8 @@ Result on 2026-10-24, against a local deployment (`localhost:3270`) with no `ANT
 ## Surprises
 
 - 2026-10-24: On a fresh local deployment, `/api/dev/seed` loads the reference foods without the tips, hints, and `hasPrintedDate` flags that `foods.backfillTips` writes. On the mock `costco_test_2` receipt only the energy drink (a new food from the fixture) gets `checkLabel: true`, and the rolls, buns, and seasoning have no storage tip. Run `npx convex run foods:backfillTips` (needs `ANTHROPIC_API_KEY`) before checking the highlighted rows in step 7. The team's cloud dev deployment has already been backfilled.
-- 2026-10-24: Card 2's question wrapped to three lines at 44 px on a 375 px screen and pushed the card past the top of the viewport. `.swipe-card--question` drops the title to 28 px and shrinks the mascot below 768 px.
+- 2026-10-24: Card 2's question wrapped to three lines at 44 px on a 375 px screen and pushed the card past the top of the viewport. The fix (`.swipe-card--question`) was dropped in the v3 rebase, since v3 has its own card 2 layout.
+- 2026-10-24: While the browser pane is hidden, it runs no animation frames. CSS transitions and v3's stats count-up stall at their start values (cards read as collapsed, circles as 0) until a screenshot forces a frame. Check computed target values or take a screenshot before calling a layout broken.
 - 2026-10-24: Running `next build` while `next dev` was up left Turbopack's watcher stuck, and later CSS edits never reached the browser. Restarting the dev server fixed it.
 - 2026-10-24: In the browser pane, a script calling `input.blur()` did not fire React's `onBlur` because the pane did not have focus. Real clicks did. Test the scan check list's save-on-blur with clicks, not scripted focus.
 - 2026-10-24: The `frontend-dev` launch config runs `next dev web` from the repo root, so `process.cwd()` is the root and `/api/dev/parse-test` looks for `data/` and `convex/data/` there. Run Next from `web/` to use the mock receipt route.
