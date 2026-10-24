@@ -30,6 +30,13 @@ export function daysLeftLabel(expiresAt: number | undefined, now: number): strin
   return days === 1 ? "1 day" : `${days} days`;
 }
 
+// Pill text for an expired item; an item that expired earlier today reads "expired today".
+export function expiredLabel(expiresAt: number, now: number): string {
+  const days = -daysUntil(expiresAt, now);
+  if (days <= 0) return "expired today";
+  return days === 1 ? "expired 1 day ago" : `expired ${days} days ago`;
+}
+
 const URGENCY_RANK: Record<Freshness, number> = { soon: 0, fresh: 1, unknown: 2, expired: 3 };
 
 // Expired items sink to the bottom because they wait for a swipe, not for cooking.

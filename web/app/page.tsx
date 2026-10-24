@@ -31,7 +31,10 @@ export default function HomePage() {
         </div>
         <Leekly pose="fridge" className="home-mascot" />
         <Link className="add-button" href="/scan">
-          <span>+</span> add an item
+          <span className="add-symbol">+</span>
+          <span className="add-label">
+            <span>add an</span> <span>item</span>
+          </span>
         </Link>
       </section>
 
