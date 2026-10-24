@@ -69,6 +69,8 @@ Computing on read is fine at hackathon scale. P2's leaderboard will need these n
 
 ## File ownership while p1-02 runs in parallel
 
+2026-10-24: main moved all app code into `web/` (#2), and this branch was rebased onto it. Code paths in this plan are relative to `web/`, so `convex/items.ts` is `web/convex/items.ts`. p1-02 has merged (#5), so the parallel-work split below is history.
+
 This plan owns `convex/items.ts` (`list`, `get`, `useSoon`, `resolve`, and the item shape), `convex/reviews.ts`, `convex/lifecycle.ts`, `convex/crons.ts`, `convex/push.ts`, `convex/pushNode.ts`, `convex/notifications.ts`, `convex/stats.ts`, `runTick` and `pushTest` in `convex/dev.ts`, `lib/digest.ts`, `lib/wasteStats.ts`, `lib/pushDelivery.ts`, their tests, the routes under `app/api/items/`, `app/api/reviews/`, `app/api/stats/`, `app/api/notifications/`, `app/api/dev/tick/` and `app/api/dev/push-test/`, `app/dev/push/page.tsx`, `app/_components/PushSubscribeButton.tsx`, and `public/sw.js`. p1-02 owns `convex/receipts.ts`, `convex/receiptsNode.ts`, `convex/itemEdits.ts` (its `confirmDrafts`, `update`, `addManual`), `convex/foods.ts` (including `foods.ackTip`), and `lib/expiry.ts`. Neither plan edits `convex/schema.ts` or `convex/seed.ts`. Both regenerate the tracked `convex/_generated/api.d.ts`; on a merge conflict there, run `npx convex codegen` instead of hand-merging.
 
 ## Steps
