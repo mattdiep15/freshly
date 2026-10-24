@@ -163,3 +163,70 @@
     letter-spacing: 0.06em;
   }
 }
+
+/* Add-friend panel and invite confirmation. */
+.add-friend-panel {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 760px);
+  margin-bottom: 28px;
+}
+
+.friend-code-row {
+  display: flex;
+}
+
+.friend-code-row input,
+.friend-code-row button {
+  height: 48px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  font-size: 16px;
+}
+
+.friend-code-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0 16px;
+  outline: none;
+}
+
+.friend-code-row input:focus {
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.friend-code-row button,
+.invite-accept {
+  width: 96px;
+  border: 2px solid var(--good);
+  background: var(--good);
+  color: var(--paper);
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.friend-code-row button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.friend-added {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.invite-confirm strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+}
+
+.invite-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.invite-accept {
+  height: 44px;
+}
