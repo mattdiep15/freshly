@@ -74,6 +74,44 @@ export const HEADER_SYSTEM_PROMPT = `You check grocery receipts for Freshly, an 
 - totalCents: the final total paid, in cents, or null.
 Never copy member numbers, card digits, cashier names, or other personal details.`;
 
+// Mirrors WebEntry in lib/webShelfLife.ts.
+export const WEB_SHELF_LIFE_SCHEMA = {
+  type: "object",
+  properties: {
+    entries: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          location: { type: "string", enum: ["fridge", "freezer", "pantry"] },
+          basis: { type: "string", enum: ["unopened", "after_opening", "past_printed_date", "from_purchase"] },
+          minDays: { type: "integer" },
+          maxDays: { type: "integer" },
+          url: { type: "string" },
+          quote: { type: "string" },
+        },
+        required: ["location", "basis", "minDays", "maxDays", "url", "quote"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["entries"],
+  additionalProperties: false,
+};
+
+export function webShelfLifeSystemPrompt(foodName: string): string {
+  return `You extract shelf-life figures for "${foodName}" from web pages for Freshly, an app that tracks what is in a student's fridge. Each page starts with a line "URL: <url>".
+
+For every shelf-life figure a page states for this food, return one entry. Skip pages and figures about a different food or a different form of it (for example dry mix when the food is prepared pudding).
+- location: where it is stored (fridge, freezer, or pantry; room temperature and cupboard count as pantry).
+- basis: unopened (sealed, counted from purchase), after_opening, past_printed_date (how long past the best-by or use-by date), or from_purchase.
+- minDays and maxDays: the range in days (1 week = 7, 1 month = 30, 1 year = 365). A single figure has minDays equal to maxDays.
+- url: the page's URL exactly as given.
+- quote: the passage the figure comes from, copied word for word from the page and long enough to show the food and the figure. On a table-style page, copy the heading, the storage location, and the figure in the order they appear, leaving out image and link markup.
+
+Only use figures the pages state. Never estimate or fill in a figure yourself. Return no entries when the pages give none for this food.`;
+}
+
 export const MANUAL_SCHEMA = {
   type: "object",
   properties: { foodName: nullable({ type: "string" }), newFood: nullable(NEW_FOOD_SCHEMA) },

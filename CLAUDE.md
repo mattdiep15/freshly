@@ -70,9 +70,15 @@ so `grep -r "TODO(release)"` lists the cleanup before launch. Fake data goes in
 
 ### Food safety data
 
-Shelf-life numbers are safety claims. Take them from `docs/food_storage_chart.pdf` (FDA)
-or USDA FoodKeeper and store the source next to each value. If an item has no sourced
+Shelf-life numbers are safety claims. Take them from `docs/food_storage_chart.pdf` (FDA,
+2018), its newer edition `docs/cold_food_storage_chart_2023.md` (foodsafety.gov, reviewed
+2023-09-19), or USDA FoodKeeper, and store the source next to each value. If an item has no sourced
 value, the UI says so instead of guessing.
+
+The one exception is packaged foods (`hasPrintedDate`) with no FDA or FoodKeeper range:
+they may take a web range (`source: "web"`) from an allowlisted page, stored with the page
+URL and a sentence quoted word for word from it. FDA and FoodKeeper ranges always win, and
+the UI still asks for the printed date.
 
 ### Code style
 

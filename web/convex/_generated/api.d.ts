@@ -29,6 +29,7 @@ import type * as receipts from "../receipts.js";
 import type * as receiptsNode from "../receiptsNode.js";
 import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
+import type * as shelfLifeWeb from "../shelfLifeWeb.js";
 import type * as stats from "../stats.js";
 
 import type {
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   receiptsNode: typeof receiptsNode;
   reviews: typeof reviews;
   seed: typeof seed;
+  shelfLifeWeb: typeof shelfLifeWeb;
   stats: typeof stats;
 }>;
 

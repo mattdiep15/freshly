@@ -7,6 +7,7 @@ import { internalMutation, internalQuery, mutation, query, type MutationCtx, typ
 import { toItemViews } from "./items";
 import { getUserId } from "./model/auth";
 import { location } from "./schema";
+import { scheduleWebLookup } from "./shelfLifeWeb";
 
 export const newFood = v.object({
   name: v.string(),
@@ -243,8 +244,10 @@ async function saveResult(ctx: MutationCtx, receiptId: Id<"receipts">, result: I
   for (const item of stale) if (item.status === "draft") await ctx.db.delete(item._id);
 
   const { purchasedAt, printedAt, implausible } = purchaseDate(result.purchasedAt, receipt._creationTime);
+  const foodIds: Id<"foods">[] = [];
   for (const line of result.lines) {
     const food = await resolveFood(ctx, line.foodName, line.newFood);
+    if (food) foodIds.push(food._id);
     const loc = food?.defaultLocation ?? "fridge";
     const expiry = expiryFor(food, loc, purchasedAt);
     const weightGrams = line.weightGrams ?? food?.defaultWeightGrams;
@@ -273,6 +276,7 @@ async function saveResult(ctx: MutationCtx, receiptId: Id<"receipts">, result: I
     reviewFlags: implausible ? ["implausible_date"] : undefined,
     verification: undefined,
   });
+  await scheduleWebLookup(ctx, foodIds);
   return { items: result.lines.length };
 }
 

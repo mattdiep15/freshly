@@ -10,9 +10,9 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, manual entry (P1.5), item matching, expiry dates, storage tips for unfamiliar foods | Done; freezer-move bug open in `docs/bugs.md` | ~4-5 h |
 | [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards with the "looks spoiled?" second card, waste stats | Done; a real system notification still needs a human check (see Surprises) | ~5-6 h |
 | [p1-04-frontend-integration.md](p1-04-frontend-integration.md) | P1 | Home, fridge, swipe cards, scan, manual add, and stats pages wired to Convex | Done; package-date highlights and freshness hints need `foods:backfillTips` on the deployment | ~7-8 h |
-| [p1-05-sponsor-tracks.md](p1-05-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini as model provider, web shelf-life lookup (Apify + Gemini), recipes for use-soon items, GoDaddy domain | Part A done (Claude parses, Gemini verifies); B and C need question 8 | ~8-10 h |
-| [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, location reminders, takeout leftovers | Draft | not estimated |
-| [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes, speech, Wrapped Waste, image-based spoilage model | Draft | not estimated |
+| [p1-05-sponsor-tracks.md](p1-05-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini receipt check, web shelf-life lookup (Apify + Gemini), GoDaddy domain | A and B done (Claude parses, Gemini verifies; web shelf life); D not started; recipes (C) moved to p3 | ~8-10 h |
+| [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, estimated store prices (Apify), location reminders, takeout leftovers | Draft | not estimated |
+| [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes (Apify + Gemini), food recall alerts, speech, Wrapped Waste, image-based spoilage model | Draft | not estimated |
 
 p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-01 defines the whole P1 schema up front so the two do not edit `convex/schema.ts` at the same time. p1-04 depends on all three.
 
@@ -27,7 +27,7 @@ p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-
 5. Test receipts. `data/` holds real receipts with Costco member numbers and card digits. Decide whether to commit them, redact them, or keep them local.
 6. Extending raw meat, poultry, and seafood. Design v2 lets a user keep an expired item 1 to 2 more days if it does not look spoiled. p1-03 caps that at the high end of the sourced range, so the date stays sourced. A look-and-smell check says less about raw meat than about produce, so decide whether those categories get the "1-2 more days" option at all.
 7. Spoilage model output. The P3 neural net would predict a shelf life from a photo, and `CLAUDE.md` allows only FDA, FoodKeeper, or user dates. Decide before training whether the model may move a date only within the sourced range, or whether it becomes a source listed in `CLAUDE.md`.
-8. Web shelf-life as a source. p1-05 part B fills gaps in the FDA chart and FoodKeeper with figures from allowlisted web pages (stilltasty.com, USDA, FDA, university extension sites), stored with `source: "web"`, the page URL, and a verbatim quote, and labeled "Estimate from <site>" in the UI. `CLAUDE.md` allows only FDA and FoodKeeper numbers today. Decide whether to add `web` to that rule, or keep web figures as tips only and never date an item from them.
+8. Web shelf-life as a source. Answered 2026-10-24: packaged foods with no FDA or FoodKeeper range may take a web range (`source: "web"`) with the page URL and a word-for-word quote; FDA and FoodKeeper always win, and the UI still asks for the printed date. `CLAUDE.md` is updated, and p1-05 part B is built.
 9. Gemini replacing Claude. Answered 2026-10-24: Claude stays the main receipt parser, and Gemini reads each receipt's store, date, and total a second time and flags disagreements (p1-05 part A). `LLM_PROVIDER=gemini` still switches the main parser if a paid Gemini key turns up.
 
 ## Working on a plan

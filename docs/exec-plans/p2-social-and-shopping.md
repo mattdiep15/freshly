@@ -39,6 +39,20 @@ Backend sketch:
 - On `items.confirmDrafts` (p1-02), check off list entries whose `foodId` matches a confirmed item.
 - `grocery.hints()`: for each list entry with a `foodId`, look at the user's last purchases of that food. If at least two purchases averaged `fractionWasted` above 0.4, return a hint such as "You threw out about half your spinach the last 3 times. Get the small bag?"
 
+### Real prices for items without a receipt price
+
+Added 2026-10-24. Dollars wasted (p1-03 stats, Wrapped Waste in p3) uses `items.priceCents`, which only receipt items have. Manual adds and takeout leftovers have no price, so their waste counts in pounds but not dollars.
+
+Apify has grocery price scrapers: [Instacart Scraper](https://apify.com/piotrv1001/instacart-scraper) (many US chains through Instacart, listed from $5.00 per 1,000 products) and [Kroger Scraper](https://apify.com/getascraper/kroger-scraper) (price, unit price, and stock per store, from $3.30 per 1,000 products). Both are small community actors; test them on a few products before building on them.
+
+Backend sketch:
+
+1. When an item is created without `priceCents`, schedule an action that searches one store for the food's name and saves the median unit price as `estimatedPriceCents`, marked as an estimate.
+2. Cache prices per food and ZIP code for a week, since prices vary by location and change slowly.
+3. Waste stats use `priceCents` when present and `estimatedPriceCents` otherwise, and the UI marks the estimated part ("about $4, estimated").
+
+The same price data could feed the grocery-list hints ("the small bag is $2 less").
+
 ### Location-based reminders
 
 Ping users when they are eating out ("you have X food left") and at the grocery store ("what would go well with what's left").
@@ -66,9 +80,10 @@ This is small and reuses everything. It is a candidate to pull into P1 if there 
 
 1. Takeout leftovers (smallest, reuses P1)
 2. Grocery list and hints
-3. `userStats` and streaks
-4. Friends and leaderboard
-5. Location reminders, after the option above is chosen
+3. Estimated prices for unpriced items, after the leftovers and grocery list exist to use them
+4. `userStats` and streaks
+5. Friends and leaderboard
+6. Location reminders, after the option above is chosen
 
 ## Decision log
 

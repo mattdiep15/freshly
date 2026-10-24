@@ -1,13 +1,13 @@
 # P1-05: Sponsor tracks (Apify, Gemini, GoDaddy)
 
-Tier: P1 (the hackathon judges these tracks). Estimate: 8 to 10 hours for one engineer, split into four parts that can ship one at a time. Depends on p1-02. Status: draft. Open questions 8 and 9 in the README must be answered before part B or C starts.
+Tier: P1 (the hackathon judges these tracks). Depends on p1-02. Status: parts A and B built; part C moved to p3; part D (domain) not started.
 
 ## Purpose
 
 `docs/design_tracks.pdf` lists the tracks the team is entering: Apify, Gemini, Convex, GoDaddy, People-First Social Impact, Best Planet-First Hack, and Figma Best Design. This plan puts each sponsor technology where it does real work in Freshly:
 
-- Apify fetches web pages: shelf-life guidance for foods the FDA chart and FoodKeeper do not cover, and real recipes for items about to expire.
-- Gemini reads what Apify fetches and reads receipts: it extracts the shelf-life sentence from a page, parses receipt photos, and ranks recipes.
+- Apify fetches web pages: shelf-life guidance for packaged foods the FDA chart and FoodKeeper do not cover. Recipes, store prices, and recall alerts are planned for P2 and P3.
+- Gemini reads what Apify fetches and checks receipts: it extracts the shelf-life passage from a page and reads each receipt's store, date, and total a second time.
 - GoDaddy holds the project's domain.
 
 The tracks doc puts it as "apify gets data, gemini interprets it". This plan keeps that split.
@@ -16,8 +16,8 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 | Track | Where it fits | Plan |
 | --- | --- | --- |
-| Apify | Web shelf-life lookup (part B), recipe search (part C) | This plan |
-| Gemini | Receipt parsing, manual-add matching, tip backfill (part A); shelf-life extraction (B); recipe ranking (C) | This plan |
+| Apify | Web shelf-life lookup (part B); later, recipes and recall alerts (p3) and store prices (p2) | This plan, p2, p3 |
+| Gemini | Receipt header check (part A); shelf-life extraction (B); later, recipe ranking (p3) | This plan, p3 |
 | Convex | Already the backend: file storage for receipt photos, actions that call Gemini and Apify, the scheduler that runs lookups after a parse | p1-01, p1-02, this plan |
 | GoDaddy | Domain for the Vercel deployment (part D) | This plan |
 | People-First Social Impact | Food safety for students: sourced dates, storage tips, "looks spoiled?" card | p1-02, p1-03; pitch only |
@@ -28,7 +28,7 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 - Every model call goes through `askJson` in `convex/model/claude.ts`. It has three callers: `receiptsNode.parse`, `receiptsNode.addManual`, and `foods.backfillTips`. Switching providers means changing one helper and its content blocks, not three features.
 - `foods` rows carry shelf-life ranges as `{ min, max, source, ref }`. `source` is `fda_chart` or `foodkeeper`. Of the 704 reference rows, 43 have no range at all (for example sour cream, pudding, soda, boxed juice). Every food Claude creates from a receipt line (for example `energy drink`, `instant noodles`) also has none. Those are the foods part B targets.
-- `CLAUDE.md` allows shelf-life numbers only from the FDA chart or FoodKeeper. Part B adds a third source, so it needs the rule change in open question 8 first.
+- `CLAUDE.md` allowed shelf-life numbers only from the FDA chart or FoodKeeper. Part B adds `web` as a third source for packaged foods (open question 8, answered).
 - Store product pages (Costco, Trader Joe's, Safeway) do not list shelf life or expiry dates, because the printed date differs per package. Apify scrapers for those stores return name, brand, price, and specs only. See the Decision log.
 
 ## Part A: Gemini as the model provider (about 3 hours)
@@ -47,32 +47,26 @@ Changed the same day, after the live check (see Decision log): Claude is the def
 
 `GEMINI_API_KEY` is optional. Without it every receipt parses with Claude and the check is skipped.
 
-## Part B: Web shelf-life lookup with Apify and Gemini (about 3 to 4 hours)
+## Part B: Web shelf-life lookup with Apify and Gemini (built 2026-10-24)
 
-Runs only for a food with no FDA or FoodKeeper range, once per food, never per item.
+Leo answered open question 8 on 2026-10-24: packaged foods may take web figures, stored as their own source next to FDA and FoodKeeper. `CLAUDE.md` now says so.
 
-1. After `saveParsed` or `addManual` creates or uses such a food, schedule the internal action `shelfLifeWeb.lookup({ foodId })`. It sets `foods.webLookupAt` so a food is looked up once.
-2. The action calls the official `apify/rag-web-browser` actor through Apify's `run-sync-get-dataset-items` REST endpoint with `fetch` (no new library). Input: `query` set to `"<food name>" shelf life refrigerator`, `maxResults: 3`, `outputFormats: ["markdown"]`. The API token goes in `APIFY_TOKEN` on each Convex deployment (`npx convex env set APIFY_TOKEN <token>` from `web/`). The Apify user ID is not needed.
-3. Drop results whose URL is not on an allowlist: `stilltasty.com`, `fsis.usda.gov`, `fda.gov`, `foodsafety.gov`, and university extension sites (`.edu`).
-4. Send the remaining pages to Gemini with a schema that returns, per location: `minDays`, `maxDays`, `basis` (`from_purchase`, `unopened`, or `after_opening`), the `url`, and a verbatim `quote` of the sentence the numbers came from.
-5. Reject any answer whose `quote` does not appear word for word in that page's markdown. This keeps the model from inventing a number.
-6. Save what passes:
-   - `basis: "from_purchase"`, or `unopened` on a food without a printed date (`hasPrintedDate: false`, such as deli or bakery items): store as a range with `source: "web"` and `ref: "<url> > <quote>"`. `expiryFor` then dates new items at purchase plus `min`, like every other range.
-   - `basis: "after_opening"`, or any basis on a food with `hasPrintedDate: true`: store as a storage tip with source `web` ("Once opened, use within 5 to 7 days."). Do not date the item from it. The item keeps `checkLabel: true`, and the printed date stays the user's job.
-7. Existing undated items of that food get a date only while they are still `draft`. Confirmed items are left alone, so a date never appears silently on something the user already reviewed.
-8. The UI labels web values "Estimate from <site>", next to the FDA and FoodKeeper labels.
-   Verify: for `energy drink`, `sour cream`, and `instant noodles`, the lookup either stores a range or tip with a URL and quote that match the page, or stores nothing. No `fda_chart` or `foodkeeper` range changes. A lookup with no `APIFY_TOKEN` fails quietly and leaves the food undated.
+Runs only for a packaged food (`hasPrintedDate: true`) with no FDA or FoodKeeper range in any location (`needsWebLookup` in `lib/webShelfLife.ts`), once per food, never per item.
 
-Cost and speed: `apify/rag-web-browser` is listed at $1.33 per 1,000 fetched pages and takes about 16 to 30 seconds per query. The lookup runs in the background after a parse, so the review screen does not wait for it. Gemini fills in the date while the user is still reviewing.
+1. `saveResult` (receipt parse) and `itemEdits.insertManual` call `scheduleWebLookup`, which starts `shelfLifeWeb.lookupNext` when any of their foods qualifies. `lookupNext` claims one food at a time with `claimNext` (it sets `foods.webLookupAt`, so a food is searched once and two chains never search the same food), then schedules itself for the next one. Run `npx convex run shelfLifeWeb:lookupNext` to backfill existing foods.
+2. Search: the official `apify/rag-web-browser` actor through `run-sync-get-dataset-items` with `fetch` (no new library), query `"<food name> site:stilltasty.com"`, `maxResults: 5`, `scrapingTool: "raw-http"`, 2 GB per run. Token in `APIFY_TOKEN` (`npx convex env set APIFY_TOKEN <token>` from `web/`; the Apify user ID is not needed). Without the token the lookup logs and does nothing.
+3. Only pages on the allowlist reach the model: `stilltasty.com`, `usda.gov`, `fda.gov`, `foodsafety.gov`, and their subdomains (`allowedSite`).
+4. Extraction: Gemini reads the pages with `WEB_SHELF_LIFE_SCHEMA` and returns, per figure, `location`, `basis` (`unopened`, `after_opening`, `past_printed_date`, or `from_purchase`), `minDays`, `maxDays`, `url`, and a `quote` copied from the page. If Gemini fails (429, 503, no key), Claude does the same call.
+5. `pickWebRanges` drops a figure whose page is not one of the fetched pages, whose site is not allowlisted, whose quote is not on the page word for word (`quoteOnPage`, ignoring markdown, image markup, case, and line breaks), or whose numbers are out of range. Per location it keeps a sealed figure over an after-opening one, and the shortest of those.
+6. `saveRanges` stores each range with `source: "web"` and `ref: "<url> > <basis> > \"<quote>\""`. It fills only empty locations and never touches an FDA or FoodKeeper range. It then dates this food's undated `draft` and `active` items with `expiryFor` (`expirySource: "web"`). An item with a date already, including one the user typed, keeps it.
+7. The item keeps `checkLabel: true`, so the review screen still asks for the printed date. The UI labels web dates "Estimate from <site>" (frontend work, not built).
+   Verify: on a local deployment, sour cream (FoodKeeper has no range) got fridge 7 to 14 days from the StillTasty page "SOUR CREAM - UNOPENED PACKAGE", quoting "Sour cream will generally keep for one to two weeks after the \"sell-by\" date on the package". A manual add of "shin ramyun instant noodle cup" created the packaged food `instant noodle cup` and started a lookup on its own; StillTasty only returned soup-mix and noodles-and-sauce-mix pages, and the model returned no figure, so the item stays undated. `saveRanges` dated an undated `active` item at purchase plus `min` and did not overwrite on a second call.
 
-## Part C: Recipes for use-soon items (about 2 to 3 hours)
+Cost and speed: `apify/rag-web-browser` is listed at $1.33 per 1,000 fetched pages; one lookup took 10 to 90 seconds. It runs in the background, so the review screen does not wait for it.
 
-This moves the recipe feature from p3 into P1 because it uses both sponsors. It replaces the LLM-generated approach in p3.
+## Part C: Recipes for use-soon items (moved to p3)
 
-1. Action `recipes.suggest()` takes the user's `items.useSoon` (from p1-03), picks the two or three items expiring first, and runs `apify/rag-web-browser` with a query like `recipe ground beef spinach`, `maxResults: 5`.
-2. Gemini reads the pages and returns up to 3 recipes: title, source URL, the expiring items each one uses, and a one-line reason. It may only return recipes from the fetched pages, with their real URLs.
-3. Cache the result per user per day in a `recipeSuggestions` table, so opening the screen does not start a new Apify run.
-   Verify: with the demo seed, `recipes.suggest` returns recipes whose URLs open real recipe pages that mention at least one of the user's expiring items.
+Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the backend sketch. The team is finishing P1 first, and recipes are P3 in the spec. Two other Apify ideas went the same way: estimated store prices for unpriced items (p2) and food recall alerts (p3).
 
 ## Part D: GoDaddy domain (about 30 minutes, needs a human)
 
@@ -84,8 +78,8 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 ## Progress
 
 - [x] Part A (2026-10-24: Gemini provider built and scored, see Surprises; then Claude made the default again, with Gemini as the header verifier and the receipt date guard)
-- [ ] Part B
-- [ ] Part C
+- [x] Part B (2026-10-24: web ranges for packaged foods; see Part B and Surprises)
+- [ ] Part C, moved to p3 (2026-10-24)
 - [ ] Part D
 
 ## Validation
@@ -105,6 +99,7 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 - 2026-10-24: The Gemini branch retries 429 and 5xx responses three times with backoff (4, 8, and 16 seconds). Claude's branch already had server-side fallback, and Gemini has no equivalent.
 
 - 2026-10-24: Claude stays the main receipt parser and Gemini verifies the header, decided by Leo. Gemini matched fewer foods (30 of 36 against 33), misread a year once, and the team may not get a paid Gemini key. The free tier's 20 requests a day covers one header check per receipt for a demo. Free-tier prompts may be used by Google to improve its products, so the full receipt photo goes to Gemini only on test receipts until there is a paid key or the photo is cropped to its header.
+- 2026-10-24: Recipes (part C), estimated store prices, and recall alerts are P2 and P3 work, decided by Leo so the team finishes P1 first. They are written up in `p2-social-and-shopping.md` and `p3-integrations.md`.
 - 2026-10-24: A header mismatch only flags the receipt. Correcting the date is the user's call on the review screen, through `receipts.setPurchasedAt({ receiptId, purchasedAt })` (test route `GET /api/receipts/set-purchased-at?id=&date=2026-10-15`). It re-dates every draft with `expiryFor` from its sourced range, keeps an `expiresAt` the user typed (`expirySource: "user"`), clears `implausible_date` and `date_mismatch`, and rejects a date in the future. Confirmed items keep their dates.
 
 ## Surprises
@@ -115,6 +110,11 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 - 2026-10-24: The test key is on Gemini's free tier, which allows 20 `gemini-3.8-flash` requests per day. Six parses, a few manual adds, and six `backfillTips` batches used all of them, and every later call failed with 429 for about 20 hours. A demo needs a billed key. The retry loop also retries this daily-quota 429, which cannot succeed.
 - 2026-10-24: `gemini-3.5-flash-lite` answers a manual add in 1 to 2 seconds, but it created new foods for "sriracha mayo" and "ube cheesecake" instead of matching existing rows. The default stays `gemini-3.8-flash`.
 - 2026-10-24: `manualSystemPrompt` and `receiptSystemPrompt` worked on Gemini unchanged, and so did the JSON schemas (`anyOf` with `null`, `additionalProperties: false`, `format: "date"`).
+
+- 2026-10-24: Searching every allowed site at once (`site:a OR site:b ...`) and `site:edu` returned mostly unusable pages, and `.edu` results included SEO spam hosted on university subdomains (a "sriracha mayo" product listing on a `columbia.edu` sandbox). `.edu` is off the allowlist and the query targets StillTasty, which has a page per packaged food.
+- 2026-10-24: StillTasty pages are laid out as heading, location, figure ("SOUR CREAM - UNOPENED PACKAGE / Refrigerator / 10-14 days after date on package") with image markup between them, so the quote check drops image and link markup before comparing.
+- 2026-10-24: Apify caps all of an account's runs at 16 GB, and `rag-web-browser` defaults to a large share, so three runs at once failed with `actor-memory-limit-exceeded`. Runs now ask for 2 GB.
+- 2026-10-24: Of 6 local candidates, 2 got a range (sour cream; pudding, from StillTasty's homemade-pudding page, which the prompt asks the model to skip but which is shorter than a commercial pudding cup). Oat milk, tteokbokki rice cakes, sriracha mayo, and ube cheesecake have no StillTasty page and stay undated. The same query can return different pages on different runs.
 
 ## Open questions
 
