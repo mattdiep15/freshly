@@ -1,6 +1,5 @@
-import type { Doc } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
-import { groceryKey } from "../lib/grocery";
 import { DEMO_EMAIL } from "./model/auth";
 import { importReferenceFoods } from "./model/foods";
 
@@ -47,9 +46,6 @@ const ITEMS: SeedItem[] = [
   { food: "commercial bread products, including pan breads, flat breads, rolls, and buns", name: "Sourdough bread", location: "pantry", priceCents: 599, weightGrams: 680, status: "wasted", daysLeft: -1, resolvedDaysAgo: 1, fractionWasted: 0.25 },
 ];
 
-// Top of the list first. Greek yogurt is wasted in ITEMS and eggs are active, so those rows show both hint kinds.
-const GROCERY = ["eggs", "greek yogurt", "oat milk", "salmon", "rice", "garlic", "soy sauce"];
-
 // Resets the demo user's fridge; safe to run before every demo.
 export async function seedDemo(ctx: MutationCtx) {
   const foodCount = (await ctx.db.query("foods").take(1)).length;
@@ -75,7 +71,6 @@ export async function seedDemo(ctx: MutationCtx) {
     ...(await ctx.db.query("items").withIndex("by_user_status", (q) => q.eq("userId", userId)).collect()),
     ...(await ctx.db.query("notifications").withIndex("by_user_date", (q) => q.eq("userId", userId)).collect()),
     ...(await ctx.db.query("foodFamiliarity").withIndex("by_user_food", (q) => q.eq("userId", userId)).collect()),
-    ...(await ctx.db.query("groceryItems").withIndex("by_user_added", (q) => q.eq("userId", userId)).collect()),
   ];
   for (const row of stale) await ctx.db.delete(row._id);
   for (const receipt of await ctx.db.query("receipts").withIndex("by_user", (q) => q.eq("userId", userId)).collect()) {
@@ -118,10 +113,22 @@ export async function seedDemo(ctx: MutationCtx) {
       await ctx.db.insert("items", dated);
     }
   }
-  for (const [index, name] of GROCERY.entries()) {
-    await ctx.db.insert("groceryItems", { userId, name, key: groceryKey(name), completed: false, addedAt: now - index });
-  }
+  await seedGrocery(ctx, userId);
   return { userId, email: user?.email, items: ITEMS.length, reference };
+}
+
+// p2-02's demo list: spinach matches a food, so a scan or manual add of spinach checks it off.
+async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
+  for (const entry of await ctx.db.query("groceryItems").withIndex("by_user", (q) => q.eq("userId", userId)).collect()) {
+    await ctx.db.delete(entry._id);
+  }
+  for (const name of ["spinach", "oat milk", "bananas"]) {
+    const food = await ctx.db
+      .query("foods")
+      .withIndex("by_name", (q) => q.eq("name", name))
+      .unique();
+    await ctx.db.insert("groceryItems", { userId, name, foodId: food?._id });
+  }
 }
 
 function rangeFor(food: Doc<"foods">, location: Loc) {

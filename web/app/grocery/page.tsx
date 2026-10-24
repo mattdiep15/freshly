@@ -21,17 +21,18 @@ type HintContext = Parameters<typeof groceryHint>[1];
 const ignoreFailure = () => {};
 
 function GroceryRow({ row, hints, onToggle }: { row: Row; hints: HintContext; onToggle: () => void }) {
-  const hint = row.completed ? null : groceryHint(row.name, hints);
+  const checked = row.checkedAt !== undefined;
+  const hint = checked ? null : groceryHint(row.name, hints);
   return (
-    <div className={`grocery-row ${row.completed ? "is-completed" : ""}`}>
+    <div className={`grocery-row ${checked ? "is-completed" : ""}`}>
       <button
         type="button"
         className="grocery-check"
-        aria-label={`${row.completed ? "Restore" : "Complete"} ${row.name}`}
-        aria-pressed={row.completed}
+        aria-label={`${checked ? "Restore" : "Complete"} ${row.name}`}
+        aria-pressed={checked}
         onClick={onToggle}
       >
-        <span>{row.completed ? "✓" : ""}</span>
+        <span>{checked ? "✓" : ""}</span>
       </button>
       <FoodArt name={row.name} className="grocery-icon" />
       <span className="grocery-copy">
@@ -125,8 +126,8 @@ export default function GroceryPage() {
   const rows = useQuery(api.grocery.list);
   const active = useQuery(api.items.list, { status: "active" });
   const wasted = useQuery(api.items.list, { status: "wasted" });
-  const setCompleted = useMutation(api.grocery.setCompleted);
-  const clearCompleted = useMutation(api.grocery.clearCompleted);
+  const toggleEntry = useMutation(api.grocery.toggle);
+  const clearChecked = useMutation(api.grocery.clearChecked);
   const [showCompleted, setShowCompleted] = useState(false);
 
   const heading = (
@@ -151,10 +152,10 @@ export default function GroceryPage() {
     fridge: active.map((item) => ({ name: item.name, quantity: item.quantity })),
     soonNames: active.filter((item) => freshness(item.expiresAt, now) === "soon").map((item) => item.name),
   };
-  const toggle = (row: Row) => () =>
-    setCompleted({ groceryItemId: row._id, completed: !row.completed }).catch(ignoreFailure);
-  const todo = rows.filter((row) => !row.completed);
-  const done = rows.filter((row) => row.completed);
+  const toggle = (row: Row) => () => toggleEntry({ entryId: row._id }).catch(ignoreFailure);
+  // Newest first, as the design adds to the top; checked ones by most recent check.
+  const todo = rows.filter((row) => row.checkedAt === undefined).sort((a, b) => b._creationTime - a._creationTime);
+  const done = rows.filter((row) => row.checkedAt !== undefined).sort((a, b) => (b.checkedAt ?? 0) - (a.checkedAt ?? 0));
 
   return (
     <main className="grocery-page">
@@ -178,7 +179,7 @@ export default function GroceryPage() {
                 <button type="button" onClick={() => setShowCompleted((open) => !open)} aria-expanded={showCompleted}>
                   got it {done.length} <span aria-hidden="true">{showCompleted ? "−" : "+"}</span>
                 </button>
-                <button type="button" onClick={() => clearCompleted().catch(ignoreFailure)}>
+                <button type="button" onClick={() => clearChecked().catch(ignoreFailure)}>
                   clear
                 </button>
               </div>

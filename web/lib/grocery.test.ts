@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { groceryHint, groceryKey } from "./grocery";
+import { entriesToCheckOff, groceryHint, groceryKey } from "./grocery";
 
 describe("groceryKey", () => {
   it("ignores case and extra spaces", () => {
@@ -38,5 +38,30 @@ describe("groceryHint", () => {
 
   it("has no hint for an unknown food", () => {
     expect(groceryHint("dragonfruit", none)).toBeNull();
+  });
+});
+
+describe("entriesToCheckOff", () => {
+  const spinach = { _id: "e1", name: "spinach", foodId: "f-spinach" };
+
+  it("matches on foodId when both have one", () => {
+    expect(entriesToCheckOff([spinach], [{ name: "Baby spinach", foodId: "f-spinach" }])).toEqual(["e1"]);
+  });
+
+  it("matches on name when the entry has no foodId", () => {
+    expect(entriesToCheckOff([{ _id: "e2", name: "Oat milk " }], [{ name: "oat milk", foodId: "f-oat" }])).toEqual(["e2"]);
+  });
+
+  it("does not match different foods with similar names", () => {
+    expect(entriesToCheckOff([spinach], [{ name: "spinach", foodId: "f-frozen-spinach" }])).toEqual([]);
+  });
+
+  it("skips entries already checked", () => {
+    expect(entriesToCheckOff([{ ...spinach, checkedAt: 1 }], [{ name: "spinach", foodId: "f-spinach" }])).toEqual([]);
+  });
+
+  it("checks off every entry for the same food", () => {
+    const twice = [spinach, { ...spinach, _id: "e3" }];
+    expect(entriesToCheckOff(twice, [{ name: "spinach", foodId: "f-spinach" }])).toEqual(["e1", "e3"]);
   });
 });

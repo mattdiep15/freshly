@@ -48,7 +48,7 @@ function NumbersView() {
 }
 
 function FriendsView() {
-  // TODO(release): leaderboard is P2 (p2-social-and-shopping); this is demo data only.
+  // TODO(release): leaderboard is P2 (p2-03-community-and-streaks); this is demo data only.
   return (
     <div className="friends-page">
       <section className="community-section-heading heading-with-action friends-heading">

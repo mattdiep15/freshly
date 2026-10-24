@@ -100,16 +100,14 @@ export default defineSchema({
     .index("by_status_expires", ["status", "expiresAt"])
     .index("by_receipt", ["receiptId"]),
 
+  // Shape from docs/exec-plans/p2-01-schema.md.
   groceryItems: defineTable({
     userId: v.id("users"),
-    name: v.string(), // as typed, whitespace collapsed
-    key: v.string(), // lib/grocery groceryKey(name), so re-adding a name finds its row
-    completed: v.boolean(),
-    addedAt: v.number(), // list order, newest first; re-adding bumps it
-  })
-    .index("by_user_added", ["userId", "addedAt"])
-    .index("by_user_key", ["userId", "key"])
-    .index("by_user_completed", ["userId", "completed"]),
+    name: v.string(),
+    foodId: v.optional(v.id("foods")), // set when the name matches a food, so a scanned receipt can check it off
+    checkedAt: v.optional(v.number()), // absent while unchecked
+    checkedBy: v.optional(v.union(v.literal("user"), v.literal("receipt"))),
+  }).index("by_user", ["userId"]),
 
   foodFamiliarity: defineTable({
     userId: v.id("users"),

@@ -21,6 +21,7 @@ import type * as model_auth from "../model/auth.js";
 import type * as model_claude from "../model/claude.js";
 import type * as model_foods from "../model/foods.js";
 import type * as model_gemini from "../model/gemini.js";
+import type * as model_grocery from "../model/grocery.js";
 import type * as model_llm from "../model/llm.js";
 import type * as notifications from "../notifications.js";
 import type * as profiles from "../profiles.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   "model/claude": typeof model_claude;
   "model/foods": typeof model_foods;
   "model/gemini": typeof model_gemini;
+  "model/grocery": typeof model_grocery;
   "model/llm": typeof model_llm;
   notifications: typeof notifications;
   profiles: typeof profiles;
