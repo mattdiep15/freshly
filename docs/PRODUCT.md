@@ -82,9 +82,10 @@ Categories: edtech, sustainability, food waste, food safety.
 ## Hackathon tracks
 
 From `design_tracks.pdf`: Apify, Gemini, Convex, GoDaddy, People-First Social Impact, Best
-Planet-First Hack, and Figma Best Design. Apify fetches web data (shelf-life pages for
-foods with no FDA or FoodKeeper entry, and recipes), Gemini reads receipts and interprets
-what Apify fetches, Convex runs the backend, and GoDaddy holds the domain. The design team
+Planet-First Hack, and Figma Best Design. Apify fetches shelf-life pages for packaged
+foods with no FDA or FoodKeeper entry, Gemini checks receipts and interprets what Apify
+fetches, Convex runs the backend, and GoDaddy holds the domain. Later Apify uses (recipes,
+recall alerts, store prices) are planned in the P2 and P3 exec plans. The design team
 owns the Figma track, including a mascot. Where each one lands in the plans:
 `docs/exec-plans/p1-05-sponsor-tracks.md`.
 

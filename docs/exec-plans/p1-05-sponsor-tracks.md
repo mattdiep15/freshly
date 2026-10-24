@@ -1,13 +1,13 @@
 # P1-05: Sponsor tracks (Apify, Gemini, GoDaddy)
 
-Tier: P1 (the hackathon judges these tracks). Estimate: 8 to 10 hours for one engineer, split into four parts that can ship one at a time. Depends on p1-02. Status: draft. Open questions 8 and 9 in the README must be answered before part B or C starts.
+Tier: P1 (the hackathon judges these tracks). Depends on p1-02. Status: parts A and B built; part C moved to p3; part D (domain) not started.
 
 ## Purpose
 
 `docs/design_tracks.pdf` lists the tracks the team is entering: Apify, Gemini, Convex, GoDaddy, People-First Social Impact, Best Planet-First Hack, and Figma Best Design. This plan puts each sponsor technology where it does real work in Freshly:
 
-- Apify fetches web pages: shelf-life guidance for foods the FDA chart and FoodKeeper do not cover, and real recipes for items about to expire.
-- Gemini reads what Apify fetches and reads receipts: it extracts the shelf-life sentence from a page, parses receipt photos, and ranks recipes.
+- Apify fetches web pages: shelf-life guidance for packaged foods the FDA chart and FoodKeeper do not cover. Recipes, store prices, and recall alerts are planned for P2 and P3.
+- Gemini reads what Apify fetches and checks receipts: it extracts the shelf-life passage from a page and reads each receipt's store, date, and total a second time.
 - GoDaddy holds the project's domain.
 
 The tracks doc puts it as "apify gets data, gemini interprets it". This plan keeps that split.
@@ -16,8 +16,8 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 | Track | Where it fits | Plan |
 | --- | --- | --- |
-| Apify | Web shelf-life lookup (part B), recipe search (part C) | This plan |
-| Gemini | Receipt parsing, manual-add matching, tip backfill (part A); shelf-life extraction (B); recipe ranking (C) | This plan |
+| Apify | Web shelf-life lookup (part B); later, recipes and recall alerts (p3) and store prices (p2) | This plan, p2, p3 |
+| Gemini | Receipt header check (part A); shelf-life extraction (B); later, recipe ranking (p3) | This plan, p3 |
 | Convex | Already the backend: file storage for receipt photos, actions that call Gemini and Apify, the scheduler that runs lookups after a parse | p1-01, p1-02, this plan |
 | GoDaddy | Domain for the Vercel deployment (part D) | This plan |
 | People-First Social Impact | Food safety for students: sourced dates, storage tips, "looks spoiled?" card | p1-02, p1-03; pitch only |
@@ -64,14 +64,9 @@ Runs only for a packaged food (`hasPrintedDate: true`) with no FDA or FoodKeeper
 
 Cost and speed: `apify/rag-web-browser` is listed at $1.33 per 1,000 fetched pages; one lookup took 10 to 90 seconds. It runs in the background, so the review screen does not wait for it.
 
-## Part C: Recipes for use-soon items (about 2 to 3 hours)
+## Part C: Recipes for use-soon items (moved to p3)
 
-This moves the recipe feature from p3 into P1 because it uses both sponsors. It replaces the LLM-generated approach in p3.
-
-1. Action `recipes.suggest()` takes the user's `items.useSoon` (from p1-03), picks the two or three items expiring first, and runs `apify/rag-web-browser` with a query like `recipe ground beef spinach`, `maxResults: 5`.
-2. Gemini reads the pages and returns up to 3 recipes: title, source URL, the expiring items each one uses, and a one-line reason. It may only return recipes from the fetched pages, with their real URLs.
-3. Cache the result per user per day in a `recipeSuggestions` table, so opening the screen does not start a new Apify run.
-   Verify: with the demo seed, `recipes.suggest` returns recipes whose URLs open real recipe pages that mention at least one of the user's expiring items.
+Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the backend sketch. The team is finishing P1 first, and recipes are P3 in the spec. Two other Apify ideas went the same way: estimated store prices for unpriced items (p2) and food recall alerts (p3).
 
 ## Part D: GoDaddy domain (about 30 minutes, needs a human)
 
@@ -84,7 +79,7 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 
 - [x] Part A (2026-10-24: Gemini provider built and scored, see Surprises; then Claude made the default again, with Gemini as the header verifier and the receipt date guard)
 - [x] Part B (2026-10-24: web ranges for packaged foods; see Part B and Surprises)
-- [ ] Part C
+- [ ] Part C, moved to p3 (2026-10-24)
 - [ ] Part D
 
 ## Validation
@@ -104,6 +99,7 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 - 2026-10-24: The Gemini branch retries 429 and 5xx responses three times with backoff (4, 8, and 16 seconds). Claude's branch already had server-side fallback, and Gemini has no equivalent.
 
 - 2026-10-24: Claude stays the main receipt parser and Gemini verifies the header, decided by Leo. Gemini matched fewer foods (30 of 36 against 33), misread a year once, and the team may not get a paid Gemini key. The free tier's 20 requests a day covers one header check per receipt for a demo. Free-tier prompts may be used by Google to improve its products, so the full receipt photo goes to Gemini only on test receipts until there is a paid key or the photo is cropped to its header.
+- 2026-10-24: Recipes (part C), estimated store prices, and recall alerts are P2 and P3 work, decided by Leo so the team finishes P1 first. They are written up in `p2-social-and-shopping.md` and `p3-integrations.md`.
 - 2026-10-24: A header mismatch only flags the receipt. Correcting the date is the user's call on the review screen, through `receipts.setPurchasedAt({ receiptId, purchasedAt })` (test route `GET /api/receipts/set-purchased-at?id=&date=2026-10-15`). It re-dates every draft with `expiryFor` from its sourced range, keeps an `expiresAt` the user typed (`expirySource: "user"`), clears `implausible_date` and `date_mismatch`, and rejects a date in the future. Confirmed items keep their dates.
 
 ## Surprises
