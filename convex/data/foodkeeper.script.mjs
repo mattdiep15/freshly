@@ -1,4 +1,4 @@
-// Maps the FSIS FoodKeeper export to convex/data/foodkeeper.json: node scripts/foodkeeper.mjs <foodkeeper.json>
+// Maps the FSIS FoodKeeper export to convex/data/foodkeeper.json: node convex/data/foodkeeper.script.mjs <foodkeeper.json>
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
@@ -133,7 +133,7 @@ export function productsFromExport(json) {
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const json = JSON.parse(readFileSync(process.argv[2], "utf8"));
   const foods = mapProducts(productsFromExport(json));
-  const target = new URL("../convex/data/foodkeeper.json", import.meta.url);
+  const target = new URL("./foodkeeper.json", import.meta.url);
   writeFileSync(target, JSON.stringify(foods, null, 2) + "\n");
   console.log("wrote", foods.length, "foods");
 }

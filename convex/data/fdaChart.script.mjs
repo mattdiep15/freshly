@@ -1,4 +1,4 @@
-// Hand transcription of docs/food_storage_chart.pdf; writes convex/data/fdaChart.json: node scripts/fdaChart.mjs
+// Hand transcription of docs/food_storage_chart.pdf; writes convex/data/fdaChart.json: node convex/data/fdaChart.script.mjs
 import { writeFileSync } from "node:fs";
 
 const D = 1, W = 7, M = 30, Y = 365;
@@ -84,5 +84,5 @@ const out = rows.map(([section, row, name, aliases, category, defaultLocation, f
 
 const names = new Set(out.map((f) => f.name));
 if (names.size !== out.length) throw new Error("duplicate names");
-writeFileSync(new URL("../convex/data/fdaChart.json", import.meta.url), JSON.stringify(out, null, 2) + "\n");
+writeFileSync(new URL("./fdaChart.json", import.meta.url), JSON.stringify(out, null, 2) + "\n");
 console.log("rows", out.length);
