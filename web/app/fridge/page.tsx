@@ -16,7 +16,6 @@ import { FullnessPreview, fullnessLabels } from "@/app/_components/FullnessPrevi
 import { SwipeTakeover, type SwipeResult } from "@/app/_components/SwipeTakeover";
 import { UseSoonSection } from "@/app/_components/UseSoonSection";
 import { Leekly } from "@/app/_components/ui/Leekly";
-import { useDelayedCommit } from "@/app/_components/useDelayedCommit";
 import { useNow } from "@/app/_components/useNow";
 
 const UNDO_WINDOW_MS = 5000;
@@ -72,20 +71,20 @@ function Fridge() {
   const resolve = useMutation(api.items.resolve);
   const extend = useMutation(api.items.extend);
   const update = useMutation(api.itemEdits.update);
+  const reopen = useMutation(api.items.reopen);
   // Session only: the backend does not record which items were extended or put off.
   const [extendedIds, setExtendedIds] = useState<string[]>([]);
   const [checkInIds, setCheckInIds] = useState<string[]>([]);
   const [reviewing, setReviewing] = useState<FridgeRow | null>(null);
   const [quietToast, setQuietToast] = useState<string | null>(null);
+  // The last decision, already saved, while its undo toast shows.
+  const [pending, setPending] = useState<Decision | null>(null);
 
-  const { pending, queue, undo } = useDelayedCommit<Decision>(({ item, result }) => {
-    if (result === "extended") {
-      setExtendedIds((ids) => [...ids, item._id]);
-      extend({ itemId: item._id }).catch(ignoreStale);
-    } else {
-      resolve({ itemId: item._id, outcome: result }).catch(ignoreStale);
-    }
-  }, UNDO_WINDOW_MS);
+  useEffect(() => {
+    if (!pending) return;
+    const hide = window.setTimeout(() => setPending(null), UNDO_WINDOW_MS);
+    return () => window.clearTimeout(hide);
+  }, [pending]);
 
   if (now === null || active === undefined || pendingReviews === undefined || settings === undefined) {
     return <main className="fridge-screen" aria-busy="true" />;
@@ -100,18 +99,29 @@ function Fridge() {
     );
   const items = sortByUrgency(visible, now);
   const stage = fullnessStage(active.length);
-  const shownExtendedIds = [...extendedIds, ...(pending?.result === "extended" ? [pending.item._id] : [])];
 
+  // Saves straight away so a reload or closed tab can't drop the decision; undo reverts it.
   const decide = (item: FridgeRow, result: SwipeResult) => {
     setCheckInIds((ids) => ids.filter((id) => id !== item._id));
     setReviewing(null);
-    queue({ item, result });
+    setPending({ item, result });
+    if (result === "extended") {
+      setExtendedIds((ids) => [...ids, item._id]);
+      extend({ itemId: item._id }).catch(ignoreStale);
+    } else {
+      resolve({ itemId: item._id, outcome: result }).catch(ignoreStale);
+    }
   };
 
   const undoDecision = () => {
-    const decision = undo();
+    if (!pending) return;
+    const { item } = pending;
+    setPending(null);
+    setExtendedIds((ids) => ids.filter((id) => id !== item._id));
+    const status = item.status === "expired" ? "expired" : "active";
+    reopen({ itemId: item._id, status, expiresAt: item.expiresAt }).catch(ignoreStale);
     // Undoing a swipe reopens its card; undoing "mark as used" just restores the item.
-    if (decision && freshness(decision.item.expiresAt, now) === "expired") setReviewing(decision.item);
+    if (freshness(item.expiresAt, now) === "expired") setReviewing(item);
   };
 
   return (
@@ -130,7 +140,7 @@ function Fridge() {
       <FoodList
         items={items}
         now={now}
-        extendedIds={shownExtendedIds}
+        extendedIds={extendedIds}
         checkInIds={checkInIds}
         highlightedIds={highlightedIds}
         onMarkUsed={(item) => decide(item, "used")}
