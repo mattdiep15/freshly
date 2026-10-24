@@ -4,7 +4,7 @@ Tier: P3. Status: draft. Not ready to execute. Most items need a product decisio
 
 ## Purpose
 
-Connect Freshly to the world outside the fridge: local stores and farmers markets, recipe sources, and voice input. Add Wrapped Waste, a shareable summary of a user's food waste over a semester or year. This covers Priority 3 in `docs/PRODUCT.md`.
+Connect Freshly to the world outside the fridge: local stores and farmers markets, recipe sources, and voice input. Add Wrapped Waste, a shareable summary of a user's food waste over a semester or year, and an image-based spoilage model for produce. This covers Priority 3 in `docs/PRODUCT.md`.
 
 ## Features
 
@@ -41,12 +41,25 @@ Backend sketch: one query, `wrapped.summary({ from, to })`, aggregating resolved
 
 Wrapped Waste is cheap once P1 stats exist. It is a good demo closer if the team wants to pull it forward.
 
+### Image-based spoilage prediction for produce
+
+Added in design v2. The same produce can last more or less time depending on its color and condition, so the team wants to train a basic neural net that takes a photo and predicts how long the item has left. It would become the backbone of expiry prediction for produce.
+
+Questions to answer before planning:
+
+1. Data. The model needs produce photos labeled with days until spoiled. Check public datasets first; fresh-versus-rotten classification sets carry no time label. The second swipe card from p1-03 already asks "does your food look spoiled?", so an optional photo on that card would collect labeled examples from real fridges. That needs a privacy note before launch.
+2. Safety. The model's output is a shelf-life number, which `CLAUDE.md` allows only from the FDA chart, FoodKeeper, or the user. See open question 7 in the README. The smallest change that keeps the rule is to let the model place the date inside the sourced range (anywhere from `range.min` to `range.max`) instead of always using `range.min`.
+3. Where it runs. Convex actions are not built for model inference, and the repo has no `infra/`. The options are in-browser inference (for example ONNX Runtime Web or TensorFlow.js) or a hosted model API called from a Convex action. Either one adds a library or a service, which `CLAUDE.md` says to ask about first.
+
+Backend sketch: an action `predictions.produce({ itemId, fileId })` that returns a predicted `expiresAt` clamped to the food's sourced range and stores it with a new `expirySource: "model"`. Adding that value means a schema change in `convex/schema.ts` and a rule change in `CLAUDE.md`.
+
 ## Suggested order
 
 1. Wrapped Waste (no outside dependencies)
 2. Recipe suggestions, LLM approach
 3. Speech input
 4. Store and farmers market connections, after the product questions are answered
+5. Spoilage model, after the data and safety questions are answered. Collecting photos can start earlier, since it only needs the p1-03 second card.
 
 ## Decision log
 

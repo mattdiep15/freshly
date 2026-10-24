@@ -4,9 +4,9 @@ Tier: P1. Estimate: 4 to 5 hours for one engineer. Depends on p1-01. Can run in 
 
 ## Purpose
 
-A user photographs a grocery receipt (or uploads a PDF of one) and gets back a list of fridge items. Each item has an expiry date from sourced shelf-life data, a storage tip, and a freshness hint. The user reviews the list, fixes anything wrong, and confirms. Items with no sourced shelf life come back without a date, and the UI asks the user to set one.
+A user photographs a grocery receipt (or uploads a PDF of one) and gets back a list of fridge items. Each item has an expiry date from sourced shelf-life data, a storage tip, and a freshness hint. The user reviews the list, fixes anything wrong, and confirms. Items with no sourced shelf life come back without a date, and the UI asks the user to set one. A user can also add a single item by typing its name.
 
-This covers "Food spoilage tracker" in `docs/PRODUCT.md` (receipt scan, expiry lookup, storage recommendations for unfamiliar foods) and the freshness hints from "Food reminder system", since those hints live on the same `foods` rows.
+This covers "Food spoilage tracker" in `docs/PRODUCT.md` (receipt scan, manual entry, expiry lookup, storage recommendations for unfamiliar foods) and the freshness hints from "Food reminder system", since those hints live on the same `foods` rows.
 
 ## Context
 
@@ -111,8 +111,8 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
 6. In `convex/items.ts`, add:
    - `confirmDrafts({ receiptId, removeItemIds })`: deletes removed drafts, flips the rest to `active`, increments `foodFamiliarity.timesAdded`.
    - `update({ itemId, name?, quantity?, location?, expiresAt? })`: if `location` changes and `expiresAt` is not given, recompute with `expiryFor`. A user-set `expiresAt` sets `expirySource: "user"`.
-   - `addManual({ name, quantity?, location?, priceCents? })`: a public action that matches one typed name to `foods` with the same Claude prompt (text instead of a file), then inserts an `active` item. This is the demo fallback when receipt parsing misbehaves.
-   Verify: moving ground beef from fridge to freezer pushes its `expiresAt` out by months, and `update` with an `expiresAt` on an undated item makes it show up in `useSoon`.
+   - `addManual({ name, quantity?, location?, priceCents?, expiresAt? })`: a public action that matches one typed name to `foods` with the same Claude prompt (text instead of a file), then inserts an `active` item with `purchasedAt` set to now and `expiresAt` from `expiryFor`. A given `expiresAt` wins and sets `expirySource: "user"`. Design v2 makes manual entry the second input path (P1.5 in the spec), not only a demo fallback, so it needs its own screen next to the scan flow.
+   Verify: moving ground beef from fridge to freezer pushes its `expiresAt` out by months, `update` with an `expiresAt` on an undated item makes it show up in `useSoon`, and `addManual` with "spinach" returns an item with `expirySource: "foodkeeper"`.
 
 7. Add `foods.ackTip({ foodId })` and include `storageTip`, `freshnessHint` (each with its source), and `showTip` in the item shape returned by `items.get` and `items.list`.
    Verify: after three `ackTip` calls on a new food, `items.get` returns `showTip: false`.
@@ -125,7 +125,7 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
    - `GET /api/receipts/get?id=<receiptId>`: returns the receipt and its drafts. Refresh until status is `parsed`.
    - `GET /api/items/confirm-drafts?receiptId=<id>`: confirms all drafts.
    - `GET /api/items/update?id=<itemId>&expiresAt=2026-11-01`: sets a date by hand.
-   - `GET /api/items/add-manual?name=greek%20yogurt`: adds one item.
+   - `GET /api/items/add-manual?name=greek%20yogurt&expiresAt=2026-11-01`: adds one item. `expiresAt` is optional.
    Verify: the full flow works from the browser address bar alone.
 
 ## Interfaces delivered
@@ -157,6 +157,7 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
 - 2026-10-23: The model never supplies shelf-life numbers, per `CLAUDE.md`. Unknown foods get a `foods` row for matching, tips, and hints, but no ranges, and items made from them have no date until the user sets one.
 - 2026-10-23: Accept PDFs as well as images, because one of the team's test receipts is a PDF.
 - 2026-10-23: Familiarity uses a fixed count of 3 tip views. Spaced repetition is deferred.
+- 2026-10-24: Design v2 marks manual entry high priority (P1.5). `addManual` stays in this plan and gains an optional `expiresAt`, so a user adding an undated food can set its date in the same step.
 
 ## Surprises
 
