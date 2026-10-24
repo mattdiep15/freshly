@@ -1,0 +1,336 @@
+.home-intro {
+  position: relative;
+  min-height: 310px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.home-leek-point {
+  position: absolute;
+  right: 0;
+  height: 300px;
+}
+
+.home-intro > .add-button {
+  margin-right: 145px;
+}
+
+.home-mascot {
+  width: 360px;
+  height: 300px;
+  object-fit: contain;
+}
+
+.hero-subtitle {
+  margin-top: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.mobile-task-note {
+  display: none;
+}
+
+.daily-list {
+  border-top: 2px solid var(--ink);
+}
+
+.daily-task {
+  min-height: 125px;
+  display: grid;
+  grid-template-columns: 48px 70px 72px 1fr;
+  gap: 22px;
+  align-items: center;
+  border-bottom: 2px solid var(--ink);
+  cursor: pointer;
+  transition: color 180ms ease;
+}
+
+.daily-task input {
+  position: absolute;
+  opacity: 0;
+}
+
+.task-number {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.task-icon {
+  width: 72px;
+  height: 72px;
+  display: block;
+  object-fit: contain;
+}
+
+.task-copy strong,
+.task-copy small {
+  display: block;
+}
+
+.task-copy strong {
+  font-size: 28px;
+  letter-spacing: 0.06em;
+}
+
+.task-copy small {
+  margin-top: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.daily-task.is-checked {
+  color: var(--good);
+}
+
+.daily-task.is-checked .task-copy strong {
+  text-decoration: line-through;
+}
+
+.quiet-link {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  margin: 28px 0;
+  border: 0;
+  padding: 8px 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+}
+
+.quiet-link span {
+  font-size: 18px;
+  transition: transform 160ms ease;
+}
+
+.quiet-link:hover span {
+  transform: translateX(5px);
+}
+
+.quiet-link.centered {
+  margin: 30px auto;
+}
+
+@media (max-width: 620px) {
+  .home-intro {
+    min-height: 360px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
+  }
+
+  .daily-task {
+    grid-template-columns: 42px 52px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .task-number {
+    display: none;
+  }
+
+  .task-icon {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* Authoritative mobile layout for the Me screen. */
+@media (max-width: 767px) {
+  .app-shell:has(.home-screen) {
+    padding-right: 16px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    padding-left: 16px;
+  }
+
+  .home-screen {
+    min-height: 0;
+  }
+
+  .home-intro {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 24px;
+  }
+
+  .home-intro h1 {
+    font-size: 56px;
+    line-height: 0.96;
+  }
+
+  .hero-subtitle {
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .home-mascot {
+    width: min(300px, 100%);
+    height: auto;
+    display: block;
+    margin: 16px auto;
+    object-fit: contain;
+  }
+
+  .home-intro > .add-button:hover {
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .home-intro > .add-button:active {
+    transform: scale(0.95);
+  }
+
+  .home-intro .add-symbol {
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 0.9;
+  }
+
+  .home-intro .add-label {
+    display: grid;
+    gap: 1px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
+    text-align: center;
+  }
+
+  .daily-list {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .daily-task {
+    min-height: 76px;
+    grid-template-columns: 44px 52px minmax(0, 1fr);
+    gap: 12px;
+    border-bottom: 1px solid var(--ink);
+    padding: 0 16px;
+  }
+
+  .task-icon {
+    width: 48px;
+    height: 48px;
+    justify-self: center;
+  }
+
+  .task-copy {
+    min-width: 0;
+  }
+
+  .desktop-task-note {
+    display: none;
+  }
+
+  .mobile-task-note {
+    display: inline;
+  }
+
+  .daily-task.is-checked {
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .daily-task.is-checked .large-check {
+    border-color: var(--good);
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .daily-task.is-checked .task-copy strong {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 1px;
+  }
+
+  .home-screen > .quiet-link {
+    justify-content: center;
+    margin: 24px auto 0;
+    padding: 0;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Desktop task rows: number, checkbox, artwork, then copy. */
+@media (min-width: 768px) {
+  .home-screen .daily-task {
+    grid-template-columns:
+      48px 16px
+      36px 32px
+      96px 48px
+      minmax(0, 1fr);
+    gap: 0;
+    align-items: center;
+  }
+
+  .home-screen .task-number {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    color: var(--ink);
+    font-size: 18px;
+  }
+
+  .home-screen .large-check {
+    width: 36px;
+    height: 36px;
+    grid-column: 3;
+    grid-row: 1;
+    box-sizing: border-box;
+    justify-self: start;
+    border: 2px solid var(--ink);
+  }
+
+  .home-screen .task-icon {
+    grid-column: 5;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .home-screen .task-copy {
+    min-width: 0;
+    grid-column: 7;
+    grid-row: 1;
+  }
+
+  .home-screen .daily-task.is-checked {
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .home-screen .daily-task.is-checked .large-check {
+    border-color: var(--good);
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .home-screen .daily-task.is-checked .task-copy strong {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+
+  .home-intro > .add-button {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    flex: 0 0 96px;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 50%;
+    padding: 12px;
+    line-height: 1;
+    text-align: center;
+  }
+}

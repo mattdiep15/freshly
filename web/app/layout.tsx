@@ -2,6 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sniglet } from "next/font/google";
 import { SiteHeader } from "@/app/_components/SiteHeader";
 import "./globals.css";
+// Order matters: some rules must load after rules in an earlier file (see the "loads here" comments).
+import "./_styles/fridge.css";
+import "./_styles/friends.css";
+import "./_styles/home.css";
+import "./_styles/scan.css";
+import "./_styles/shell.css";
+import "./_styles/stats.css";
+import "./_styles/swipe.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 
 const bodyFont = DM_Sans({
