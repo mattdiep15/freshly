@@ -580,27 +580,6 @@ h1 {
   display: none;
 }
 
-.stage-toggle {
-  display: flex;
-  gap: 5px;
-  margin-top: 15px;
-}
-
-.stage-toggle button {
-  border: 1px solid var(--ink);
-  padding: 3px 6px;
-  background: var(--paper);
-  cursor: pointer;
-  font-size: 7px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.stage-toggle button.active {
-  background: var(--ink);
-  color: var(--paper);
-}
-
 .detail-line span {
   display: block;
   margin-bottom: 9px;
@@ -833,7 +812,6 @@ h1 {
 
 .parsed-row label {
   display: grid;
-  grid-template-columns: auto 1fr;
   gap: 10px;
   align-items: center;
   font-family: var(--font-body), sans-serif;
@@ -1115,26 +1093,11 @@ h1 {
 }
 
 .swipe-card {
-  width: min(90vw, 680px);
-  min-height: 650px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border: 2px solid var(--ink);
-  padding: 45px;
-  transition:
-    transform 400ms ease,
-    opacity 400ms ease,
-    color 180ms ease,
-    border-color 180ms ease;
-}
-
-.swipe-mascot {
-  width: 120px;
-  height: 240px;
-  margin: -35px 0 -25px;
-  object-fit: contain;
 }
 
 .empty-state {
@@ -1155,13 +1118,6 @@ h1 {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.16em;
-}
-
-.swipe-card > p {
-  margin: 35px 0 10px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
 }
 
 .swipe-food-art {
@@ -1192,7 +1148,6 @@ h1 {
 }
 
 .swipe-card h1 {
-  font-size: 65px;
   text-align: center;
 }
 
@@ -1233,9 +1188,7 @@ h1 {
 
 .swipe-takeover > small {
   margin-top: 20px;
-  font-size: 8px;
   font-weight: 700;
-  letter-spacing: 0.2em;
 }
 
 footer {
@@ -1367,24 +1320,11 @@ footer {
   }
 
   .topbar {
-    height: 66px;
-    flex-wrap: nowrap;
     border-bottom-width: 1px;
     padding: 0;
   }
 
-  .brand {
-    gap: 7px;
-    font-size: 19px;
-  }
-
-  .logo-mark {
-    width: 44px;
-    height: 62px;
-  }
-
   .mobile-page-title {
-    display: block;
     font-size: 8px;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -1399,31 +1339,17 @@ footer {
   }
 
   nav {
-    position: fixed;
-    z-index: 20;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
     height: 68px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    border-top: 1px solid var(--ink);
-    background: var(--paper);
   }
 
   .nav-link {
     min-width: 44px;
-    min-height: 44px;
     padding: 0 6px;
-    font-size: 9px;
     letter-spacing: 0.13em;
   }
 
   .nav-link::after {
     right: 24%;
-    bottom: 13px;
     left: 24%;
     height: 1px;
   }
@@ -1438,15 +1364,6 @@ footer {
   .stats-page,
   .friends-page {
     min-height: calc(100vh - 148px);
-  }
-
-  .home-intro {
-    min-height: 590px;
-  }
-
-  .home-mascot {
-    width: 220px;
-    height: 180px;
   }
 
   .home-intro > .add-button {
@@ -1476,60 +1393,29 @@ footer {
   }
 
   .page-heading {
-    min-height: 610px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
     justify-content: center;
-    gap: 18px;
-    padding: 30px 0 24px;
   }
 
   .fullness-preview {
-    width: 100%;
-    display: block;
     flex-basis: auto;
     text-align: center;
   }
 
   .fullness-art {
-    width: 280px;
-    height: 280px;
     margin: 0 auto;
-  }
-
-  .fullness-stage {
-    width: 650px;
-    height: 650px;
   }
 
   .fridge-title {
     width: 100%;
   }
 
-  .stock-label {
-    margin-top: 8px;
-  }
-
-  .page-heading h1 {
-    max-width: 330px;
-    font-size: 42px;
-    line-height: 0.98;
-  }
-
   .page-heading .item-count {
     display: none;
   }
 
-  .stage-toggle {
-    position: static;
-    margin-top: 12px;
-  }
+  
 
-  .stage-toggle button {
-    min-width: 28px;
-    min-height: 28px;
-  }
+  
 
   .stock-tooltip {
     position: fixed;
@@ -1543,82 +1429,20 @@ footer {
     border-width: 2px;
   }
 
-  .stock-tooltip p {
-    font-size: 10px;
-  }
-
   .food-list {
     border-top-width: 1px;
   }
 
-  .food-card--soon::before,
-  .food-card--fresh::before {
-    width: 16px;
-  }
-
-  .card-summary {
-    min-height: 88px;
-    grid-template-columns: 108px 72px minmax(0, 1fr) auto;
-    gap: 10px;
-    padding: 6px 10px 6px 25px;
-  }
-
-  .food-card--expired .card-summary {
-    padding-left: 10px;
-  }
-
-  .food-icon {
-    width: 72px;
-    height: 72px;
-  }
-
   .card-title {
-    overflow: hidden;
-    font-size: 28px;
     text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .days-left {
-    display: block;
-    font-size: 16px;
-    white-space: nowrap;
-  }
-
-  .expand-mark {
-    display: none;
-  }
-
-  .card-details {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    padding-right: 16px;
-    padding-left: 25px;
-  }
-
-  .food-card.is-expanded .card-details {
-    max-height: 700px;
-    padding-top: 18px;
-    padding-bottom: 18px;
   }
 
   .illustration-slot {
     width: 100%;
-    height: 254px;
-  }
-
-  .expanded-food-icon {
-    width: 220px;
-    height: 220px;
-  }
-
-  .detail-line p {
-    font-size: 18px;
   }
 
   .used-button {
     width: 100%;
-    min-height: 44px;
   }
 
   .add-screen {
@@ -1637,20 +1461,11 @@ footer {
 
   .receipt-options {
     grid-template-columns: 1fr;
-    gap: 12px;
   }
 
   .receipt-choice:first-child {
-    min-height: 310px;
     grid-template-columns: 1fr;
-    gap: 5px;
     border-width: 2px;
-  }
-
-  .scan-mascot {
-    width: 90px;
-    height: 180px;
-    margin: 0 auto;
   }
 
   .receipt-preview {
@@ -1668,9 +1483,6 @@ footer {
   }
 
   .receipt-choice:last-child {
-    min-height: 54px;
-    display: flex;
-    gap: 12px;
     border-style: solid;
   }
 
@@ -1681,7 +1493,6 @@ footer {
 
   .receipt-choice:last-child strong {
     font-family: var(--font-body), sans-serif;
-    font-size: 10px;
     font-weight: 700;
   }
 
@@ -1730,39 +1541,10 @@ footer {
 
   .stats-heading {
     flex-direction: row;
-    gap: 20px;
-  }
-
-  .stats-mascot {
-    width: 50px;
-    height: 100px;
   }
 
   .compact-heading h1 {
     font-size: 46px;
-  }
-
-  .stats-screen {
-    min-height: 0;
-    grid-template-columns: 1fr;
-    gap: 72px;
-    padding-bottom: 38px;
-  }
-
-  .stat-circle {
-    max-width: 240px;
-  }
-
-  .circle-art {
-    width: 200px;
-  }
-
-  .circle-art strong {
-    font-size: 72px;
-  }
-
-  .stat-label {
-    margin-top: 15px;
   }
 
   .thin-list {
@@ -1774,18 +1556,6 @@ footer {
     grid-template-columns: 1fr 90px 85px;
     padding: 0 8px;
     font-size: 14px;
-  }
-
-  .week-list .thin-row {
-    min-height: 48px;
-  }
-
-  .list-labels {
-    font-size: 10px;
-  }
-
-  .friends-list .thin-row strong {
-    font-size: 17px;
   }
 
   .heading-with-action {
@@ -1820,16 +1590,6 @@ footer {
   .swipe-takeover > .eyebrow {
     position: absolute;
     top: 28px;
-  }
-
-  .swipe-card {
-    width: 100%;
-    min-height: 650px;
-    padding: 28px 20px;
-  }
-
-  .swipe-card h1 {
-    font-size: 44px;
   }
 
   .swipe-food-art {
@@ -1886,10 +1646,6 @@ footer {
   transform: translateX(-4px);
 }
 
-.swipe-progress {
-  right: 32px;
-}
-
 .swipe-progress.is-hidden {
   visibility: hidden;
 }
@@ -1935,14 +1691,6 @@ footer {
     justify-self: center;
   }
 
-  .swipe-card--step-2 .swipe-progress {
-    right: 48px;
-    left: auto;
-  }
-
-  .swipe-card--step-2 .swipe-kicker {
-    right: 140px;
-  }
 }
 
 .decision-toast {
@@ -1966,12 +1714,6 @@ footer {
 }
 
 @media (max-width: 767px) {
-  .swipe-back {
-    top: max(16px, env(safe-area-inset-top));
-    left: 16px;
-    height: 44px;
-  }
-
   .swipe-card.swipe-close {
     transform: translateY(110vh);
     opacity: 1;
@@ -1990,28 +1732,7 @@ footer {
 @media (max-width: 767px) {
   .app-shell {
     padding-right: 16px;
-    padding-bottom: calc(76px + env(safe-area-inset-bottom));
     padding-left: 16px;
-  }
-
-  .topbar {
-    height: calc(68px + env(safe-area-inset-top));
-    padding-top: env(safe-area-inset-top);
-  }
-
-  .brand {
-    gap: 9px;
-    min-height: 44px;
-    font-size: 24px;
-  }
-
-  .brand > span:last-child {
-    font-size: 24px;
-  }
-
-  .logo-mark {
-    width: 24px;
-    height: 40px;
   }
 
   .mobile-page-title {
@@ -2019,7 +1740,6 @@ footer {
   }
 
   nav {
-    height: calc(56px + env(safe-area-inset-bottom));
     padding-bottom: env(safe-area-inset-bottom);
   }
 
@@ -2030,27 +1750,6 @@ footer {
 
   .nav-link::after {
     bottom: 7px;
-  }
-
-  .page-heading {
-    min-height: 0;
-    gap: 8px;
-    padding: 8px 0 24px;
-  }
-
-  .fullness-preview {
-    order: 1;
-    margin: 8px 0;
-  }
-
-  .fullness-art {
-    width: 260px;
-    height: 260px;
-  }
-
-  .fullness-stage {
-    width: 620px;
-    height: 620px;
   }
 
   .fridge-title {
@@ -2065,17 +1764,9 @@ footer {
     text-align: center;
   }
 
-  .stage-toggle {
-    order: 3;
-    align-self: center;
-    margin: 0 0 16px;
-  }
+  
 
-  .stage-toggle button {
-    min-width: 44px;
-    min-height: 44px;
-    font-size: 11px;
-  }
+  
 
   .page-heading .eyebrow {
     order: 4;
@@ -2085,9 +1776,7 @@ footer {
 
   .page-heading h1 {
     order: 5;
-    max-width: 340px;
     margin: 0;
-    font-size: 40px;
     line-height: 0.98;
   }
 
@@ -2097,9 +1786,6 @@ footer {
   }
 
   .card-summary {
-    min-height: 84px;
-    grid-template-columns: 64px minmax(0, 1fr) 44px;
-    gap: 10px;
     padding: 0 4px 0 16px;
     overflow: visible;
   }
@@ -2111,8 +1797,6 @@ footer {
   .food-icon {
     grid-column: 1;
     grid-row: 1;
-    width: 56px;
-    height: 56px;
     justify-self: center;
     opacity: 1;
   }
@@ -2127,36 +1811,26 @@ footer {
     flex-direction: column;
     grid-column: 2;
     grid-row: 1;
-    gap: 7px;
     justify-content: center;
   }
 
   .card-meta {
     display: flex;
-    gap: 9px;
     align-items: center;
   }
 
   .card-title {
     display: block;
-    overflow: visible;
-    font-size: 20px;
-    line-height: 1.02;
-    text-overflow: clip;
-    white-space: normal;
   }
 
   .status-pill {
     flex: 0 0 auto;
-    padding: 3px 6px 2px;
-    font-size: 11px;
     letter-spacing: 0.12em;
   }
 
   .days-left {
     display: block;
     overflow: visible;
-    font-size: 13px;
     letter-spacing: 0.12em;
     text-overflow: clip;
     white-space: nowrap;
@@ -2174,25 +1848,8 @@ footer {
 
   .card-details {
     grid-template-columns: 1fr;
-    gap: 16px;
     padding-right: 16px;
     padding-left: 16px;
-  }
-
-  .food-card.is-expanded .card-details {
-    max-height: 720px;
-    padding-top: 20px;
-    padding-bottom: 20px;
-  }
-
-  .illustration-slot {
-    height: 194px;
-    padding: 16px;
-  }
-
-  .expanded-food-icon {
-    width: 160px;
-    height: 160px;
   }
 
   .food-card--expired .card-details {
@@ -2227,9 +1884,6 @@ footer {
     font-size: max(11px, 1em);
   }
 
-  .stock-tooltip {
-    bottom: calc(64px + env(safe-area-inset-bottom));
-  }
 }
 
 @media (max-width: 767px) {
@@ -2269,12 +1923,7 @@ footer {
     margin-top: 8px;
   }
 
-  .stage-toggle {
-    gap: 7px;
-    margin-top: 12px;
-    margin-bottom: 24px;
-    padding: 0 16px;
-  }
+  
 
   .page-heading h1 {
     max-width: 100%;
@@ -2282,9 +1931,7 @@ footer {
     overflow-wrap: normal;
   }
 
-  .stage-toggle button {
-    min-width: 44px;
-  }
+  
 
   .card-summary {
     min-height: 60px;
@@ -2446,8 +2093,6 @@ footer {
 
 @media (max-width: 767px) {
   .stats-heading {
-    min-height: 118px;
-    gap: 16px;
     margin-bottom: 24px;
   }
 
@@ -2934,14 +2579,10 @@ footer {
 /* Authoritative mobile layout for the fridge screen. */
 @media (max-width: 767px) {
   .app-shell:has(.fridge-screen) {
-    padding-right: 16px;
     padding-bottom: calc(144px + env(safe-area-inset-bottom));
-    padding-left: 16px;
   }
 
   .fridge-screen {
-    width: 100%;
-    box-sizing: border-box;
     overflow-x: hidden;
   }
 
@@ -2958,15 +2599,9 @@ footer {
     margin-bottom: 24px;
   }
 
-  .fridge-screen .fullness-art {
-    width: min(300px, 100%);
-  }
-
   .fridge-title-copy {
     position: relative;
-    min-height: 120px;
     order: 4;
-    padding-right: 92px;
   }
 
   .fridge-title-copy .eyebrow,
@@ -2977,16 +2612,9 @@ footer {
     text-align: left;
   }
 
-  .fridge-title-copy h1 {
-    font-size: 40px;
-    overflow-wrap: normal;
-  }
-
   .mobile-fridge-leek {
     position: absolute;
     top: 0;
-    right: 0;
-    width: 76px;
     height: 120px;
     display: block;
     object-fit: contain;
@@ -3006,7 +2634,6 @@ footer {
   }
 
   .fridge-screen .food-list {
-    overflow: visible;
     border-top: 1px solid var(--ink);
   }
 
@@ -3022,9 +2649,6 @@ footer {
     width: 12px;
   }
 
-  .fridge-screen .card-summary {
-    min-height: 60px;
-  }
 }
 
 /* New Leekly placements. */
@@ -3269,8 +2893,6 @@ footer {
   height: min(720px, 90vh);
   min-height: 650px;
   padding: 28px 45px;
-  touch-action: none;
-  user-select: none;
   transition:
     transform 200ms ease,
     opacity 250ms ease,
@@ -3357,12 +2979,6 @@ footer {
   margin: -18px 0;
 }
 
-.swipe-card .swipe-mascot {
-  width: 80px;
-  height: 120px;
-  margin: -22px 0 -16px;
-}
-
 .swipe-card h1 {
   font-size: 52px;
 }
@@ -3390,12 +3006,6 @@ footer {
 .swipe-card--step-2 h1 {
   font-size: 44px;
   line-height: 1;
-}
-
-.swipe-card--step-2 .swipe-mascot--check {
-  width: 70px;
-  height: 120px;
-  margin: -8px 0;
 }
 
 .swipe-hints {
@@ -3441,17 +3051,7 @@ footer {
 
 @media (max-width: 767px) {
   .swipe-takeover {
-    display: block;
     padding: 16px;
-  }
-
-  .swipe-card {
-    width: 100%;
-    height: calc(100dvh - 32px);
-    min-height: 0;
-    justify-content: center;
-    overflow-y: auto;
-    padding: 42px 16px 24px;
   }
 
   .swipe-card h1,
@@ -3465,15 +3065,10 @@ footer {
     height: 170px;
   }
 
-  .swipe-card .swipe-mascot,
-  .swipe-card--step-2 .swipe-mascot--check {
-    height: 120px;
-  }
+  
 
   .swipe-card .swipe-actions {
-    width: 100%;
     flex-direction: column;
-    gap: 10px;
     margin-top: 18px;
   }
 
@@ -3482,10 +3077,6 @@ footer {
     width: 100%;
     height: 52px;
     min-height: 52px;
-  }
-
-  .swipe-takeover > small {
-    display: none;
   }
 
   .extension-toast {
@@ -3499,31 +3090,13 @@ footer {
 
 @media (max-width: 767px) {
   .scan-step .upload-choice {
-    width: 100%;
-    min-height: 96px;
-    height: 96px;
-    display: grid;
     grid-template-columns: 88px minmax(0, 1fr);
-    gap: 10px;
-    padding: 4px 12px;
   }
 
   .scan-step .file-leek {
-    width: auto;
-    height: 88px;
     justify-self: center;
   }
 
-  .scan-step .file-choice-copy {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .scan-step .file-choice-copy .upload-file-icon {
-    flex: 0 0 20px;
-  }
 }
 
 /* Desktop readability pass. */
@@ -3552,31 +3125,30 @@ footer {
   }
 
   .eyebrow,
-  .hero-subtitle,
-  .add-button,
-  .task-number,
-  .task-copy small,
-  .quiet-link,
-  .item-count,
-  .stock-label,
-  .stock-tooltip p,
-  .stage-toggle button,
-  .used-button,
-  .step-count,
-  .receipt-choice small,
-  .outline-button,
-  .parsed-row label,
-  .parsed-row input,
-  .tip-card span,
-  .tip-card p,
-  .stat-tooltip,
-  .list-labels,
-  .empty-state p,
-  .swipe-card > p,
-  .swipe-edge,
-  .swipe-actions button,
-  .swipe-takeover > small,
-  footer {
+.hero-subtitle,
+.add-button,
+.task-number,
+.task-copy small,
+.quiet-link,
+.item-count,
+.stock-label,
+.stock-tooltip p,
+.used-button,
+.step-count,
+.receipt-choice small,
+.outline-button,
+.parsed-row label,
+.parsed-row input,
+.tip-card span,
+.tip-card p,
+.stat-tooltip,
+.list-labels,
+.empty-state p,
+.swipe-card > p,
+.swipe-edge,
+.swipe-actions button,
+.swipe-takeover > small,
+footer {
     font-size: 13px;
     letter-spacing: 0.06em;
   }
@@ -3590,16 +3162,9 @@ footer {
     letter-spacing: 0.06em;
   }
 
-  .stage-toggle {
-    gap: 8px;
-  }
+  
 
-  .stage-toggle button {
-    min-width: 44px;
-    min-height: 36px;
-    padding: 6px 8px;
-    font-size: 14px;
-  }
+  
 
   .item-count {
     font-size: 14px;
@@ -3743,15 +3308,12 @@ footer {
 
   .swipe-card--step-2 .swipe-progress {
     top: 28px;
-    right: auto;
-    left: 48px;
     font-size: 14px;
   }
 
   .swipe-card--step-2 .swipe-kicker {
     position: absolute;
     top: 28px;
-    right: 48px;
     font-size: 14px;
     letter-spacing: 0.12em;
   }
@@ -3862,15 +3424,7 @@ footer {
     font-size: 18px;
   }
 
-  .swipe-card--step-2 .spoil-question-column .swipe-mascot--check {
-    position: absolute;
-    right: 0;
-    bottom: 148px;
-    width: auto;
-    height: 110px;
-    margin: 0;
-    object-fit: contain;
-  }
+  
 }
 
 .swipe-takeover > small {
@@ -3885,41 +3439,18 @@ footer {
 }
 
 @media (max-width: 767px) {
-  .swipe-card--step-2 {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: stretch;
-    padding: 52px 16px 24px;
-  }
-
   .swipe-card--step-2 .swipe-progress {
-    top: 18px;
-    right: auto;
-    left: 16px;
     font-size: 14px;
   }
 
   .swipe-card--step-2 .swipe-kicker {
     position: absolute;
-    top: 18px;
-    right: 16px;
     font-size: 14px;
-    letter-spacing: 0.08em;
   }
 
   .spoil-food-column {
-    display: flex;
     flex-direction: column;
     align-items: center;
-  }
-
-  .spoil-food-name {
-    margin: 6px 0 0;
-    font-family: var(--font-display), sans-serif;
-    font-size: 26px;
-    font-weight: 400;
-    letter-spacing: 0.04em;
   }
 
   .spoil-food-art {
@@ -3929,29 +3460,14 @@ footer {
     place-items: center;
   }
 
-  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
-    width: 190px;
-    height: 170px;
-    margin: 0;
-    object-fit: contain;
-  }
-
   .spoil-expiry {
     display: none;
   }
 
   .spoil-question-column {
     position: relative;
-    display: flex;
     flex-direction: column;
     gap: 10px;
-  }
-
-  .swipe-card--step-2 .spoil-question-column h1 {
-    margin: 0;
-    font-size: 34px;
-    line-height: 1;
-    text-align: left;
   }
 
   .spoil-check-box {
@@ -3984,25 +3500,11 @@ footer {
   }
 
   .swipe-card--step-2 .spoil-question-column .swipe-actions {
-    display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin: 0;
     padding-right: 0;
   }
 
-  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
-    width: 100%;
-    height: 52px;
-  }
-
-  .swipe-card--step-2 .spoil-question-column .swipe-mascot--check {
-    width: auto;
-    height: 80px;
-    align-self: flex-end;
-    margin: 0 8px 0 0;
-    object-fit: contain;
-  }
+  
 }
 
 /* Final swipe-card navigation positions. */
@@ -4014,19 +3516,6 @@ footer {
 
   .swipe-card--step-2 .swipe-kicker {
     right: 140px;
-  }
-}
-
-@media (max-width: 767px) {
-  .swipe-card--step-2 .swipe-progress {
-    right: 16px;
-    left: auto;
-  }
-
-  .swipe-card--step-2 .swipe-kicker {
-    top: 18px;
-    right: auto;
-    left: 120px;
   }
 }
 
@@ -4051,10 +3540,7 @@ footer {
   .fridge-count-header {
     width: 100%;
     min-height: 48px;
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 24px;
     border-bottom: 1px solid var(--ink);
     padding: 0 0 12px;
     margin-bottom: 16px;
@@ -4137,13 +3623,8 @@ footer {
 }
 
 @media (max-width: 767px) {
-  .fridge-list-main {
-    width: 100%;
-  }
-
   .fridge-count-header {
     width: 100%;
-    display: flex;
     flex-direction: column;
     gap: 6px;
     align-items: flex-start;
