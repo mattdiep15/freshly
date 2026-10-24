@@ -75,12 +75,12 @@ This plan owns `convex/grocery.ts`, `convex/model/grocery.ts`, `lib/grocery.ts` 
 
 ## Progress
 
-- [ ] 1. `lib/grocery.ts` and tests
-- [ ] 2. `convex/grocery.ts`
-- [ ] 3. Check-off on confirm and manual add
-- [ ] 4. `/api` routes
-- [ ] 5. Seed entries
-- [ ] 6. Frontend
+- [x] 1. `lib/grocery.ts` and tests
+- [x] 2. `convex/grocery.ts`
+- [x] 3. Check-off on confirm and manual add
+- [x] 4. `/api` routes
+- [x] 5. Seed entries
+- [x] 6. Frontend (the design v6 screen at `app/grocery/page.tsx`)
 
 ## Validation
 
@@ -92,6 +92,8 @@ This plan owns `convex/grocery.ts`, `convex/model/grocery.ts`, `lib/grocery.ts` 
 
 - 2026-10-24: Personalized hints are out of this plan and moved to p3, so the list can ship for the demo.
 - 2026-10-24: Name matching is exact after lowercasing. Fuzzy matching ("baby spinach" against "spinach") goes through `foodId`, which the receipt parser and manual add already resolve.
+- 2026-10-24: Built with the design v6 port, which also adds `groceryItems` from p2-01; the other p2-01 tables are not added. The v6 screen lists newest entries first, so the page sorts by `_creationTime` and `add` deletes an entry with the same name before inserting, which moves it to the top unchecked. Its "clear" link needed `grocery.clearChecked`, which deletes the caller's checked entries.
+- 2026-10-24: Design v6 shows one hint per row, so the hints came back from p3 as client-side code: `groceryHint` in `lib/grocery.ts` reads the existing `items.list` queries (wasted, then active, then use-soon pairings from a static map) and needs no schema. The richer hints in p3 ("half your spinach") still need waste amounts per food.
 
 ## Surprises
 

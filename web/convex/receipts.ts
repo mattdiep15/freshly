@@ -7,6 +7,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { toItemViews, utcOffsetFor } from "./items";
 import { getUserId } from "./model/auth";
+import { checkOffGroceries } from "./model/grocery";
 import { location } from "./schema";
 import { scheduleWebLookup } from "./shelfLifeWeb";
 
@@ -96,7 +97,7 @@ export const confirmDrafts = mutation({
         .collect()
     ).filter((i) => i.status === "draft");
     const remove = new Set<Id<"items">>(removeItemIds);
-    let confirmed = 0;
+    const kept = drafts.filter((item) => !remove.has(item._id));
     for (const item of drafts) {
       if (remove.has(item._id)) {
         await ctx.db.delete(item._id);
@@ -104,9 +105,9 @@ export const confirmDrafts = mutation({
       }
       await ctx.db.patch(item._id, { status: "active" });
       if (item.foodId) await bumpTimesAdded(ctx, receipt.userId, item.foodId);
-      confirmed++;
     }
-    return { confirmed, removed: drafts.length - confirmed };
+    await checkOffGroceries(ctx, receipt.userId, kept);
+    return { confirmed: kept.length, removed: drafts.length - kept.length };
   },
 });
 

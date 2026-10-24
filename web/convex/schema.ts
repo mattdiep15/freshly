@@ -100,6 +100,15 @@ export default defineSchema({
     .index("by_status_expires", ["status", "expiresAt"])
     .index("by_receipt", ["receiptId"]),
 
+  // Shape from docs/exec-plans/p2-01-schema.md.
+  groceryItems: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    foodId: v.optional(v.id("foods")), // set when the name matches a food, so a scanned receipt can check it off
+    checkedAt: v.optional(v.number()), // absent while unchecked
+    checkedBy: v.optional(v.union(v.literal("user"), v.literal("receipt"))),
+  }).index("by_user", ["userId"]),
+
   foodFamiliarity: defineTable({
     userId: v.id("users"),
     foodId: v.id("foods"),

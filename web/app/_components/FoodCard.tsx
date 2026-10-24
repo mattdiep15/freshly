@@ -111,7 +111,7 @@ export function FoodCard({
         aria-expanded={expanded}
       >
         <span className="food-icon-slot">
-          <FoodArt name={item.name} packaged={item.packaged} className="food-icon" />
+          <FoodArt name={item.name} className="food-icon" />
         </span>
         <span className="card-info">
           <span className="card-title">{item.name}</span>
@@ -127,7 +127,7 @@ export function FoodCard({
       <div className="card-details">
         <div className="detail-main">
           <div className="illustration-slot">
-            <FoodArt name={item.name} packaged={item.packaged} className="expanded-food-icon" />
+            <FoodArt name={item.name} className="expanded-food-icon" />
           </div>
           <div className="detail-copy">
             <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />

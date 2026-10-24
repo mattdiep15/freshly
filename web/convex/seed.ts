@@ -1,4 +1,4 @@
-import type { Doc } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
 import { DEMO_EMAIL } from "./model/auth";
 import { importReferenceFoods } from "./model/foods";
@@ -113,7 +113,22 @@ export async function seedDemo(ctx: MutationCtx) {
       await ctx.db.insert("items", dated);
     }
   }
+  await seedGrocery(ctx, userId);
   return { userId, email: user?.email, items: ITEMS.length, reference };
+}
+
+// p2-02's demo list: spinach matches a food, so a scan or manual add of spinach checks it off.
+async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
+  for (const entry of await ctx.db.query("groceryItems").withIndex("by_user", (q) => q.eq("userId", userId)).collect()) {
+    await ctx.db.delete(entry._id);
+  }
+  for (const name of ["spinach", "oat milk", "bananas"]) {
+    const food = await ctx.db
+      .query("foods")
+      .withIndex("by_name", (q) => q.eq("name", name))
+      .unique();
+    await ctx.db.insert("groceryItems", { userId, name, foodId: food?._id });
+  }
 }
 
 function rangeFor(food: Doc<"foods">, location: Loc) {
