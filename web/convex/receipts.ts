@@ -1,5 +1,6 @@
 import { v, type Infer } from "convex/values";
 import { expiryFor } from "../lib/expiry";
+import { headerMismatches, purchaseDate } from "../lib/receiptCheck";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
@@ -28,7 +29,7 @@ const receiptLine = v.object({
   newFood: v.union(newFood, v.null()),
 });
 
-// Mirrors RECEIPT_SCHEMA in convex/model/claude.ts.
+// Mirrors RECEIPT_SCHEMA in convex/model/llm.ts.
 export const receiptResult = v.object({
   isReceipt: v.boolean(),
   storeName: v.union(v.string(), v.null()),
@@ -107,6 +108,35 @@ export const confirmDrafts = mutation({
   },
 });
 
+// The user's confirmed purchase date: re-dates drafts from their sourced ranges, keeps dates the user typed.
+export const setPurchasedAt = mutation({
+  args: { receiptId: v.id("receipts"), purchasedAt: v.number() },
+  handler: async (ctx, { receiptId, purchasedAt }) => {
+    const receipt = await ownReceipt(ctx, receiptId);
+    if (receipt.status !== "parsed") throw new Error("Receipt is not parsed yet");
+    // One day of slack, since the typed date is local and the clock is UTC.
+    if (purchasedAt > Date.now() + 24 * 60 * 60 * 1000) throw new Error("Purchase date is in the future");
+    const drafts = (
+      await ctx.db
+        .query("items")
+        .withIndex("by_receipt", (q) => q.eq("receiptId", receiptId))
+        .collect()
+    ).filter((i) => i.status === "draft");
+    for (const item of drafts) {
+      if (item.expirySource === "user") {
+        await ctx.db.patch(item._id, { purchasedAt });
+        continue;
+      }
+      const food = item.foodId ? await ctx.db.get(item.foodId) : null;
+      const expiry = expiryFor(food, item.location, purchasedAt);
+      await ctx.db.patch(item._id, { purchasedAt, expiresAt: expiry?.expiresAt, expirySource: expiry?.expirySource });
+    }
+    const flags = (receipt.reviewFlags ?? []).filter((f) => f !== "implausible_date" && f !== "date_mismatch");
+    await ctx.db.patch(receiptId, { purchasedAt, reviewFlags: flags.length > 0 ? flags : undefined });
+    return { redated: drafts.length };
+  },
+});
+
 export async function bumpTimesAdded(ctx: MutationCtx, userId: Id<"users">, foodId: Id<"foods">) {
   const row = await ctx.db
     .query("foodFamiliarity")
@@ -135,6 +165,49 @@ export const setStatus = internalMutation({
   },
   handler: async (ctx, { receiptId, status, error }) => {
     await ctx.db.patch(receiptId, { status, error });
+  },
+});
+
+// Everything verify needs; null unless the receipt parsed.
+export const verifyInput = internalQuery({
+  args: { receiptId: v.id("receipts") },
+  handler: async (ctx, { receiptId }) => {
+    const receipt = await ctx.db.get(receiptId);
+    if (!receipt || receipt.status !== "parsed") return null;
+    return { fileId: receipt.fileId, fileType: receipt.fileType };
+  },
+});
+
+const isoDate = (ms: number | undefined) => (ms === undefined ? null : new Date(ms).toISOString().slice(0, 10));
+
+// Flags only: a disagreement asks the user to confirm and never changes a date by itself.
+export const saveVerification = internalMutation({
+  args: {
+    receiptId: v.id("receipts"),
+    header: v.union(
+      v.object({ storeName: v.union(v.string(), v.null()), purchasedAt: v.union(v.string(), v.null()), totalCents: v.union(v.number(), v.null()) }),
+      v.null(),
+    ),
+    error: v.optional(v.string()),
+  },
+  handler: async (ctx, { receiptId, header, error }) => {
+    const receipt = await ctx.db.get(receiptId);
+    if (!receipt || receipt.status !== "parsed") return;
+    if (!header) {
+      await ctx.db.patch(receiptId, { verification: { status: "skipped", error } });
+      return;
+    }
+    const claude = { storeName: receipt.storeName ?? null, purchasedAt: isoDate(receipt.purchasedAt), totalCents: receipt.totalCents ?? null };
+    const flags = new Set([...(receipt.reviewFlags ?? []), ...headerMismatches(claude, header)]);
+    await ctx.db.patch(receiptId, {
+      reviewFlags: flags.size > 0 ? [...flags] : undefined,
+      verification: {
+        status: "done",
+        storeName: header.storeName ?? undefined,
+        purchasedAt: header.purchasedAt ?? undefined,
+        totalCents: header.totalCents ?? undefined,
+      },
+    });
   },
 });
 
@@ -169,8 +242,7 @@ async function saveResult(ctx: MutationCtx, receiptId: Id<"receipts">, result: I
     .collect();
   for (const item of stale) if (item.status === "draft") await ctx.db.delete(item._id);
 
-  const printed = result.purchasedAt ? Date.parse(result.purchasedAt) : NaN;
-  const purchasedAt = Number.isNaN(printed) ? receipt._creationTime : printed;
+  const { purchasedAt, printedAt, implausible } = purchaseDate(result.purchasedAt, receipt._creationTime);
   for (const line of result.lines) {
     const food = await resolveFood(ctx, line.foodName, line.newFood);
     const loc = food?.defaultLocation ?? "fridge";
@@ -196,8 +268,10 @@ async function saveResult(ctx: MutationCtx, receiptId: Id<"receipts">, result: I
     status: "parsed",
     error: undefined,
     storeName: result.storeName ?? undefined,
-    purchasedAt: Number.isNaN(printed) ? undefined : printed,
+    purchasedAt: printedAt ?? undefined,
     totalCents: result.totalCents ?? undefined,
+    reviewFlags: implausible ? ["implausible_date"] : undefined,
+    verification: undefined,
   });
   return { items: result.lines.length };
 }

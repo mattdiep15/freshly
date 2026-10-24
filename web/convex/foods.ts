@@ -3,7 +3,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { internalAction, internalMutation, internalQuery, mutation } from "./_generated/server";
 import { getUserId } from "./model/auth";
-import { anthropicClient, askJson, TIPS_SCHEMA, TIPS_SYSTEM_PROMPT } from "./model/claude";
+import { askJson, TIPS_SCHEMA, TIPS_SYSTEM_PROMPT } from "./model/llm";
 import { importReferenceFoods } from "./model/foods";
 
 // items.get and items.list show a food's tip until the user has dismissed it this many times.
@@ -76,7 +76,7 @@ export const backfillTips = internalAction({
     const batch = missing.slice(0, TIP_BATCH);
     // Numbered so the model never has to copy food names back exactly.
     const list = batch.map((f, i) => `${i + 1}. ${f.name} (${f.category})`).join("\n");
-    const { tips } = (await askJson(anthropicClient(), TIPS_SYSTEM_PROMPT, [{ type: "text", text: list }], TIPS_SCHEMA)) as {
+    const { tips } = (await askJson(TIPS_SYSTEM_PROMPT, [{ type: "text", text: list }], TIPS_SCHEMA)) as {
       tips: { number: number; storageTip: string; freshnessHint: string; hasPrintedDate: boolean }[];
     };
     const matched = tips.flatMap(({ number, ...tip }) => {
