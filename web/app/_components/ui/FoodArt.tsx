@@ -48,8 +48,18 @@ const artByKeyword: [RegExp, Art][] = [
   [/\boil\b/, ART.oil],
 ];
 
-// TODO(release): box.png is a placeholder; replace it (and the size below) with the designer's catch-all icon.
-const packagedArt: Art = { file: "box", width: 433, height: 350 };
+// The designer's catch-all drawings; a name always gets the same bag.
+const BAGS: Art[] = [
+  { file: "bag-1", width: 427, height: 498 },
+  { file: "bag-2", width: 441, height: 485 },
+  { file: "bag-3", width: 349, height: 497 },
+];
+
+function bagFor(name: string): Art {
+  let hash = 0;
+  for (const character of name.trim().toLowerCase()) hash = (Math.imul(hash, 31) + character.charCodeAt(0)) >>> 0;
+  return BAGS[hash % BAGS.length];
+}
 
 // Manual entry shows the group's drawing for a food we have no drawing of.
 const artByGroup: Partial<Record<FoodGroup, Art>> = {
@@ -60,30 +70,19 @@ const artByGroup: Partial<Record<FoodGroup, Art>> = {
   grains: ART.bread,
 };
 
-function artFor(name: string, packaged: boolean): Art | undefined {
+function artFor(name: string): Art | undefined {
   const lower = name.toLowerCase();
-  const match = artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
-  return match ?? (packaged ? packagedArt : undefined);
+  return artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
 }
 
-// Without a drawing, shows the name's first letter in a box of the same size.
-export function FoodArt({ name, packaged = false, group, className = "" }: {
-  name: string;
-  packaged?: boolean;
-  group?: FoodGroup | null;
-  className?: string;
-}) {
-  const art = artFor(name, packaged) ?? (group ? artByGroup[group] : undefined);
-  if (!art) {
-    return (
-      <span className={`food-letter-placeholder ${className}`} aria-hidden="true">
-        {name.trim().charAt(0).toLowerCase()}
-      </span>
-    );
-  }
+// A food without its own drawing gets its group's drawing, then a bag; an empty name gets an empty box.
+export function FoodArt({ name, group, className = "" }: { name: string; group?: FoodGroup | null; className?: string }) {
+  if (!name.trim()) return <span className={`food-letter-placeholder ${className}`} aria-hidden="true" />;
+  const drawn = artFor(name) ?? (group ? artByGroup[group] : undefined);
+  const art = drawn ?? bagFor(name);
   return (
     <Image
-      className={className}
+      className={drawn ? className : `${className} food-bag-icon`}
       src={`/illustrations/food/${art.file}.png`}
       width={art.width}
       height={art.height}

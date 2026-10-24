@@ -1,19 +1,18 @@
 "use client";
 
 import { useAction, useQuery } from "convex/react";
-import type { FunctionReturnType } from "convex/server";
 import { useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { addDays, dateInputValue, endOfLocalDay, freshness, localNoon, statusTiming } from "@/lib/freshness";
 import { groupForCategory, type FoodGroup } from "@/lib/fullness";
 import { errorMessage } from "@/app/_components/errorMessage";
+import { FoodSuggestions, suggestionsFor, type CatalogFood } from "@/app/_components/FoodSuggestions";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 import { StatusTag } from "@/app/_components/ui/StatusTag";
 import { useNow } from "@/app/_components/useNow";
 
-type CatalogFood = FunctionReturnType<typeof api.foods.catalog>[number];
 type Storage = "fridge" | "freezer";
 
 const UNITS = ["items", "lbs", "bag", "carton", "container"] as const;
@@ -25,7 +24,6 @@ const GROUPS: [FoodGroup, string][] = [
   ["grains", "grains"],
   ["other", "other"],
 ];
-const MAX_SUGGESTIONS = 8;
 const MAX_GOOD_FOR_DAYS = 365;
 
 type Draft = {
@@ -77,14 +75,6 @@ function withFood(draft: Draft, food: CatalogFood | null, storage = draft.storag
     group: food ? (groupForCategory(food.category) ?? draft.group) : draft.group,
     ...(draft.goodForEdited ? {} : { goodForDays: range?.min ?? null }),
   };
-}
-
-function suggestionsFor(catalog: readonly CatalogFood[], query: string): CatalogFood[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
-  const matches = catalog.filter((f) => f.name.includes(q) || f.aliases.some((a) => a.includes(q)));
-  const prefix = matches.filter((f) => f.name.startsWith(q));
-  return [...prefix, ...matches.filter((f) => !f.name.startsWith(q))].slice(0, MAX_SUGGESTIONS);
 }
 
 function expiresAtFor(draft: Draft): number | undefined {
@@ -178,23 +168,14 @@ function ManualItemSection({ draft, index, now, catalog, onChange, onRemove }: {
             }}
           />
           {suggestionsOpen && suggestions.length > 0 && (
-            <div className="food-suggestions" id={listId} role="listbox">
-              {suggestions.map((food, i) => (
-                <button
-                  type="button"
-                  role="option"
-                  id={`${listId}-${i}`}
-                  aria-selected={i === activeSuggestion}
-                  className={i === activeSuggestion ? "is-active" : ""}
-                  key={food.name}
-                  onPointerDown={(event) => event.preventDefault()}
-                  onClick={() => selectFood(food)}
-                >
-                  <FoodArt name={food.name} className="suggestion-food-icon" />
-                  <span>{food.name}</span>
-                </button>
-              ))}
-            </div>
+            <FoodSuggestions
+              id={listId}
+              foods={suggestions}
+              active={activeSuggestion}
+              className="food-suggestions"
+              iconClassName="suggestion-food-icon"
+              onPick={selectFood}
+            />
           )}
         </label>
 

@@ -1,0 +1,858 @@
+/* Design v6 (dev/prototype_v6.zip): grocery and community pages, four-link nav, bag art for unknown foods.
+   Loads after design-v5.css. The 16 v6 declarations that a later v5 rule overrides in the prototype are left out. */
+
+/* Navigation, grocery, and merged community destinations. */
+.topbar nav {
+  gap: 40px;
+}
+
+.nav-link {
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.nav-link:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--good);
+  outline-offset: 5px;
+}
+
+.nav-community {
+  position: relative;
+}
+
+.community-nav-dot {
+  position: absolute;
+  top: 5px;
+  right: -10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--good);
+}
+
+.grocery-page,
+.community-page {
+  min-height: calc(100vh - 190px);
+  padding: 64px 0 80px;
+}
+
+.grocery-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 36px;
+}
+
+.grocery-heading h1,
+.community-page > h1 {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.grocery-heading .eyebrow {
+  font-size: 14px;
+}
+
+.grocery-heading-art {
+  width: 200px;
+  height: 150px;
+  object-fit: contain;
+}
+
+.grocery-form {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  width: min(100%, 760px);
+  margin-bottom: 28px;
+}
+
+.grocery-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.grocery-form input,
+.grocery-form > button {
+  height: 52px;
+  border: 2px solid var(--ink);
+  border-radius: 0;
+  font-size: 16px;
+}
+
+.grocery-form input {
+  width: 100%;
+  padding: 0 16px;
+  outline: none;
+}
+
+.grocery-form input:focus {
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.grocery-form > button {
+  width: 112px;
+  border-color: var(--good);
+  background: var(--good);
+  color: var(--paper);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.grocery-suggestions {
+  position: absolute;
+  top: calc(100% - 2px);
+  right: 0;
+  left: 0;
+  max-height: 290px;
+  overflow-y: auto;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.grocery-suggestions button {
+  display: flex;
+  width: 100%;
+  height: 48px;
+  align-items: center;
+  gap: 12px;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 4px 12px;
+  background: var(--paper);
+  text-align: left;
+}
+
+.grocery-suggestions button:last-child {
+  border-bottom: 0;
+}
+
+.grocery-suggestions button:hover,
+.grocery-suggestions button.is-active {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.grocery-suggestions img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.grocery-suggestions button:hover img,
+.grocery-suggestions button.is-active img {
+  filter: invert(1);
+}
+
+.grocery-list,
+.grocery-completed {
+  width: min(100%, 920px);
+}
+
+.grocery-row {
+  display: grid;
+  min-height: 72px;
+  grid-template-columns: 44px 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.grocery-check {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+}
+
+.grocery-check span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 2px solid var(--ink);
+  font-weight: 700;
+}
+
+.grocery-row.is-completed .grocery-check span {
+  border-color: var(--good);
+  background: var(--good);
+  color: var(--paper);
+}
+
+.grocery-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.grocery-copy {
+  min-width: 0;
+}
+
+.grocery-copy strong,
+.grocery-copy small {
+  display: block;
+}
+
+.grocery-copy strong {
+  overflow: hidden;
+  font-family: 'Sniglet', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grocery-copy small {
+  color: rgb(0 0 0 / 70%);
+  font-size: 14px;
+}
+
+.grocery-row.is-completed .grocery-copy strong {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.grocery-fridge-tag {
+  width: auto;
+  min-width: 82px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.grocery-completed {
+  margin-top: 32px;
+}
+
+.grocery-completed-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 10px;
+}
+
+.grocery-completed-heading button {
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.grocery-completed-heading button:first-child {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.grocery-completed-heading button:last-child {
+  text-decoration: underline;
+}
+
+.grocery-empty {
+  display: grid;
+  min-height: 280px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.grocery-empty img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.community-page > h1 {
+  margin-bottom: 24px;
+}
+
+.community-switch {
+  display: grid;
+  width: min(100%, 480px);
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 36px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+}
+
+.community-switch button {
+  height: 48px;
+  border: 0;
+  border-right: 1px solid var(--ink);
+  background: var(--paper);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.community-switch button:last-child {
+  border-right: 0;
+}
+
+.community-switch button.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.community-panel {
+  display: none;
+}
+
+.community-panel.is-active {
+  display: block;
+  animation: community-panel-in 150ms ease both;
+}
+
+@keyframes community-panel-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.community-section-heading {
+  position: relative;
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.community-section-heading h2 {
+  font-family: 'Sniglet', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.community-section-heading .stats-leek-preview {
+  order: 2;
+}
+
+.community-section-heading.friends-heading {
+  justify-content: flex-start;
+}
+
+.community-section-heading.friends-heading > div {
+  order: 1;
+}
+
+.community-section-heading.friends-heading .friends-header-art {
+  order: 2;
+}
+
+.community-section-heading.friends-heading .outline-button {
+  order: 3;
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .topbar nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .nav-link {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    letter-spacing: 0;
+  }
+
+  .nav-fridge { grid-column: 1; }
+  .nav-recipes { grid-column: 2; }
+  .nav-camera-spacer { display: block; grid-column: 3; grid-row: 1; }
+  .nav-grocery { grid-column: 4; }
+  .nav-community { grid-column: 5; }
+
+  .nav-fridge,
+  .nav-recipes,
+  .nav-grocery,
+  .nav-community {
+    position: relative;
+    right: auto;
+    left: auto;
+    transform: none;
+  }
+
+  .community-nav-dot {
+    top: 15px;
+    right: 8px;
+  }
+
+  .grocery-page,
+  .community-page {
+    min-height: 100%;
+    padding: 32px 20px calc(64px + max(env(safe-area-inset-bottom), 24px) + 52px + 24px);
+  }
+
+  .grocery-heading {
+    margin-bottom: 24px;
+  }
+
+  .grocery-heading h1,
+  .community-page > h1 {
+    font-size: 40px;
+  }
+
+  .grocery-heading .eyebrow {
+    margin-bottom: 8px;
+  }
+
+  .grocery-heading-art {
+    width: 100px;
+    height: 100px;
+  }
+
+  .grocery-form {
+    margin-bottom: 20px;
+  }
+
+  .grocery-form input,
+  .grocery-form > button {
+    height: 48px;
+  }
+
+  .grocery-form > button {
+    width: 82px;
+  }
+
+  .grocery-row {
+    min-height: 64px;
+    grid-template-columns: 38px 44px minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .grocery-check {
+    width: 38px;
+    height: 44px;
+  }
+
+  .grocery-check span {
+    width: 28px;
+    height: 28px;
+  }
+
+  .grocery-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .grocery-copy small {
+    overflow: hidden;
+    max-width: 100%;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .grocery-fridge-tag {
+    min-width: 68px;
+    padding-right: 6px;
+    padding-left: 6px;
+    font-size: 10px;
+  }
+
+  .community-switch {
+    position: sticky;
+    top: 0;
+    z-index: 8;
+    width: 100%;
+    margin-bottom: 24px;
+  }
+
+  .community-section-heading {
+    min-height: 110px;
+  }
+
+  .community-section-heading.friends-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .community-section-heading.friends-heading .friends-header-art {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .community-section-heading.friends-heading .outline-button {
+    grid-column: 1;
+    margin-left: 0;
+  }
+}
+
+/* Final Community view composition. */
+@media (min-width: 768px) {
+  .numbers-hero {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+  }
+
+  .numbers-hero .stats-heading {
+    width: 42%;
+    min-width: 0;
+    min-height: 300px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 300px);
+    gap: 32px;
+    align-items: center;
+    margin: 0;
+  }
+
+  .numbers-hero .stats-heading h2 {
+    min-width: 0;
+    font-family: 'Sniglet', sans-serif;
+    font-size: clamp(36px, 3.9vw, 56px);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 0.98;
+    overflow-wrap: normal;
+  }
+
+  .numbers-hero .stats-leek-preview {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .numbers-hero .stats-leek-preview .stats-mascot {
+    width: 100%;
+    height: clamp(210px, 21vw, 300px);
+    object-fit: contain;
+  }
+
+  .numbers-hero .stats-screen {
+    min-width: 0;
+    min-height: 0;
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: center;
+  }
+
+  .numbers-hero .stat-circle {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .numbers-hero .circle-art {
+    width: min(100%, 190px);
+  }
+
+  .numbers-hero .circle-art strong {
+    font-size: clamp(44px, 4.45vw, 64px);
+  }
+
+  .numbers-hero .stat-label {
+    margin-top: 14px;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .numbers-view .week-list {
+    width: 100%;
+    margin-top: 48px;
+  }
+}
+
+@media (max-width: 767px) {
+  .numbers-hero {
+    display: contents;
+  }
+
+  #community-friends {
+    width: auto;
+    margin-right: -4px;
+    margin-left: -4px;
+  }
+
+  #community-friends .friends-heading {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin: 0 0 24px;
+    padding: 0;
+  }
+
+  #community-friends .friends-heading > div {
+    width: 100%;
+    min-width: 0;
+    order: 1;
+  }
+
+  #community-friends .friends-heading .eyebrow {
+    margin: 0 0 8px;
+    font-size: 14px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  #community-friends .friends-heading h2 {
+    max-width: 100%;
+    font-size: 40px;
+    line-height: 0.98;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  #community-friends .friends-heading .outline-button {
+    width: auto;
+    min-width: max-content;
+    height: 44px;
+    min-height: 44px;
+    order: 2;
+    margin: 12px 0 0;
+    padding: 0 20px;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+
+  #community-friends .friends-heading .friends-header-art {
+    width: min(280px, 100%);
+    height: auto;
+    order: 3;
+    align-self: center;
+    margin-top: 24px;
+    object-fit: contain;
+  }
+
+  #community-friends .friends-stage {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+/* Artwork color follows its surface, not food status. */
+.swipe-food-panel,
+.spoil-food-column {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.swipe-card .status-tag--expired {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.swipe-card .swipe-food-art,
+.manual-preview .manual-preview-art,
+.parsed-art-slot .parsed-food-art,
+.parsed-desktop-name .parsed-desktop-art,
+.recipes-page .ingredient-chip-art,
+.recipes-page .recipe-ingredient-art img,
+.recipes-page .recipe-used-icon,
+.food-card--expired .card-details .expanded-food-icon {
+  background: transparent;
+  filter: none;
+  mix-blend-mode: multiply;
+  opacity: 1;
+  image-rendering: auto;
+}
+
+.manual-preview,
+.manual-preview-slot,
+.parsed-art-slot {
+  background: var(--paper);
+}
+
+.food-card--expired .card-details .used-button,
+.food-card--expired.is-expanded .card-details .used-button {
+  border-color: var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.food-card--expired .card-summary .food-icon {
+  background: transparent;
+  filter: invert(1) brightness(1.2) contrast(1.3) drop-shadow(0 0 0.5px #fff);
+  mix-blend-mode: normal;
+  opacity: 1;
+  image-rendering: auto;
+}
+
+.food-bag-icon {
+  background: transparent;
+  image-rendering: auto;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .food-icon.food-bag-icon {
+    width: 64px;
+    height: 64px;
+    justify-self: center;
+  }
+
+  .task-icon.food-bag-icon {
+    width: 64px;
+    height: 64px;
+  }
+
+  .expanded-food-icon.food-bag-icon {
+    width: 220px;
+    height: 220px;
+    max-width: 220px;
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 767px) {
+  .food-icon.food-bag-icon {
+    width: 44px;
+    height: 44px;
+    justify-self: center;
+  }
+
+  .task-icon.food-bag-icon {
+    width: 52px;
+    height: 44px;
+  }
+
+  .expanded-food-icon.food-bag-icon {
+    width: 120px;
+    height: 120px;
+    max-width: 120px;
+    max-height: 120px;
+  }
+}
+
+/* Authoritative Grocery sizing and primary navigation alignment. */
+@media (min-width: 768px) {
+  .grocery-form,
+  .grocery-list,
+  .grocery-completed {
+    width: 100%;
+    max-width: none;
+  }
+
+  .grocery-form > button {
+    width: 112px;
+    min-width: 112px;
+    flex: 0 0 112px;
+  }
+
+  .grocery-heading {
+    padding-right: 64px;
+  }
+
+  .grocery-heading-art {
+    flex: 0 0 200px;
+  }
+
+  .topbar .nav-community .community-nav-dot {
+    top: calc(100% + 6px);
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 767px) {
+  .grocery-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 100px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .grocery-heading > div {
+    min-width: 0;
+  }
+
+  .grocery-heading h1 {
+    overflow: visible;
+    padding-bottom: 12px;
+    font-size: 40px;
+    line-height: 1.2;
+  }
+
+  .grocery-heading-art {
+    width: 100px;
+    max-width: 100%;
+    justify-self: end;
+  }
+
+  .topbar nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: center;
+  }
+
+  .topbar .nav-fridge,
+  .topbar .nav-recipes,
+  .topbar .nav-grocery,
+  .topbar .nav-community {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0 0 12px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    opacity: 0.45;
+    transform: none;
+  }
+
+  .topbar .nav-fridge { grid-column: 1; }
+  .topbar .nav-recipes { grid-column: 2; }
+  .topbar .nav-camera-spacer { grid-column: 3; }
+  .topbar .nav-grocery { grid-column: 4; }
+  .topbar .nav-community { grid-column: 5; }
+
+  .topbar .nav-link.active {
+    opacity: 1;
+  }
+
+  .topbar .nav-link::after {
+    right: 22%;
+    bottom: 24px;
+    left: 22%;
+    height: 2px;
+    display: block;
+  }
+
+  .topbar .nav-community .community-nav-dot {
+    top: 41px;
+    right: auto;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translateX(-50%);
+  }
+
+  .topbar .nav-community.active .community-nav-dot {
+    top: 46px;
+  }
+}

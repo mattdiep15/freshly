@@ -10,8 +10,8 @@ const pageTitles: Record<string, string> = {
   "/fridge": "my fridge",
   "/recipes": "recipes",
   "/scan": "scan",
-  "/stats": "stats",
-  "/friends": "friends",
+  "/grocery": "grocery list",
+  "/community": "community",
 };
 
 function NavLink({ href, className, pathname, children }: {
@@ -52,11 +52,11 @@ export function SiteHeader() {
           recipes
         </NavLink>
         <span className="nav-camera-spacer" aria-hidden="true" />
-        <NavLink href="/stats" className="nav-stats" pathname={pathname}>
-          stats
+        <NavLink href="/grocery" className="nav-grocery" pathname={pathname}>
+          grocery
         </NavLink>
-        <NavLink href="/friends" className="nav-friends" pathname={pathname}>
-          friends
+        <NavLink href="/community" className="nav-community" pathname={pathname}>
+          community
         </NavLink>
         <button
           className="camera-tab"

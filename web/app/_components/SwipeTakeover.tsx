@@ -24,7 +24,7 @@ export function SwipeTakeover({
   onResolve,
   onBack,
 }: {
-  item: { name: string; packaged?: boolean; freshnessHint?: SourcedText | null };
+  item: { name: string; freshnessHint?: SourcedText | null };
   // "2 days ago" or "today"; null when the item has no date.
   timing: string | null;
   // False when there is no sourced shelf life left to extend into, or it was already extended.
@@ -164,13 +164,13 @@ export function SwipeTakeover({
 
         {step === 1 ? (
           <>
-            <div className="swipe-food-panel expired-surface">
+            <div className="swipe-food-panel">
               <span className="swipe-status-meta">
                 <StatusTag status="expired" />
                 {timing && <span className="status-timing">{timing}</span>}
               </span>
               <p>{item.name}</p>
-              <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art" />
+              <FoodArt name={item.name} className="swipe-food-art" />
             </div>
             <h1>did you use it?</h1>
             <div className="swipe-actions">
@@ -184,14 +184,14 @@ export function SwipeTakeover({
         ) : (
           <>
             <span className="swipe-kicker">one more check</span>
-            <div className="spoil-food-column expired-surface">
+            <div className="spoil-food-column">
               <span className="swipe-status-meta">
                 <StatusTag status="expired" />
                 {timing && <span className="status-timing">{timing}</span>}
               </span>
               <p className="spoil-food-name">{item.name}</p>
               <div className="spoil-food-art">
-                <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art swipe-food-art--check" />
+                <FoodArt name={item.name} className="swipe-food-art swipe-food-art--check" />
               </div>
               <p className="spoil-expiry">{timing ? `expired ${timing}` : "expired"}</p>
             </div>

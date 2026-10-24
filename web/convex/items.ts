@@ -17,7 +17,6 @@ export type ItemView = Doc<"items"> & {
   freshnessHint: Doc<"foods">["freshnessHint"] | null;
   showTip: boolean;
   checkLabel: boolean;
-  packaged: boolean; // sold with a printed date; the UI draws a box when no food art matches
 };
 
 // New expiresAt for "1-2 more days", or null when the item has no sourced high end left.
@@ -58,7 +57,6 @@ export async function toItemViews(ctx: QueryCtx, userId: Id<"users">, items: Doc
       freshnessHint,
       showTip: (storageTip !== null || freshnessHint !== null) && (entry?.tipViews ?? 0) < TIP_VIEWS_UNTIL_FAMILIAR,
       checkLabel: needsLabelDate(entry?.food ?? null, item.expirySource),
-      packaged: entry?.food?.hasPrintedDate === true,
     };
   });
 }

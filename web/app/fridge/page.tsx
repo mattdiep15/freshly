@@ -13,7 +13,6 @@ import { demoFullness } from "@/app/_demo/fixtures";
 import { EmptyState } from "@/app/_components/EmptyState";
 import { FoodList } from "@/app/_components/FoodList";
 import { FullnessPreview, fullnessLabels } from "@/app/_components/FullnessPreview";
-import { SettingsCard } from "@/app/_components/SettingsCard";
 import { SwipeTakeover, type SwipeResult } from "@/app/_components/SwipeTakeover";
 import { UseSoonSection } from "@/app/_components/UseSoonSection";
 import { Leekly } from "@/app/_components/ui/Leekly";
@@ -140,7 +139,6 @@ function Fridge() {
       />
       {items.length === 0 && <EmptyState message="your fridge is ready for something fresh." />}
       <UseSoonSection items={pickUseSoon(items, now)} now={now} onUse={(item) => decide(item, "used")} />
-      <SettingsCard />
       {reviewing && (
         <SwipeTakeover
           item={reviewing}
