@@ -2,10 +2,10 @@ import { v } from "convex/values";
 import { daysLeft } from "../lib/digest";
 import { needsLabelDate } from "../lib/expiry";
 import { extendExpiry, sourcedRange } from "../lib/extension";
-import { DEFAULT_WASTED_FRACTION } from "../lib/wasteStats";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import { getUserId } from "./model/auth";
+import { settingsFor } from "./profiles";
 import { itemStatus } from "./schema";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -17,6 +17,7 @@ export type ItemView = Doc<"items"> & {
   freshnessHint: Doc<"foods">["freshnessHint"] | null;
   showTip: boolean;
   checkLabel: boolean;
+  packaged: boolean; // sold with a printed date; the UI draws a box when no food art matches
 };
 
 // New expiresAt for "1-2 more days", or null when the item has no sourced high end left.
@@ -57,6 +58,7 @@ export async function toItemViews(ctx: QueryCtx, userId: Id<"users">, items: Doc
       freshnessHint,
       showTip: (storageTip !== null || freshnessHint !== null) && (entry?.tipViews ?? 0) < TIP_VIEWS_UNTIL_FAMILIAR,
       checkLabel: needsLabelDate(entry?.food ?? null, item.expirySource),
+      packaged: entry?.food?.hasPrintedDate === true,
     };
   });
 }
@@ -121,7 +123,7 @@ export const resolve = mutation({
     }
     const patch = {
       status: outcome,
-      fractionWasted: fractionWasted ?? (outcome === "used" ? 0 : DEFAULT_WASTED_FRACTION),
+      fractionWasted: fractionWasted ?? (outcome === "used" ? 0 : (await settingsFor(ctx, userId)).wastedFraction),
       resolvedAt: Date.now(),
     };
     await ctx.db.patch(itemId, patch);

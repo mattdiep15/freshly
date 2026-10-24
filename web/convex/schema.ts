@@ -50,6 +50,8 @@ export default defineSchema({
     displayName: v.string(),
     utcOffsetMinutes: v.number(), // set by the client on sign-in, used for digest timing
     digestHour: v.number(), // local hour for the daily reminder, default 9
+    wastedFraction: v.optional(v.number()), // share of a tossed item counted as wasted; DEFAULT_WASTED_FRACTION when absent
+    alwaysAskSpoiled: v.optional(v.boolean()), // show the "looks spoiled?" card even when there are no days left to extend
   }).index("by_user", ["userId"]),
 
   foods: defineTable(foodFields).index("by_name", ["name"]),

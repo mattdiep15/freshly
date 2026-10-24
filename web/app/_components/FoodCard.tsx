@@ -50,6 +50,7 @@ export function FoodCard({
   checkIn = false,
   onToggle,
   onHover,
+  onLeave,
   onMarkUsed,
   onReviewExpired,
   onSetDate,
@@ -62,6 +63,7 @@ export function FoodCard({
   checkIn?: boolean;
   onToggle: () => void;
   onHover: () => void;
+  onLeave: () => void;
   onMarkUsed: () => void;
   onReviewExpired: () => void;
   onSetDate: (expiresAt: number) => void;
@@ -75,13 +77,14 @@ export function FoodCard({
     <article
       className={`food-card food-card--${status} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""}`}
       onMouseEnter={onHover}
+      onMouseLeave={onLeave}
     >
       <button
         className="card-summary"
         onClick={checkIn ? onReviewExpired : onToggle}
         aria-expanded={expanded}
       >
-        <FoodArt name={item.name} className="food-icon" />
+        <FoodArt name={item.name} packaged={item.packaged} className="food-icon" />
         <span className="card-info">
           <span className="card-title">{item.name}</span>
           <span className="card-meta">
@@ -106,7 +109,7 @@ export function FoodCard({
       </button>
       <div className="card-details">
         <div className="illustration-slot">
-          <FoodArt name={item.name} className="expanded-food-icon" />
+          <FoodArt name={item.name} packaged={item.packaged} className="expanded-food-icon" />
         </div>
         <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />
         <DetailLine label="check" value={item.freshnessHint} missing="no sourced freshness hint yet." />

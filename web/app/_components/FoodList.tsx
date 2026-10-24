@@ -22,6 +22,9 @@ const emptyMessages: Record<StatusFilter, string> = {
   fresh: "time to restock.",
 };
 
+// Hover-to-open is a desktop affordance; on touch it would fight the tap toggle.
+const hoverOpens = () => window.matchMedia("(min-width: 768px)").matches;
+
 export function FoodList({
   items,
   now,
@@ -134,8 +137,10 @@ export function FoodList({
               checkIn={checkInIds.includes(item._id)}
               onToggle={() => setExpanded(expanded === item._id ? null : item._id)}
               onHover={() => {
-                // Hover-to-open is a desktop affordance; on touch it would fight the tap toggle.
-                if (window.matchMedia("(min-width: 768px)").matches) setExpanded(item._id);
+                if (hoverOpens()) setExpanded(item._id);
+              }}
+              onLeave={() => {
+                if (hoverOpens()) setExpanded((id) => (id === item._id ? null : id));
               }}
               onMarkUsed={() => onMarkUsed(item)}
               onReviewExpired={() => onReviewExpired(item)}

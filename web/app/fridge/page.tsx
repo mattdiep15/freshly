@@ -35,6 +35,7 @@ export default function FridgePage() {
   const now = useNow();
   const active = useQuery(api.items.list, { status: "active" });
   const pendingReviews = useQuery(api.reviews.pending);
+  const settings = useQuery(api.profiles.settings);
   const resolve = useMutation(api.items.resolve);
   const extend = useMutation(api.items.extend);
   const update = useMutation(api.itemEdits.update);
@@ -53,7 +54,7 @@ export default function FridgePage() {
     }
   }, UNDO_WINDOW_MS);
 
-  if (now === null || active === undefined || pendingReviews === undefined) {
+  if (now === null || active === undefined || pendingReviews === undefined || settings === undefined) {
     return <main className="fridge-screen" aria-busy="true" />;
   }
 
@@ -110,6 +111,7 @@ export default function FridgePage() {
           item={reviewing}
           expiredText={reviewing.expiresAt === undefined ? "expired" : expiredLabel(reviewing.expiresAt, now)}
           canExtend={reviewing.canExtend === true}
+          alwaysAskSpoiled={settings.alwaysAskSpoiled}
           onResolve={(result) => decide(reviewing, result)}
           onBack={() => {
             setCheckInIds((ids) => (ids.includes(reviewing._id) ? ids : [...ids, reviewing._id]));
