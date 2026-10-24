@@ -71,7 +71,7 @@ Pure function `expiryFor(food, location, purchasedAt)` in `lib/expiry.ts`, with 
 - Use the food's range for `location`, or its fridge range if that location has none.
 - `expiresAt = purchasedAt + range.min` days. The low end of the range is used because these are safety claims.
 - Return `{ expiresAt, expirySource: range.source }`, or `null` when no sourced range exists. The item is then stored with no `expiresAt`, and the UI shows "No sourced shelf life. Set a date."
-- `purchasedAt` is the receipt date, or the upload time when the receipt has none (`costco_test_1.jpeg`).
+- `purchasedAt` is noon of the receipt date in the user's timezone (`profiles.utcOffsetMinutes`), or the upload time when the receipt has none (`costco_test_1.jpeg`). Changed 2026-10-24, see p1-05 Decision log.
 
 ### Storage tips for unfamiliar foods
 

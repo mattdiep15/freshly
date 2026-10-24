@@ -1,10 +1,11 @@
 import { v, type Infer } from "convex/values";
 import { expiryFor } from "../lib/expiry";
-import { headerMismatches, purchaseDate } from "../lib/receiptCheck";
+import { localDateKey } from "../lib/digest";
+import { purchaseDate, receiptDayToMs, verifierMismatches } from "../lib/receiptCheck";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
-import { toItemViews } from "./items";
+import { toItemViews, utcOffsetFor } from "./items";
 import { getUserId } from "./model/auth";
 import { location } from "./schema";
 import { scheduleWebLookup } from "./shelfLifeWeb";
@@ -111,11 +112,13 @@ export const confirmDrafts = mutation({
 
 // The user's confirmed purchase date: re-dates drafts from their sourced ranges, keeps dates the user typed.
 export const setPurchasedAt = mutation({
-  args: { receiptId: v.id("receipts"), purchasedAt: v.number() },
-  handler: async (ctx, { receiptId, purchasedAt }) => {
+  args: { receiptId: v.id("receipts"), date: v.string() },
+  handler: async (ctx, { receiptId, date }) => {
     const receipt = await ownReceipt(ctx, receiptId);
     if (receipt.status !== "parsed") throw new Error("Receipt is not parsed yet");
-    // One day of slack, since the typed date is local and the clock is UTC.
+    const purchasedAt = receiptDayToMs(date, await utcOffsetFor(ctx, receipt.userId));
+    if (purchasedAt === null) throw new Error("Purchase date must be YYYY-MM-DD");
+    // One day of slack, since noon today can still be ahead of now.
     if (purchasedAt > Date.now() + 24 * 60 * 60 * 1000) throw new Error("Purchase date is in the future");
     const drafts = (
       await ctx.db
@@ -179,8 +182,6 @@ export const verifyInput = internalQuery({
   },
 });
 
-const isoDate = (ms: number | undefined) => (ms === undefined ? null : new Date(ms).toISOString().slice(0, 10));
-
 // Flags only: a disagreement asks the user to confirm and never changes a date by itself.
 export const saveVerification = internalMutation({
   args: {
@@ -198,8 +199,11 @@ export const saveVerification = internalMutation({
       await ctx.db.patch(receiptId, { verification: { status: "skipped", error } });
       return;
     }
-    const claude = { storeName: receipt.storeName ?? null, purchasedAt: isoDate(receipt.purchasedAt), totalCents: receipt.totalCents ?? null };
-    const flags = new Set([...(receipt.reviewFlags ?? []), ...headerMismatches(claude, header)]);
+    const offset = await utcOffsetFor(ctx, receipt.userId);
+    const printed = receipt.purchasedAt === undefined ? null : localDateKey(receipt.purchasedAt, offset);
+    const claude = { storeName: receipt.storeName ?? null, purchasedAt: printed, totalCents: receipt.totalCents ?? null };
+    const mismatches = verifierMismatches(claude, header, receipt._creationTime, offset);
+    const flags = new Set([...(receipt.reviewFlags ?? []), ...mismatches]);
     await ctx.db.patch(receiptId, {
       reviewFlags: flags.size > 0 ? [...flags] : undefined,
       verification: {
@@ -243,7 +247,8 @@ async function saveResult(ctx: MutationCtx, receiptId: Id<"receipts">, result: I
     .collect();
   for (const item of stale) if (item.status === "draft") await ctx.db.delete(item._id);
 
-  const { purchasedAt, printedAt, implausible } = purchaseDate(result.purchasedAt, receipt._creationTime);
+  const offset = await utcOffsetFor(ctx, receipt.userId);
+  const { purchasedAt, printedAt, implausible } = purchaseDate(result.purchasedAt, receipt._creationTime, offset);
   const foodIds: Id<"foods">[] = [];
   for (const line of result.lines) {
     const food = await resolveFood(ctx, line.foodName, line.newFood);
