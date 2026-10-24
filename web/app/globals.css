@@ -2594,10 +2594,24 @@ footer {
   user-select: none;
 }
 
-
 /* The receipt img rule above would otherwise frame the mascot like a photo. */
 .receipt-preview .preview-photoleek {
   width: 80px;
   height: 160px;
   border: 0;
+}
+
+/* Line art is black; flip it so it shows on the black expired row. */
+.food-card--expired .food-icon {
+  filter: invert(1);
+}
+
+/* Decorative art would start a native image drag and swallow the swipe. */
+.swipe-card img {
+  pointer-events: none;
+}
+
+/* The port adds a "days" unit after the input, so the label needs a third column. */
+.parsed-row label {
+  grid-template-columns: auto 1fr auto;
 }
