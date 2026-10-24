@@ -14,7 +14,7 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p2-01-schema.md](p2-01-schema.md) | P2 | Tables for the grocery list, friends, and cached recipes; invite codes on profiles | Not started | ~30 min |
 | [p2-02-grocery-list.md](p2-02-grocery-list.md) | P2 | Grocery list, checked off by hand or by a scanned receipt | Not started | ~2-3 h |
 | [p2-03-community-and-streaks.md](p2-03-community-and-streaks.md) | P2 | Friends by invite code, weekly leaderboard on the friends tab, streak on the stats tab | Not started | ~4-5 h |
-| [p2-04-recipe-suggestions.md](p2-04-recipe-suggestions.md) | P2 | Recipes for use-soon items from web pages (Apify + Gemini), fixed recipes as fallback | Built; the Apify and Gemini run still needs an end-to-end check | ~3-4 h |
+| [p2-04-recipe-suggestions.md](p2-04-recipe-suggestions.md) | P2 | Recipes for use-soon items from web pages (Apify + Gemini), fixed recipes as fallback | Done; checked end to end on team dev (a run takes about 98 s); branch needs a rebase onto the v6 port | ~3-4 h |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, food recall alerts, speech, Wrapped Waste, image-based spoilage model; grocery hints, estimated prices, location reminders, and takeout leftovers moved from P2 | Draft | not estimated |
 
 p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-01 defines the whole P1 schema up front so the two do not edit `convex/schema.ts` at the same time. p1-04 depends on all three.

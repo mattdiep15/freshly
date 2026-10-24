@@ -159,7 +159,7 @@ Return up to 3 recipes that use as many of those ingredients as possible.
 - Use only recipes that appear on the given pages. Never invent a recipe or combine two pages into one.
 - sourceUrl: the URL of the page the recipe is on, copied exactly as given.
 - name: the recipe's name in lowercase.
-- ingredients: every ingredient as one or two generic lowercase words, like "chicken", "spinach", "greek yogurt", "olive oil". No amounts, brands, or preparation notes.
+- ingredients: every ingredient as one or two generic lowercase words, like "chicken", "spinach", "greek yogurt", "olive oil". No amounts, brands, or preparation notes. List the main ingredients first and seasonings like salt, pepper, oil, and water last.
 - minutes: total time in minutes. servings: how many people it feeds.
 - dish: what it is served in (pot for soups and stews, pan for skillet dishes and bakes, bowl for salads and bowls). cookTool: pot or pan, whichever the cooking mostly uses. heat: "low", "medium", "high", or "none".
 - steps: write the method in your own short words, one sentence per step, at most 6 steps. Each step has a phase: prep (washing, cutting, mixing), cook (anything on heat or in the oven), or serve (plating and finishing), in that order. Do not copy the page's wording.

@@ -64,12 +64,12 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 ## Progress
 
 - [x] 0. p2-01's `recipeStep` and `recipe` validators, the `recipeSuggestions` table, and `Recipe.sourceUrl`, added here because p2-01 was not run on its own (2026-10-24)
-- [x] 1. `convex/model/apify.ts` (2026-10-24). Not yet verified with `shelfLifeWeb:lookupNext`: the worktree's local deployment has no `APIFY_TOKEN`.
+- [x] 1. `convex/model/apify.ts` (2026-10-24). On the team dev deployment, `shelfLifeWeb:lookupNext` for "instant noodles" (released for a retry) fetched 4 StillTasty pages through the site filter and found 0 figures, so nothing was saved. No packaged food there needed a fresh lookup, so "saves a range" is not re-checked.
 - [x] 2. Recipe schema and prompt (2026-10-24)
 - [x] 3. `lib/recipeWeb.ts` and tests (2026-10-24)
-- [x] 4. `convex/recipes.ts` and `convex/recipesWeb.ts` (2026-10-24). Checked on a local deployment without `APIFY_TOKEN`: `request` writes a `pending` row, `suggest` saves `failed` with "APIFY_TOKEN is not set", the fourth call of the day returns the newest row without a new run, and a `ready` row with the same ingredients is returned as is. The Apify and Gemini run is not yet checked.
+- [x] 4. `convex/recipes.ts` and `convex/recipesWeb.ts` (2026-10-24). Checked on a local deployment without `APIFY_TOKEN`: `request` writes a `pending` row, `suggest` saves `failed` with "APIFY_TOKEN is not set", the fourth call of the day returns the newest row without a new run, and a `ready` row with the same ingredients is returned as is. End to end on the team dev deployment after a reseed: `request` used "chicken breast" and "mushrooms", and the row was `ready` about 98 seconds later with 3 recipes from recipetineats.com, allrecipes.com, and vikalinka.com. Gemini answered (no Claude fallback), and 3 of the 5 Apify results had page text. All three source pages are real recipes with chicken and mushrooms. A second `request` returned the same row, and the table held one row, so one Apify run.
 - [x] 5. `/api` routes (2026-10-24)
-- [x] 6. Recipes page (2026-10-24). Clicked through on a local deployment with a hand-saved `ready` row: the web recipe ranks first, shows "from example.com", and the mushroom chip filters to it.
+- [x] 6. Recipes page (2026-10-24). Clicked through on a local deployment with a hand-saved `ready` row: the web recipe ranks first, shows "from example.com", and the mushroom chip filters to it. Clicked through again against the team dev deployment: the 3 web recipes rank first with their "from <site>" links, the chicken chip leaves them plus the fixed chicken pasta, and adding the mushroom chip leaves only the 3 web recipes. No console errors.
 
 ## Validation
 
@@ -98,4 +98,9 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 ## Surprises
 
 - `react-hooks/rules-of-hooks` lints Convex files too: a helper named `useSoonIngredients` failed lint, so it is `soonestIngredients`.
+- The first live run took about 98 seconds, past the 20 to 60 seconds this plan guessed. For the demo, run `request` for the demo user before presenting (open question 2).
+- Gemini listed "salt" second for every recipe, so the cards read "uses chicken breast, salt". The prompt now asks for main ingredients first and seasonings last; not re-run since.
+- allrecipes.com answers 403 to `curl` but opens in a browser. Check source links in a browser, not with `curl`.
+- Putting main's functions back as `CLAUDE.md` says failed here: `git checkout origin/main -- web/convex` keeps files that exist only on the branch (`recipes.ts`, `recipesWeb.ts`, `model/apify.ts`), and main's `convex/` imported a `lib/grocery.ts` the branch did not have. It worked after also checking out `web/lib` and moving the branch-only files aside. The push also added main's `groceryItems` index, which the deployment did not have yet. The one `recipeSuggestions` row stays on the deployment, outside main's schema.
+- origin/main gained the v6 port (778cd6c) during this work, so this branch needs a rebase. Expect conflicts in `convex/schema.ts`, `convex/model/llm.ts`, `convex/shelfLifeWeb.ts`, `lib/recipes.ts`, and `convex/_generated/api.d.ts` (run `npx convex codegen` for that one).
 - `npm run typecheck` failed in the worktree on stale `.next/dev/types` from an older route set ("Cannot find module '../../../app/page.js'"). Deleting `.next/dev/types` fixed it; nothing in the repo changed.
