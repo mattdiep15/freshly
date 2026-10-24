@@ -1,3 +1,4 @@
+import { periodStart } from "../lib/wasteStats";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
 import { DEMO_EMAIL } from "./model/auth";
@@ -114,6 +115,7 @@ export async function seedDemo(ctx: MutationCtx) {
     }
   }
   await seedGrocery(ctx, userId);
+  await seedFriends(ctx, userId, now);
   return { userId, email: user?.email, items: ITEMS.length, reference };
 }
 
@@ -128,6 +130,96 @@ async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
       .withIndex("by_name", (q) => q.eq("name", name))
       .unique();
     await ctx.db.insert("groceryItems", { userId, name, foodId: food?._id });
+  }
+}
+
+// p2-03's friends. The leaderboard ranks calendar weeks, so this week's items are placed at a share of the week
+// so far (0 = Monday 00:00 local, 1 = now) and land in the current week on any day. Older tosses set long streaks.
+// Leaderboard order by weekly used rate: maya, theo, dev, you, nina.
+type FriendItem = { name: string; grams: number; wasted?: true } & ({ daysAgo: number } | { weekShare: number });
+const FRIENDS: { name: string; code: string; items: FriendItem[] }[] = [
+  {
+    name: "maya",
+    code: "MAYA42",
+    items: [
+      { name: "Kale", grams: 90, daysAgo: 18, wasted: true },
+      ...[0.2, 0.4, 0.6, 0.8, 0.95].map((weekShare) => ({ name: "Carrots", grams: 450, weekShare })),
+    ],
+  },
+  {
+    name: "theo",
+    code: "THEX27",
+    items: [
+      { name: "Tortillas", grams: 320, daysAgo: 9, wasted: true },
+      { name: "Tofu", grams: 400, weekShare: 0.5 },
+      { name: "Rice", grams: 900, weekShare: 0.9 },
+    ],
+  },
+  {
+    name: "dev",
+    code: "DEVV58",
+    items: [
+      { name: "Cilantro", grams: 500, weekShare: 0.1, wasted: true },
+      ...[0.3, 0.6, 0.9].map((weekShare) => ({ name: "Pasta", grams: 450, weekShare })),
+    ],
+  },
+  {
+    name: "nina",
+    code: "NINA36",
+    items: [
+      { name: "Avocados", grams: 150, weekShare: 0.1, wasted: true },
+      { name: "Berries", grams: 150, weekShare: 0.2, wasted: true },
+      { name: "Bagels", grams: 175, weekShare: 0.3, wasted: true },
+      { name: "Hummus", grams: 160, weekShare: 0.4, wasted: true },
+      { name: "Oats", grams: 500, weekShare: 0.8 },
+    ],
+  },
+];
+
+const FRIEND_UTC_OFFSET = -420;
+
+async function seedFriends(ctx: MutationCtx, demoId: Id<"users">, now: number) {
+  const weekStart = periodStart("week", now, FRIEND_UTC_OFFSET);
+  for (const row of await ctx.db.query("friendships").withIndex("by_user", (q) => q.eq("userId", demoId)).collect()) {
+    await ctx.db.delete(row._id);
+  }
+  for (const friend of FRIENDS) {
+    const email = `${friend.name}@freshly.test`;
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .unique();
+    const friendId = user?._id ?? (await ctx.db.insert("users", { name: friend.name, email }));
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", friendId))
+      .unique();
+    const profileFields = { userId: friendId, displayName: friend.name, utcOffsetMinutes: FRIEND_UTC_OFFSET, digestHour: 9, inviteCode: friend.code };
+    if (profile) await ctx.db.patch(profile._id, profileFields);
+    else await ctx.db.insert("profiles", profileFields);
+
+    const stale = [
+      ...(await ctx.db.query("items").withIndex("by_user_status", (q) => q.eq("userId", friendId)).collect()),
+      ...(await ctx.db.query("friendships").withIndex("by_user", (q) => q.eq("userId", friendId)).collect()),
+    ];
+    for (const row of stale) await ctx.db.delete(row._id);
+    await ctx.db.insert("friendships", { userId: demoId, friendId });
+    await ctx.db.insert("friendships", { userId: friendId, friendId: demoId });
+
+    // No foodId or expiry: these rows only feed the friend's weekly numbers and streak.
+    for (const item of friend.items) {
+      await ctx.db.insert("items", {
+        userId: friendId,
+        name: item.name,
+        quantity: 1,
+        weightGrams: item.grams,
+        location: "fridge",
+        purchasedAt: now - 30 * DAY,
+        status: item.wasted ? "wasted" : "used",
+        fractionWasted: item.wasted ? 1 : 0,
+        resolvedAt: "daysAgo" in item ? now - item.daysAgo * DAY : weekStart + item.weekShare * (now - weekStart),
+      });
+    }
   }
 }
 

@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { Leekly } from "@/app/_components/ui/Leekly";
 
 // approximate is true when some wasted items have no weight, so lbs wasted is a floor.
-type Totals = { rescued: number; lbsWasted: number; usedRate: number | null; approximate: boolean };
-type Period = { label: string; rescued: number; lbsWasted: number };
+type Totals = { rescued: number; lbsWasted: number; streakDays: number; approximate: boolean };
+type Period = { label: string; rescued: number; lbsWasted: number; centsWasted: number; usedRate: number | null };
 
 const FIRST_DRAW_MS = 1400;
 const REPLAY_DRAW_MS = 1000;
@@ -115,11 +115,10 @@ export function StatCircles({ totals }: { totals: Totals }) {
         tooltip={totals.approximate ? "at least this much food discarded this month; some items have no weight" : "estimated food discarded this month"}
       />
       <StatCircle
-        value={totals.usedRate === null ? 0 : Math.round(totals.usedRate * 100)}
-        suffix="%"
+        value={totals.streakDays}
         delay={STAGGER_MS * 2}
-        label="% used"
-        tooltip="share of the foods you resolved this month that you used"
+        label="day streak"
+        tooltip="days since you last tossed food or left an expired card unswiped"
         positive
       />
     </section>
@@ -148,15 +147,29 @@ export function PeriodTable({ periods }: { periods: Period[] }) {
           <span className="desktop-table-label">lbs wasted</span>
           <span className="mobile-table-label">lbs</span>
         </span>
+        <span>
+          <span className="desktop-table-label">$ wasted</span>
+          <span className="mobile-table-label">$</span>
+        </span>
+        <span>
+          <span className="desktop-table-label">% used</span>
+          <span className="mobile-table-label">used</span>
+        </span>
       </div>
       {periods.map((period) => (
         <div className="thin-row" key={period.label}>
-          <strong>{period.label}</strong>
+          {/* Phones drop "this " so "week" and "month" fit beside five columns. */}
+          <strong>
+            {period.label.startsWith("this ") && <span className="desktop-unit">this </span>}
+            {period.label.replace(/^this /, "")}
+          </strong>
           <span>{period.rescued}</span>
           <span>
             {period.lbsWasted.toFixed(1)}
             <span className="desktop-unit"> lbs</span>
           </span>
+          <span>${(period.centsWasted / 100).toFixed(2)}</span>
+          <span>{period.usedRate === null ? "-" : `${Math.round(period.usedRate * 100)}%`}</span>
         </div>
       ))}
     </div>
