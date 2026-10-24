@@ -57,15 +57,19 @@ Computing on read is fine at hackathon scale. P2's leaderboard will need these n
 
 ## Progress
 
-- [ ] 1. Item list queries
-- [ ] 2. `items.resolve`
-- [ ] 3. `lib/digest.ts` and its tests
-- [ ] 4. `lifecycle.tick` and the cron
-- [ ] 5. Web push sending
-- [ ] 6. In-app notification feed
-- [ ] 7. `lib/wasteStats.ts`, its tests, and `stats.summary`
-- [ ] 8. `/api` test routes
+- [x] 1. Item list queries (2026-10-23: `items.list`, `items.get`, `items.useSoon`, `reviews.pending`; `showTip` implemented in full)
+- [x] 2. `items.resolve`
+- [x] 3. `lib/digest.ts` and its tests
+- [x] 4. `lifecycle.tick` and the cron
+- [x] 5. Web push sending (2026-10-23: verified up to the `web-push` call; a real system notification needs a human, see Surprises)
+- [x] 6. In-app notification feed
+- [x] 7. `lib/wasteStats.ts`, its tests, and `stats.summary`
+- [x] 8. `/api` test routes
 - [ ] 9. `lib/extension.ts`, its tests, and `items.extend`
+
+## File ownership while p1-02 runs in parallel
+
+This plan owns `convex/items.ts` (`list`, `get`, `useSoon`, `resolve`, and the item shape), `convex/reviews.ts`, `convex/lifecycle.ts`, `convex/crons.ts`, `convex/push.ts`, `convex/pushNode.ts`, `convex/notifications.ts`, `convex/stats.ts`, `runTick` and `pushTest` in `convex/dev.ts`, `lib/digest.ts`, `lib/wasteStats.ts`, `lib/pushDelivery.ts`, their tests, the routes under `app/api/items/`, `app/api/reviews/`, `app/api/stats/`, `app/api/notifications/`, `app/api/dev/tick/` and `app/api/dev/push-test/`, `app/dev/push/page.tsx`, `app/_components/PushSubscribeButton.tsx`, and `public/sw.js`. p1-02 owns `convex/receipts.ts`, `convex/receiptsNode.ts`, `convex/itemEdits.ts` (its `confirmDrafts`, `update`, `addManual`), `convex/foods.ts` (including `foods.ackTip`), and `lib/expiry.ts`. Neither plan edits `convex/schema.ts` or `convex/seed.ts`. Both regenerate the tracked `convex/_generated/api.d.ts`; on a merge conflict there, run `npx convex codegen` instead of hand-merging.
 
 ## Steps
 
@@ -111,15 +115,26 @@ Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today
 
 | Convex function | Kind | Test route |
 | --- | --- | --- |
-| `items.list` | query | `GET /api/items/list` |
-| `items.useSoon` | query | `GET /api/items/use-soon` |
-| `reviews.pending` | query | `GET /api/reviews/pending` |
-| `items.resolve` | mutation | `GET /api/items/resolve` |
+| `items.list({ status? })` | query | `GET /api/items/list?status=active` |
+| `items.get({ itemId })` | query | `GET /api/items/get?id=` |
+| `items.useSoon({ days? })` | query | `GET /api/items/use-soon?days=7` |
+| `reviews.pending()` | query | `GET /api/reviews/pending` |
+| `items.resolve({ itemId, outcome, fractionWasted? })` | mutation | `GET /api/items/resolve?id=&outcome=used` |
 | `items.extend` | mutation | `GET /api/items/extend` |
-| `stats.summary` | query | `GET /api/stats/summary` |
-| `notifications.list`, `notifications.markRead` | query, mutation | `GET /api/notifications/list` |
-| `push.saveSubscription`, `push.removeSubscription` | mutation | `/dev/push` page |
-| `lifecycle.tick` (via `dev.runTick`) | internal mutation, cron | `GET /api/dev/tick` |
+| `stats.summary({ range? })` | query | `GET /api/stats/summary?range=week` |
+| `notifications.list()` | query | `GET /api/notifications/list` |
+| `notifications.markRead({ notificationId })` | mutation | `GET /api/notifications/mark-read?id=` |
+| `push.saveSubscription({ endpoint, p256dh, auth })`, `push.removeSubscription({ endpoint })` | mutation | `/dev/push` page |
+| `lifecycle.tick({ now?, force? })` (via `dev.runTick`) | internal mutation, hourly cron | `GET /api/dev/tick?now=&force=1` |
+| `pushNode.send({ notificationId })`, `pushNode.sendTest({ userId })` (via `dev.pushTest`) | internal action | `GET /api/dev/push-test` |
+
+Return shapes for the frontend:
+
+- `items.list`, `items.useSoon`, and `reviews.pending` return `ItemView[]`; `items.get` returns `ItemView | null` (null when missing or not the caller's). `ItemView` is the `items` document plus `daysLeft: number | null` (local calendar days: 0 is today, negative is past, null when undated), `storageTip: { text, source: "fda_chart" | "foodkeeper" | "llm" } | null`, `freshnessHint: { text, source: "foodkeeper" | "llm" } | null`, and `showTip: boolean`. `list` sorts by `expiresAt` with undated items last, `useSoon` returns active dated items with `daysLeft <= days` soonest first, and `pending` returns `expired` items oldest expiry first.
+- `items.resolve` returns `{ itemId, status, fractionWasted, resolvedAt }`. It throws on items that are not `active` or `expired`, and on a `fractionWasted` outside 0 to 1.
+- `stats.summary` returns `{ range, itemsUsed, itemsWasted, usedRate: number | null, wastedCents, wastedGrams, wastedLbs, itemsMissingPrice, itemsMissingWeight }`. `range` defaults to `week`.
+- `notifications.list` returns `notifications` documents (`{ _id, dateKey, kind: "digest", title, body, itemIds, undatedCount?, readAt? }`), newest first, from the last 30 days.
+- `dev.runTick` returns `{ expired: number, digests: Id<"notifications">[] }`. `dev.pushTest` returns `{ subscriptions, payload: { title, body, url }, sent, gone: string[], failed: string[] }`.
 
 ## Validation
 
@@ -130,6 +145,8 @@ Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today
 - A user with 5 items hitting reminder days on the same day gets one push, not five.
 - On a browser that granted notification permission, `/api/dev/tick?force=1` produces a system notification.
 
+Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck, and 24 tests pass. `/api/items/use-soon` returns Chicken breast (1), Cremini mushrooms (3), Eggs (7) in that order. `/api/reviews/pending` returns 3. `/api/stats/summary?range=week` returned 1 used, 3 wasted, 878 cents, 1304 g, 2.87 lb, which matches a hand count of the seed (yogurt half of 599, cottage cheese 429, a quarter of the 599 bread). Resolving the three review items (beef wasted, spinach used, strawberries half wasted) moved it to 2 used, 5 wasted, 2227 cents. `/api/dev/tick?now=2026-10-24T16:00:00Z&force=1` made one notification and a second run without `force` made none. A tick at now + 400 days expired every dated item and left the undated milk `active`. The cron check and the system notification are below.
+
 ## Decision log
 
 - 2026-10-23: One daily digest per user instead of per-item pushes, to keep reminders from feeling like spam.
@@ -139,6 +156,21 @@ Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today
 - 2026-10-23: Digest and stats math live in `lib/` as pure functions so they can be unit tested, per `CLAUDE.md`.
 - 2026-10-24: Design v2's "extend by 2 days" is capped at the high end of the sourced range. A flat 2 days would be an unsourced shelf-life number, which `CLAUDE.md` forbids. The cap is computed from the food row at swipe time, so the schema does not change.
 
+- 2026-10-23: `daysLeft` counts local calendar days from the user's `profiles.utcOffsetMinutes`, so "tomorrow" means the next local date and not the next 24 hours. The item queries compute it with `Date.now()`, and Convex reruns a query only when its data changes, so an open page can show yesterday's `daysLeft` after midnight until something refreshes it. The frontend can recompute from `expiresAt` if that matters.
+- 2026-10-23: `showTip` is true while `foodFamiliarity.tipViews` is below 3 and the food has a `storageTip` or `freshnessHint`. Items with no `foodId`, or whose food has neither, return `false`, since there is nothing to show.
+- 2026-10-23: `lifecycle.tick` loops over `profiles` instead of grouping the next 8 days of items by user. The item scan would skip users whose only news is a pending swipe or an undated item. Tagged `TODO(release)` to scan only the profiles due this hour once there are many users.
+- 2026-10-23: `buildDigest` takes a sixth argument, `lastUndatedNudgeDateKey`, so the once-a-week rule for undated items lives in `lib/` with a test. `tick` reads it from the user's recent notifications.
+- 2026-10-23: The digest body reads "Expiring tomorrow: Spinach and Ground beef. In 3 days: Eggs. 2 items need a swipe." instead of "Spinach and ground beef expire tomorrow", because an item name does not say whether to use "has" or "have". `itemIds` lists only the 1, 3, and 7 day items.
+- 2026-10-23: `summarizeWaste` returns `usedRate: null` when nothing was resolved in range. `itemsMissingPrice` counts only items with some waste and no price, which are the ones that make `wastedCents` an underestimate. `itemsMissingWeight` does the same for weight.
+- 2026-10-23: The push send loop lives in `lib/pushDelivery.ts` with the sender injected, so the rule that 404 and 410 delete a subscription is unit tested without Convex or a push service.
+- 2026-10-23: `dev.pushTest` is a public action rather than a mutation, so `/api/dev/push-test` can return the delivery result. Added `GET /api/items/get` and `GET /api/notifications/mark-read`, which the step 8 list did not have.
+- 2026-10-23: `VAPID_SUBJECT` is `mailto:dev@freshly.test`. Push services see this address on every push, so a real team address should replace it before launch.
+
 ## Surprises
 
-(none yet)
+- 2026-10-23: Two other sessions had local Convex backends on ports 3210 and 3230. `npx convex dev --local-cloud-port 3250 --local-site-port 3251` runs this worktree's backend beside them. The state lives in the worktree's own `.convex/local/default`, so no data is shared. Next.js ran on 3005.
+- 2026-10-23: The Convex Auth env vars were generated with a short `jose` script (an RS256 key and its JWKS, as `npx @convex-dev/auth` makes them) and piped into `npx convex env set`, because the CLI also tries to edit tracked files.
+- 2026-10-23: The browser pane denies notification permission, so no real system notification was seen. Verified instead: `push.saveSubscription` stores a subscription (made with a generated P-256 key), `/api/dev/push-test` builds the payload `{ title, body, url }`, `web-push` encrypts and sends it, and a network failure is reported as `failed` without deleting the row. A forced tick schedules `pushNode.send`, which completed successfully. `web-push` only speaks HTTPS, so the 404 and 410 path was checked by unit test (`lib/pushDelivery.test.ts`) plus a direct run of `push.deleteByEndpoints`. To check in a real browser: run the app, open `http://localhost:3005/dev/push`, click Subscribe and allow notifications, then open `http://localhost:3005/api/dev/push-test`. The JSON should say `"sent": 1` and a system notification should appear. `/api/dev/tick?force=1` should then show the digest as a notification.
+- 2026-10-23: Seeded `expiresAt` values are relative to the moment of seeding, while `/api/dev/tick?now=...` uses the given time. A tick at a fixed `now` far from the seed time sees different `daysLeft` values than the seed intends, so the 1, 3, and 7 day items may not appear in that digest. `/api/dev/tick?force=1` without `now` uses the real time and shows them.
+- 2026-10-23: A forced tick with a future `now` writes a notification with a future `dateKey`. Later real-time ticks ignore it for the weekly undated check, which only looks at dates up to today. This only happens in dev, and `/api/dev/seed` clears it.
+
