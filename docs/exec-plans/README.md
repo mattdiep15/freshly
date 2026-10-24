@@ -1,0 +1,29 @@
+# Exec plans
+
+These plans break `docs/PRODUCT.md` (converted from the team's design doc) into work an engineer or coding agent can pick up. Priority 1, 2, and 3 in the spec map to P1, P2, and P3 here. Read `CLAUDE.md` before executing any plan; its rules on code layout, food safety data, demo shortcuts, and git apply to every step.
+
+The designer is still working on the UI, so the P1 plans cover the backend only. Each P1 plan ends with Convex functions the frontend can call once screens exist, a browser-testable `/api` route for each, and seed data so the UI can be built against realistic state.
+
+| Plan | Tier | Covers | Status | Estimate |
+| --- | --- | --- | --- | --- |
+| [p1-01-backend-foundation.md](p1-01-backend-foundation.md) | P1 | Convex project, vitest, schema, auth, sourced shelf-life data, demo seed | Done; milk has no sourced fridge range (see Surprises) | ~4 h |
+| [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, item matching, expiry dates, storage tips for unfamiliar foods | Ready | ~4-5 h |
+| [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards, waste stats | Ready | ~4-5 h |
+| [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, location reminders, takeout leftovers | Draft | not estimated |
+| [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes, speech, Wrapped Waste | Draft | not estimated |
+
+p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-01 defines the whole P1 schema up front so the two do not edit `convex/schema.ts` at the same time.
+
+"Clean, demo-ready UI" is a P1 goal in the spec. It is frontend work and has no plan here. The backend's contribution is the demo seed in p1-01.
+
+## Open questions for the team
+
+1. Auth provider. p1-01 proposes Convex Auth with email and password. Clerk is the main alternative.
+2. Anthropic API key. p1-02 uses Claude to read receipts and match lines to foods. Someone needs to own the key.
+3. Model-written tips. `CLAUDE.md` bars unsourced shelf-life numbers, and the plans follow that. Storage tips and freshness hints for foods outside the FDA chart and FoodKeeper are written by Claude, stored with `source: "llm"`, and labeled in the UI. Confirm that is acceptable, or drop those tips.
+4. Partial waste. The spec's swipe card is binary (used or not used). The backend stores a `fractionWasted` value so the UI can add "half used" later without a migration. Decide whether P1 UI exposes it.
+5. Test receipts. `data/` holds real receipts with Costco member numbers and card digits. Decide whether to commit them, redact them, or keep them local.
+
+## Working on a plan
+
+Each plan is a living document. As you work, check off steps in Progress, record choices in the Decision log, and note anything unexpected under Surprises. A plan is done when its Validation section passes and, per `CLAUDE.md`, the feature works when clicked through in the running app (for backend work, through its `/api` routes).
