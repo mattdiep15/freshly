@@ -9,17 +9,25 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
 import type * as dev from "../dev.js";
 import type * as foods from "../foods.js";
 import type * as http from "../http.js";
 import type * as itemEdits from "../itemEdits.js";
+import type * as items from "../items.js";
+import type * as lifecycle from "../lifecycle.js";
 import type * as model_auth from "../model/auth.js";
 import type * as model_claude from "../model/claude.js";
 import type * as model_foods from "../model/foods.js";
+import type * as notifications from "../notifications.js";
 import type * as profiles from "../profiles.js";
+import type * as push from "../push.js";
+import type * as pushNode from "../pushNode.js";
 import type * as receipts from "../receipts.js";
 import type * as receiptsNode from "../receiptsNode.js";
+import type * as reviews from "../reviews.js";
 import type * as seed from "../seed.js";
+import type * as stats from "../stats.js";
 
 import type {
   ApiFromModules,
@@ -29,17 +37,25 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  crons: typeof crons;
   dev: typeof dev;
   foods: typeof foods;
   http: typeof http;
   itemEdits: typeof itemEdits;
+  items: typeof items;
+  lifecycle: typeof lifecycle;
   "model/auth": typeof model_auth;
   "model/claude": typeof model_claude;
   "model/foods": typeof model_foods;
+  notifications: typeof notifications;
   profiles: typeof profiles;
+  push: typeof push;
+  pushNode: typeof pushNode;
   receipts: typeof receipts;
   receiptsNode: typeof receiptsNode;
+  reviews: typeof reviews;
   seed: typeof seed;
+  stats: typeof stats;
 }>;
 
 /**
