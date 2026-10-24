@@ -79,17 +79,30 @@ The product spec asks for an "Anki/Duolingo" feel: teach storage for foods the u
 
 Tips and hints carry their source. When the source is `"llm"`, the UI labels them as general guidance. See open question 3 in the README.
 
+## File ownership while p1-03 runs in parallel
+
+These override the module names in the steps below (2026-10-23). p1-03 owns `convex/items.ts` (`items.get`, `items.list`, and the item shape with `storageTip`, `freshnessHint`, `showTip`), so this plan's item functions live elsewhere:
+
+| Plan text | Built as |
+| --- | --- |
+| `items.confirmDrafts` | `receipts.confirmDrafts` in `convex/receipts.ts` |
+| `items.update` | `itemEdits.update` in `convex/itemEdits.ts` |
+| `items.addManual` | `receiptsNode.addManual` in `convex/receiptsNode.ts` (`"use node"`, next to `parse`) |
+| `receipts.parse` | `receiptsNode.parse` |
+| `data/<name>.expected.json` | `convex/data/receipt-fixtures/<name>.expected.json` (committed; names and prices only) |
+| `/api/items/...` routes | `/api/receipts/...`, `/api/item-edits/...`, `/api/foods/...` |
+
 ## Progress
 
-- [ ] 1. Expected results for the test receipts
-- [ ] 2. `lib/expiry.ts` and its tests
-- [ ] 3. Upload and receipt mutations
-- [ ] 4. Parse action with Claude
-- [ ] 5. Save parsed lines as drafts
-- [ ] 6. Confirm, edit, set date, and manual add
-- [ ] 7. Storage tips and familiarity
-- [ ] 8. Backfill tips and hints for reference foods
-- [ ] 9. `/api` test routes
+- [x] 1. Expected results for the test receipts (2026-10-23: 22, 7, and 7 lines; each line also carries the `foodName` or `newFood` a correct parse should return, so the file doubles as the mock payload)
+- [x] 2. `lib/expiry.ts` and its tests (2026-10-23: 5 tests)
+- [x] 3. Upload and receipt mutations
+- [x] 4. Parse action with Claude (2026-10-23: built and deployed; never run against the API, see Surprises)
+- [x] 5. Save parsed lines as drafts (2026-10-23: verified through the mock path)
+- [x] 6. Confirm, edit, set date, and manual add (2026-10-23: `addManual` verified for exact name and alias matches only)
+- [x] 7. Storage tips and familiarity (2026-10-23: `foods.ackTip` only; `showTip` in `items.get` and `items.list` belongs to p1-03)
+- [ ] 8. Backfill tips and hints for reference foods (2026-10-23: `foods.backfillTips` built and deployed, not run; needs the key)
+- [x] 9. `/api` test routes
 
 ## Steps
 
@@ -133,13 +146,18 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
 | Convex function | Kind | Test route |
 | --- | --- | --- |
 | `receipts.generateUploadUrl` | mutation | used by `/api/dev/parse-test` |
-| `receipts.create` | mutation | used by `/api/dev/parse-test` |
-| `receipts.get` | query | `GET /api/receipts/get?id=` |
-| `items.confirmDrafts` | mutation | `GET /api/items/confirm-drafts?receiptId=` |
-| `items.update` | mutation | `GET /api/items/update?id=` |
-| `items.addManual` | action | `GET /api/items/add-manual?name=` |
-| `items.get`, `items.list` | query | shared with p1-03 |
-| `foods.ackTip` | mutation | `GET /api/foods/ack-tip?id=` |
+| `receipts.create({ fileId, fileType })` | mutation | `GET /api/dev/parse-test?name=costco_test_2.jpeg` |
+| `receipts.get({ receiptId })` | query, returns the receipt plus `drafts` | `GET /api/receipts/get?id=` |
+| `receipts.confirmDrafts({ receiptId, removeItemIds? })` | mutation | `GET /api/receipts/confirm-drafts?receiptId=&remove=id1,id2` |
+| `itemEdits.update({ itemId, name?, quantity?, location?, expiresAt? })` | mutation | `GET /api/item-edits/update?id=&expiresAt=2026-11-01&location=freezer` |
+| `receiptsNode.addManual({ name, quantity?, location?, priceCents? })` | action | `GET /api/receipts/add-manual?name=eggs` |
+| `foods.ackTip({ foodId })` | mutation, returns `{ tipViews, showTip }` | `GET /api/foods/ack-tip?id=` |
+| `receipts.devCreateParsed` | dev-only mutation, saves a fixture as the parse result | `GET /api/dev/parse-test?name=costco_test_2.jpeg&mock=1` |
+| `receiptsNode.parse`, `receipts.saveParsed` | internal action, internal mutation | scheduled by `receipts.create` |
+| `foods.backfillTips` | internal action | `npx convex run foods:backfillTips` |
+| `items.get`, `items.list` | query | p1-03 |
+
+`foods.TIP_VIEWS_TO_LEARN` (3) is exported for p1-03's `showTip`.
 
 ## Validation
 
@@ -150,6 +168,17 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
 - An upload that is not a receipt ends in status `failed` with a readable error, and no items are created.
 - Parsing the same receipt twice creates no duplicate `foods` rows.
 
+Result on 2026-10-23, with no `ANTHROPIC_API_KEY`, against a local deployment on `localhost:3004`:
+
+- Lint, typecheck, and `npm test` (11 tests) pass.
+- 80% accuracy: not measured. It needs a live parse (see Surprises).
+- Voided lines, CRV, and alcohol: the expected files leave them out and the prompt states the rules. Only a live parse can show the model follows them.
+- Expiry sources: passes on the mock path. Matched foods get `fda_chart` or `foodkeeper`, unmatched and unsourced foods get no date, and a date set through `itemEdits.update` gets `user`. The output schema has no shelf-life field, so the model cannot supply days.
+- Not a receipt: `saveParsed` with `isReceipt: false` sets `failed` with "This file doesn't look like a grocery receipt." and creates no items. A live parse without the key also ends in `failed` with "ANTHROPIC_API_KEY is not set on this Convex deployment.", and a 3.8 MB photo fails with the size message before any model call.
+- No duplicate foods: four mock parses (both Costco receipts, the TJ PDF, then `costco_test_2` again) leave 675 rows: 673 reference foods plus `energy drink` and `instant noodles`, no duplicate names. Both Costco receipts point at the one `ground beef` row, and its items have `expirySource: "fda_chart"`.
+- Step 6: moving ground beef bought 2026-10-24 from fridge to freezer moved `expiresAt` from 2026-10-25 to 2027-01-22. The `useSoon` half of that check waits for p1-03.
+- Step 7: three `foods.ackTip` calls return `showTip` true, true, false. `items.get` returning `showTip: false` waits for p1-03.
+
 ## Decision log
 
 - 2026-10-23: Claude maps receipt lines to `foods` instead of a SKU lookup. Costco item numbers are store-internal and Trader Joe's prints none. If a store's receipts print UPCs, an Open Food Facts lookup can be added as a first pass later.
@@ -157,8 +186,27 @@ Tips and hints carry their source. When the source is `"llm"`, the UI labels the
 - 2026-10-23: The model never supplies shelf-life numbers, per `CLAUDE.md`. Unknown foods get a `foods` row for matching, tips, and hints, but no ranges, and items made from them have no date until the user sets one.
 - 2026-10-23: Accept PDFs as well as images, because one of the team's test receipts is a PDF.
 - 2026-10-23: Familiarity uses a fixed count of 3 tip views. Spaced repetition is deferred.
+- 2026-10-23: Structured output (`output_config.format` with a JSON schema) replaces the forced `record_receipt` tool call. `claude-sonnet-5-5` returns a 400 for a forced `tool_choice`. The payload shape is the one in "`record_receipt` tool output" plus an `isReceipt` flag, so a photo of something else fails with a readable error instead of an empty receipt.
+- 2026-10-23: Every Claude call goes through `askJson` in `convex/model/claude.ts`, with `fallbacks: "default"` (beta `server-side-fallback-2026-07-01`) so a safety-classifier refusal is retried on another model instead of failing the parse. The foods list sits in a cached system prompt, since it is the same on every call.
+- 2026-10-23: `addManual` checks for an exact food name or alias first and only calls Claude when there is none. It is cheaper and lets the demo add common items without a key.
+- 2026-10-23: The mock path is a dev-only public mutation, `receipts.devCreateParsed`, that inserts the receipt and saves the fixture in one step. It schedules no `parse`, so a parse with no key cannot race it and mark the receipt failed. `parse` also skips any receipt that is no longer `uploaded`.
+- 2026-10-23: Re-parsing a receipt deletes its earlier drafts before inserting new ones. Confirmed items stay.
+- 2026-10-23: `itemEdits.update` moves an `expired` item back to `active` when it gets a future `expiresAt`, so a corrected date takes the swipe card away.
+- 2026-10-23: Image limit is 3.75 MB of raw bytes, because the API's 5 MB per-image cap applies after base64 encoding. `costco_test_2.jpeg` (2.9 MB) fits. PDFs are capped at 20 MB, under the 32 MB request limit.
+- 2026-10-23: Unmatched foods get `location` from the model's `newFood.defaultLocation`, else `fridge`. A line with neither a match nor a `newFood` becomes an item with no `foodId` and no date.
 - 2026-10-24: Design v2 marks manual entry high priority (P1.5). `addManual` stays in this plan and gains an optional `expiresAt`, so a user adding an undated food can set its date in the same step.
 
 ## Surprises
 
-(none yet)
+- 2026-10-23: No `ANTHROPIC_API_KEY` was available, so no live parse has run. `parse`, `addManual` with an unknown name, and `backfillTips` are deployed and fail with "ANTHROPIC_API_KEY is not set on this Convex deployment." Still unverified: the 80% accuracy check, the VOID, CRV, and alcohol rules, whether the API accepts `RECEIPT_SCHEMA` as written (it uses `anyOf` with `null` for optional fields), and step 8. To run them:
+  1. `npx convex env set ANTHROPIC_API_KEY <key>` on the dev deployment. Optionally set `RECEIPT_MODEL`; the default is `claude-sonnet-5-5`.
+  2. With `npm run dev` running, open `/api/dev/parse-test?name=<file>` for `costco_test_1.jpeg`, `costco_test_2.jpeg`, and `tj_test_1.pdf`. Each returns a `receiptId`.
+  3. Refresh `/api/receipts/get?id=<receiptId>` until `status` is `parsed` or `failed`. The Convex log prints each line's name and price.
+  4. Compare `drafts` (`name`, `priceCents`) with `convex/data/receipt-fixtures/<file>.expected.json` and record the share of the 36 expected lines that match under this section.
+  5. Run `npx convex run foods:backfillTips`, then check that no `foods` row lacks a `freshnessHint` and that no range changed.
+  6. Open `/api/receipts/add-manual?name=greek%20yogurt` to check the model path of `addManual`.
+- 2026-10-23: The prices on `costco_test_1.jpeg` sit about one row above their item names, because the photo is tilted. Read row by row, the prices in the top third land on the wrong items. Pairing them by order (Gold Kiwi 14.99, then the `/ 6995` 3.00 discount) matches the plan's 1199 cents. The prompt tells the model to pair prices by order and check them against the totals. Watch this line in the accuracy check.
+- 2026-10-23: `tj_test_1.pdf` carries a text layer with the receipt's text, so the model gets the text as well as the photo.
+- 2026-10-23: On `costco_test_1.jpeg`, `BUZZ VAMP` (15.99, CRV, no `E` flag) is left out of the expected file as alcohol. On these Costco receipts the `E` flag marks the exempt food lines, and every line without it is alcohol or a deposit.
+- 2026-10-23: The Anthropic SDK runs in Convex's default runtime, so `foods.backfillTips` lives in `convex/foods.ts` without `"use node"`.
+- 2026-10-23: Each worktree's anonymous Convex deployment keeps its state in its own `.convex/`, so parallel sessions do not share data. Auth keys for this one were generated with `jose` and set with `npx convex env set`, because `npx @convex-dev/auth` is interactive. `SITE_URL` is `http://localhost:3004`.
