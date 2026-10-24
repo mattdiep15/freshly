@@ -1,0 +1,260 @@
+.stats-screen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(30px, 5vw, 80px);
+  align-items: start;
+  justify-items: center;
+  min-height: 390px;
+}
+
+.stats-heading {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 38px;
+}
+
+.stats-mascot {
+  width: 60px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.stat-circle {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 0;
+  background: var(--paper);
+  cursor: pointer;
+}
+
+.circle-art {
+  position: relative;
+  width: min(100%, 280px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.circle-art svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.circle-stroke {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 0;
+}
+
+.circle-stroke.is-animating {
+  animation-name: circle-draw;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
+}
+
+@keyframes circle-draw {
+  from {
+    stroke-dashoffset: 900;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.circle-art strong {
+  position: relative;
+  width: 3ch;
+  font-family: var(--font-display), sans-serif;
+  font-size: 96px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-align: center;
+}
+
+.stat-label {
+  margin-top: 20px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.mobile-stat-break {
+  display: none;
+}
+
+.stat-circle.positive .circle-art strong {
+  color: var(--good);
+}
+
+.stat-tooltip {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 12px);
+  width: 220px;
+  border: 1px solid var(--ink);
+  padding: 9px 11px;
+  background: var(--paper);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .stats-screen {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-circle {
+    max-width: 280px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* globals rule; loads here to stay after .stat-tooltip */
+  .detail-line span,
+  .detail-line p,
+  .eyebrow,
+  .task-copy small,
+  .receipt-choice small,
+  .parsed-row label,
+  .list-labels,
+  .stock-tooltip p {
+    font-size: max(11px, 1em);
+  }
+
+  /* fridge rule; loads here to stay after .detail-line span */
+  .detail-line p {
+    line-height: 1.35;
+  }
+
+  .stats-heading {
+    margin-bottom: 24px;
+  }
+
+  .stats-heading h1 {
+    font-size: 36px;
+  }
+
+  .stats-mascot {
+    width: 42px;
+    height: 88px;
+  }
+
+  .stats-screen {
+    width: min(100%, 340px);
+    min-height: 0;
+    grid-template-columns: repeat(3, minmax(0, 108px));
+    gap: 8px;
+    align-items: start;
+    justify-content: center;
+    padding-bottom: 0;
+    margin: 0 auto;
+  }
+
+  .stat-circle {
+    width: 108px;
+    max-width: none;
+  }
+
+  .circle-art {
+    width: 108px;
+    height: 108px;
+    aspect-ratio: 1;
+  }
+
+  .circle-stroke {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .circle-art strong {
+    font-size: 40px;
+  }
+
+  .stat-label {
+    width: 100%;
+    min-height: 34px;
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .mobile-stat-break {
+    display: initial;
+  }
+
+  .desktop-stat-space {
+    display: none;
+  }
+
+  .week-list {
+    margin-top: 24px;
+  }
+
+  .week-list .thin-row {
+    grid-template-columns: minmax(0, 1fr) 64px 64px;
+  }
+
+  .nav-stats {
+    grid-column: 2;
+  }
+
+  /* home rule; loads here to stay after .detail-line span */
+  .task-copy small {
+    margin-top: 3px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+}
+
+.stats-heading {
+  flex-direction: row;
+  min-height: 300px;
+}
+
+.stats-leek-preview {
+  display: grid;
+  justify-items: center;
+}
+
+.stats-leek-preview .stats-mascot {
+  width: auto;
+  height: 280px;
+  display: block;
+  object-fit: contain;
+}
+
+@media (max-width: 767px) {
+  .stats-heading {
+    flex-direction: row;
+    min-height: 180px;
+    gap: 20px;
+  }
+
+  .stats-leek-preview {
+    flex: 0 0 auto;
+  }
+
+  .stats-leek-preview .stats-mascot {
+    height: 150px;
+  }
+}

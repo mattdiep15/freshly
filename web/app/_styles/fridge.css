@@ -1,0 +1,1552 @@
+.page-heading {
+  position: relative;
+  min-height: 480px;
+  display: grid;
+  grid-template-columns: 480px minmax(0, 1fr);
+  align-items: center;
+  gap: 48px;
+  margin: 48px 0;
+}
+
+.fridge-title {
+  min-width: 0;
+}
+
+.fridge-title-copy {
+  position: relative;
+}
+
+.mobile-fridge-leek,
+.mobile-item-count {
+  display: none;
+}
+
+.page-heading h1 {
+  max-width: 100%;
+  font-size: 64px;
+  overflow-wrap: anywhere;
+}
+
+.item-count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+}
+
+.food-list {
+  border-top: 2px solid var(--ink);
+}
+
+.fridge-list-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 28px;
+  align-items: start;
+}
+
+.fridge-leek-point {
+  position: sticky;
+  top: 120px;
+  height: 320px;
+  justify-self: end;
+}
+
+.food-card {
+  position: relative;
+  max-height: 1000px;
+  overflow: hidden;
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+  background: var(--paper);
+  transition:
+    max-height 150ms ease,
+    opacity 150ms ease,
+    color 200ms ease,
+    background 200ms ease;
+}
+
+.food-card.is-filtered-out {
+  max-height: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.food-card--soon::before,
+.food-card--fresh::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  background-color: var(--paper);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M-3 3L3-3M-3 13L13-3M7 13L13 7' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
+  border-right: 1px solid var(--ink);
+  content: '';
+}
+
+.food-card--fresh::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M-3 3L3-3M-3 13L13-3M7 13L13 7' stroke='%23258007' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+.food-card--expired {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.card-summary {
+  position: relative;
+  width: 100%;
+  min-height: 88px;
+  display: grid;
+  grid-template-columns: 135px 72px 1fr 130px 22px;
+  gap: 20px;
+  align-items: center;
+  border: 0;
+  padding: 6px 18px 6px 38px;
+  background: var(--paper);
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.card-info,
+.card-meta {
+  display: contents;
+}
+
+.food-icon {
+  grid-column: 2;
+  width: 72px;
+  height: 72px;
+  display: block;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.food-card--expired .card-summary {
+  grid-template-columns: 220px 72px 1fr 130px 22px;
+  padding-left: 18px;
+  background: var(--ink);
+}
+
+.food-card--fresh .status-pill {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+.food-card--expired .status-pill {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.card-title {
+  grid-column: 3;
+  font-size: 28px;
+  letter-spacing: 0.06em;
+}
+
+.days-left {
+  grid-column: 4;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+}
+
+.expand-mark {
+  grid-column: 5;
+  font-family: var(--font-display), sans-serif;
+  font-size: 20px;
+  text-align: right;
+}
+
+.card-details {
+  max-height: 0;
+  display: grid;
+  grid-template-columns: 254px 1fr 1fr 145px;
+  gap: 18px;
+  align-items: center;
+  overflow: hidden;
+  border-top: 0 solid currentColor;
+  padding: 0 25px;
+  background: var(--paper);
+  color: var(--ink);
+  opacity: 0;
+  transition:
+    max-height 200ms ease,
+    padding 200ms ease,
+    opacity 160ms ease,
+    border-width 200ms ease;
+}
+
+.food-card.is-expanded .card-details {
+  max-height: 290px;
+  border-top-width: 1px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  opacity: 1;
+}
+
+.illustration-slot {
+  position: relative;
+  height: 254px;
+  display: grid;
+  place-content: center;
+  overflow: hidden;
+  border: 0;
+  padding: 16px;
+  text-align: center;
+}
+
+.expanded-food-icon {
+  width: 220px;
+  height: 220px;
+  max-width: none;
+  object-fit: contain;
+}
+
+.fullness-preview {
+  position: relative;
+  width: 480px;
+  text-align: center;
+}
+
+.fullness-art {
+  position: relative;
+  width: 480px;
+  height: 480px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fullness-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.fullness-stage.is-visible {
+  opacity: 1;
+}
+
+.stock-label {
+  margin-top: 20px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.stock-tooltip {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 230px;
+  border: 2px solid var(--ink);
+  padding: 12px;
+  background: var(--paper);
+  text-align: left;
+}
+
+.stock-tooltip p {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+.stock-tooltip strong {
+  margin-right: 7px;
+}
+
+.stock-tooltip-hint {
+  display: none;
+}
+
+.detail-line span {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+}
+
+.detail-line p {
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  line-height: 1.55;
+}
+
+.used-button {
+  border: 2px solid var(--good);
+  padding: 10px 8px;
+  background: var(--paper);
+  color: var(--good);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.card-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.date-form {
+  display: grid;
+  gap: 8px;
+}
+
+.date-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.date-form input {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 6px 2px;
+  background: transparent;
+  font-size: 12px;
+}
+
+.food-card--expired .used-button {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+@media (max-width: 900px) {
+  .card-details {
+    grid-template-columns: 254px 1fr;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 260px;
+  }
+}
+
+@media (max-width: 620px) {
+  .card-summary {
+    grid-template-columns: 82px 34px 1fr 26px;
+    gap: 12px;
+    padding: 18px 14px;
+  }
+
+  .days-left {
+    display: none;
+  }
+
+  .card-title {
+    font-size: 19px;
+  }
+
+  .card-details {
+    grid-template-columns: 1fr;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 620px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* globals rule; loads here to stay after .fridge-leek-point */
+  .home-leek-point,
+  .fridge-leek-point,
+  .friends-leek-point {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 70px;
+    height: 140px;
+    margin: 8px 0 8px auto;
+    align-self: flex-end;
+    justify-self: end;
+  }
+
+  .fullness-art {
+    margin: 0 auto;
+  }
+
+  .fridge-title {
+    width: 100%;
+  }
+
+  .page-heading .item-count {
+    display: none;
+  }
+
+  .stock-tooltip {
+    position: fixed;
+    z-index: 30;
+    top: auto;
+    right: 12px;
+    bottom: 78px;
+    left: 12px;
+    width: auto;
+    padding: 18px;
+    border-width: 2px;
+  }
+
+  .food-list {
+    border-top-width: 1px;
+  }
+
+  .illustration-slot {
+    width: 100%;
+  }
+
+  .used-button {
+    width: 100%;
+  }
+}
+
+.check-in-tag {
+  border: 1px solid var(--ink);
+  padding: 4px 8px;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .check-in-tag {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-title {
+    display: contents;
+  }
+
+  .food-card--soon::before,
+  .food-card--fresh::before {
+    width: 12px;
+  }
+
+  .food-card--expired .card-summary {
+    padding-left: 16px;
+  }
+
+  .food-card--expired .food-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .expand-mark {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 24px;
+  }
+
+  .food-card--expired .card-details {
+    border-color: var(--paper);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .food-card--expired .expanded-food-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .food-card--expired .illustration-slot {
+    border-color: var(--paper);
+  }
+
+  .used-button,
+  .food-card--expired .used-button {
+    min-height: 44px;
+    border-color: var(--good);
+    color: var(--good);
+  }
+
+  .page-heading {
+    justify-content: center;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 8px 0 48px;
+    padding: 0;
+  }
+
+  .fullness-preview {
+    flex-basis: auto;
+    text-align: center;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    order: 1;
+    margin: 0;
+  }
+
+  .fullness-art {
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .fullness-stage {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .stock-label {
+    order: 2;
+    align-self: center;
+    margin: 0;
+    font-size: 11px;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  .page-heading h1 {
+    order: 5;
+    margin: 0;
+    line-height: 0.98;
+    max-width: 100%;
+    font-size: 40px;
+    overflow-wrap: normal;
+  }
+
+  .card-summary {
+    padding: 0 4px 0 16px;
+    overflow: visible;
+    min-height: 60px;
+    grid-template-columns: 48px minmax(0, 1fr) 44px;
+    gap: 8px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .food-icon {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    opacity: 1;
+    width: 44px;
+    height: 44px;
+  }
+
+  .card-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    grid-row: 1;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .card-title {
+    text-overflow: ellipsis;
+    display: block;
+    overflow: visible;
+    font-size: clamp(15px, 4.6vw, 18px);
+    line-height: 1;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .days-left {
+    display: block;
+    overflow: visible;
+    letter-spacing: 0.12em;
+    text-overflow: clip;
+    white-space: nowrap;
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .card-details {
+    grid-template-columns: 1fr;
+    padding-right: 16px;
+    padding-left: 16px;
+    gap: 8px;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 520px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .illustration-slot {
+    height: 152px;
+    padding: 16px;
+  }
+
+  .expanded-food-icon {
+    width: 120px;
+    height: 120px;
+  }
+
+  .detail-line {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+
+  .detail-line span {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .used-button {
+    height: 44px;
+    padding: 0 8px;
+  }
+
+  .nav-fridge {
+    grid-column: 1;
+  }
+
+  /* globals rule; loads here to stay after .stock-tooltip */
+  .stock-tooltip,
+  .mobile-pinned-action {
+    bottom: calc(80px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  .app-shell:has(.fridge-screen) {
+    padding-bottom: calc(144px + env(safe-area-inset-bottom));
+  }
+
+  .fridge-screen .page-heading,
+  .fridge-screen .fridge-list-stage,
+  .fridge-screen .food-list,
+  .fridge-screen .food-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fridge-screen .page-heading {
+    margin-bottom: 24px;
+  }
+
+  .mobile-fridge-leek {
+    display: block;
+  }
+
+  .mobile-item-count {
+    display: block;
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-align: right;
+  }
+
+  .fridge-list-stage > .fridge-leek-point {
+    display: none;
+  }
+
+  .fridge-screen .food-list {
+    border-top: 1px solid var(--ink);
+  }
+
+  .fridge-screen .food-card {
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+  }
+
+  .fridge-screen .food-card--soon::before,
+  .fridge-screen .food-card--fresh::before {
+    left: 0;
+    width: 12px;
+  }
+}
+
+.extended-tag {
+  border: 1px solid var(--good);
+  padding: 3px 6px;
+  color: var(--good);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+@media (min-width: 768px) {
+  .extended-tag {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin-left: 96px;
+  }
+
+  .food-card:has(.extended-tag) .card-summary {
+    grid-template-columns: 220px 72px 1fr 130px 22px;
+  }
+
+  .page-heading .eyebrow {
+    font-size: 14px;
+  }
+
+  .item-count {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .card-summary {
+    min-height: 88px;
+  }
+
+  .card-title {
+    font-size: 28px;
+  }
+
+  /* globals rule; loads here to stay after .days-left */
+  .status-pill,
+  .days-left {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .stock-tooltip {
+    top: auto;
+    bottom: 16px;
+    width: 320px;
+    padding: 12px;
+  }
+
+  .food-card.is-expanded .detail-line {
+    min-width: 0;
+    align-self: center;
+  }
+
+  .food-card.is-expanded .detail-line span {
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-family: var(--font-display), sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .food-card.is-expanded .detail-line p {
+    color: rgb(0 0 0 / 80%);
+    font-family: var(--font-body), sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .food-card.is-expanded .used-button {
+    min-width: 160px;
+    min-height: 44px;
+    border: 2px solid var(--good);
+    color: var(--good);
+    font-size: 16px;
+  }
+
+  .food-card--expired.is-expanded .used-button {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .fridge-screen .page-heading {
+    margin-bottom: 32px;
+  }
+
+  .fridge-screen .fridge-list-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fridge-screen .fridge-leek-gutter {
+    display: none;
+  }
+
+  .fridge-list-main {
+    min-width: 0;
+  }
+
+  .fridge-count-header {
+    width: 100%;
+    min-height: 48px;
+    align-items: center;
+    padding: 0 0 12px;
+    margin-bottom: 16px;
+  }
+
+  .fridge-leek-gutter {
+    position: sticky;
+    top: 120px;
+    align-self: start;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+
+  .fridge-status-bubble {
+    position: relative;
+    width: 170px;
+    border: 2px solid var(--ink);
+    padding: 12px;
+    background: var(--paper);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .fridge-status-bubble::before,
+  .fridge-status-bubble::after {
+    position: absolute;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    content: '';
+    transform: translateX(-50%);
+  }
+
+  .fridge-status-bubble::before {
+    bottom: -14px;
+    border-width: 13px 10px 0;
+    border-color: var(--ink) transparent transparent;
+  }
+
+  .fridge-status-bubble::after {
+    bottom: -10px;
+    border-width: 11px 8px 0;
+    border-color: var(--paper) transparent transparent;
+  }
+
+  .fridge-status-bubble.is-all-fresh {
+    border-color: var(--good);
+    color: var(--good);
+  }
+
+  .fridge-status-bubble.is-all-fresh::before {
+    border-top-color: var(--good);
+  }
+
+  .fridge-leek-gutter .fridge-leek-point {
+    position: static;
+    width: auto;
+    height: 260px;
+    margin: 0;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-count-header {
+    width: 100%;
+    gap: 6px;
+    align-items: flex-start;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .fridge-leek-gutter {
+    display: none;
+  }
+}
+
+.expired-label-mobile,
+.expired-days-mobile {
+  display: none;
+}
+
+/* Keep every mobile fridge row on the same fixed three-slot grid. */
+@media (max-width: 767px) {
+  .app-shell:has(.fridge-screen) {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .fridge-screen,
+  .fridge-list-stage,
+  .fridge-list-main,
+  .fridge-screen .food-list,
+  .fridge-screen .food-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fridge-screen .card-summary,
+  .fridge-screen .food-card--expired .card-summary {
+    width: 100%;
+    min-width: 0;
+    min-height: 68px;
+    grid-template-columns: 52px minmax(0, 1fr) 44px;
+    gap: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 8px 4px 8px 16px;
+  }
+
+  .fridge-screen .food-icon {
+    width: 44px;
+    height: 44px;
+    justify-self: start;
+  }
+
+  .fridge-screen .card-info {
+    width: 100%;
+    min-width: 0;
+    gap: 5px;
+  }
+
+  .fridge-screen .card-title {
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    font-size: 18px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .fridge-screen .card-meta {
+    min-width: 0;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .fridge-screen .status-pill {
+    padding: 2px 5px 1px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .extended-tag {
+    flex: 0 0 auto;
+    padding: 2px 5px 1px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .days-left,
+  .fridge-screen .expired-days-mobile {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .expand-mark {
+    width: 44px;
+    height: 44px;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .expired-label-desktop {
+    display: none;
+  }
+
+  .expired-label-mobile,
+  .expired-days-mobile {
+    display: inline;
+  }
+
+  .fridge-title-copy {
+    position: relative;
+    order: 4;
+    width: 100%;
+    min-width: 0;
+    min-height: 132px;
+    box-sizing: border-box;
+    padding-right: 76px;
+  }
+
+  .mobile-fridge-leek {
+    position: absolute;
+    top: 0;
+    height: 120px;
+    object-fit: contain;
+    right: 4px;
+    width: 64px;
+    max-width: calc(100% - 8px);
+  }
+}
+
+.filter-tab-meta {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-marker-spacer {
+  display: none;
+}
+
+.filter-sticky-sentinel {
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .fridge-filter-tabs button {
+    display: inline-flex;
+  }
+
+  .fridge-filter-tabs .filter-tab-meta {
+    display: contents;
+  }
+
+  .fridge-filter-tabs .filter-marker {
+    order: 1;
+  }
+
+  .fridge-filter-tabs .filter-tab-label {
+    order: 2;
+  }
+
+  .fridge-filter-tabs .filter-tab-count {
+    order: 3;
+  }
+}
+
+/* Spacious two-line filters that compact only while stuck. */
+@media (max-width: 767px) {
+  .fridge-count-title button {
+    font-size: 15px;
+  }
+
+  .fridge-filter-tabs {
+    height: auto;
+  }
+
+  .fridge-filter-tabs button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ink);
+  }
+
+  .fridge-filter-tabs .filter-tab-label {
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .fridge-filter-tabs button:nth-child(3) .filter-tab-label {
+    letter-spacing: 0;
+  }
+
+  .fridge-filter-tabs .filter-tab-meta {
+    min-height: 18px;
+    gap: 6px;
+  }
+
+  .fridge-filter-tabs .filter-marker-spacer {
+    width: 12px;
+    height: 12px;
+    display: block;
+    flex: 0 0 12px;
+    visibility: hidden;
+  }
+
+  .fridge-filter-tabs .filter-tab-count {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--expired {
+    border-color: var(--paper);
+    background: var(--paper);
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--soon {
+    border-color: var(--paper);
+    background-color: var(--ink);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 3px,
+      var(--paper) 3px 4px
+    );
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--fresh {
+    border-color: var(--paper);
+    background-color: var(--ink);
+  }
+
+  .fridge-filter-tabs.is-compact {
+    padding: 0 16px;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-marker {
+    display: none;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-marker-spacer {
+    display: none;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-tab-label,
+  .fridge-filter-tabs.is-compact .filter-tab-count {
+    font-size: 13px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-tab-meta {
+    min-height: 0;
+    display: inline-flex;
+    gap: 0;
+  }
+}
+
+/* Fridge status filters. */
+.fridge-count-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fridge-count-title button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fridge-filter-tabs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fridge-filter-tabs button {
+  height: 40px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+  padding: 0 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.fridge-filter-tabs button.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.fridge-filter-tabs button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.filter-marker {
+  width: 12px;
+  height: 12px;
+  display: block;
+  flex: 0 0 12px;
+  border: 1px solid currentColor;
+}
+
+.filter-marker--expired {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.filter-marker--soon {
+  border-color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--ink) 3px 4px
+  );
+}
+
+.filter-marker--fresh {
+  border-color: var(--good);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--good) 3px 4px
+  );
+}
+
+.filter-empty-state {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.filter-empty-leek {
+  width: auto;
+  height: 120px;
+  margin-bottom: 6px;
+  object-fit: contain;
+}
+
+@media (min-width: 768px) {
+  .fridge-count-header {
+    border-bottom: 1px solid var(--ink);
+    display: grid;
+    gap: 12px;
+    justify-content: start;
+  }
+
+  .fridge-filter-tabs {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-count-header {
+    flex-direction: column;
+    border-bottom: 1px solid var(--ink);
+    display: contents;
+  }
+
+  .fridge-count-title {
+    margin-bottom: 10px;
+  }
+
+  .fridge-filter-tabs {
+    border-bottom: 1px solid var(--ink);
+    padding: 8px 0;
+  }
+
+  .fridge-filter-tabs button {
+    flex-direction: column;
+    box-sizing: border-box;
+    text-align: center;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    gap: 4px;
+    padding: 0 3px;
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+
+  .filter-marker {
+    width: 12px;
+    height: 12px;
+    flex-basis: 12px;
+  }
+
+  .fridge-screen .food-list {
+    overflow: hidden;
+    margin-top: 16px;
+  }
+
+  .filter-empty-state {
+    min-height: 300px;
+  }
+
+  .fridge-filter-tabs,
+  .fridge-filter-tabs.is-compact {
+    width: calc(100% + 32px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: stretch;
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) {
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 16px;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button {
+    width: 100%;
+    min-width: 0;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px solid var(--ink);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-label,
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-meta {
+    width: 100%;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-meta {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button:first-child .filter-marker-spacer {
+    position: absolute;
+    left: calc(50% - 29px);
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button:first-child .filter-tab-count {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs.is-compact {
+    height: 45px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .fridge-filter-tabs.is-compact button {
+    flex-direction: row;
+    gap: 4px;
+    padding: 0 4px;
+    font-size: 13px;
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+  }
+
+  .fridge-screen .stock-tooltip {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 100%;
+    max-width: 300px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    padding: 16px;
+    background: rgb(255 255 255 / 95%);
+    text-align: center;
+    transform: translate(-50%, -50%);
+    animation: stock-tooltip-in 150ms ease both;
+  }
+
+  .fridge-screen .stock-tooltip p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .fridge-screen .stock-tooltip p + p {
+    margin-top: 12px;
+  }
+
+  .fridge-screen .stock-tooltip strong,
+  .fridge-screen .stock-tooltip span {
+    display: block;
+    margin: 0;
+  }
+
+  .fridge-screen .stock-tooltip-hint {
+    display: block;
+    margin-top: 12px;
+    color: rgb(0 0 0 / 60%);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes stock-tooltip-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Final mobile fridge intro order and spacing. */
+@media (max-width: 767px) {
+  .fridge-screen .page-heading {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+    margin: 0;
+    padding: 20px 0 0;
+  }
+
+  .fridge-screen .fridge-title {
+    display: contents;
+  }
+
+  .fridge-screen .fridge-title-copy {
+    position: relative;
+    order: 1;
+    width: 100%;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-right: 106px;
+  }
+
+  .fridge-screen .fridge-title-copy .eyebrow {
+    width: 100%;
+    margin: 0 0 8px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .fridge-screen .fridge-title-copy h1 {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    font-size: 40px;
+    line-height: 0.98;
+    text-align: left;
+    overflow-wrap: normal;
+  }
+
+  .fridge-screen .mobile-fridge-leek {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 90px;
+    height: 120px;
+    display: block;
+    object-fit: contain;
+    transform: translateY(-50%);
+  }
+
+  .fridge-screen .fullness-preview {
+    position: relative;
+    align-self: center;
+    overflow: visible;
+    order: 2;
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    margin: 16px auto 0;
+  }
+
+  .fridge-screen .fullness-art {
+    width: 300px;
+    max-width: 100%;
+    height: 300px;
+    margin: 0 auto;
+  }
+
+  .fridge-screen .fullness-stage {
+    width: 100%;
+    height: 100%;
+  }
+
+  .fridge-screen .stock-label {
+    order: 3;
+    align-self: center;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .fridge-screen .fridge-list-stage {
+    margin-top: 32px;
+  }
+}
+
+.detail-missing {
+  opacity: 0.6;
+}
+
+/* Line art is black; flip it so it shows on the black expired row. */
+.food-card--expired .food-icon {
+  filter: invert(1);
+}
+
+/* Mobile scrolls inside .mobile-page-scroll, which starts below the top bar; hidden overflow would trap the sticky filters. */
+@media (max-width: 767px) {
+  .fridge-screen {
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  .fridge-filter-tabs {
+    position: sticky;
+    z-index: 15;
+    background: var(--paper);
+    top: 0;
+  }
+}

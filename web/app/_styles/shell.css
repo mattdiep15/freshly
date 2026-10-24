@@ -1,0 +1,395 @@
+.app-shell {
+  width: min(100%, 1500px);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 0 56px;
+}
+
+.topbar {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ink);
+}
+
+.brand,
+.nav-link {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.camera-tab,
+.nav-camera-spacer,
+.nav-me,
+.camera-tab-input {
+  display: none;
+}
+
+.mobile-page-title,
+.mobile-label {
+  display: none;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+}
+
+.logo-mark {
+  width: auto;
+  height: 56px;
+  display: block;
+  object-fit: contain;
+}
+
+nav {
+  display: flex;
+  gap: 44px;
+}
+
+.nav-link {
+  position: relative;
+  padding: 12px 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.nav-link::after {
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+  left: 0;
+  height: 2px;
+  background: var(--ink);
+  content: '';
+  transform: scaleX(0);
+  transition: transform 180ms ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  transform: scaleX(1);
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 2px solid var(--ink);
+  padding: 25px 2px 32px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding: 0 24px;
+  }
+}
+
+@media (max-width: 620px) {
+  .topbar {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 15px 0;
+  }
+
+  nav {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    width: 100%;
+    padding: 0 18px 82px;
+  }
+
+  .topbar {
+    padding: 0;
+  }
+
+  .desktop-label {
+    display: none;
+  }
+
+  .mobile-label {
+    display: inline;
+  }
+
+  .nav-link {
+    padding: 0 6px;
+  }
+
+  footer {
+    display: none;
+  }
+
+  .mobile-page-title {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    display: none;
+  }
+
+  .nav-link {
+    min-width: 44px;
+    letter-spacing: 0.13em;
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  .topbar {
+    border-bottom-width: 1px;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding-top: max(calc(env(safe-area-inset-top) + 12px), 56px);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .brand {
+    min-height: 44px;
+    gap: 10px;
+    align-items: center;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .brand > span:last-child {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .logo-mark {
+    width: auto;
+    height: 44px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .app-shell {
+    padding-right: 16px;
+    padding-left: 16px;
+    padding-bottom: calc(104px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  nav {
+    height: 68px;
+    padding-bottom: env(safe-area-inset-bottom);
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(64px + max(env(safe-area-inset-bottom), 24px));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: start;
+    gap: 0;
+    overflow: visible;
+    border-top: 1px solid var(--ink);
+    padding: 0 12px max(env(safe-area-inset-bottom), 24px);
+    background: var(--paper);
+  }
+
+  /* globals rule; loads here to stay after .camera-tab */
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    width: 100%;
+    min-width: 0;
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .nav-camera-spacer {
+    width: 100%;
+    height: 64px;
+    display: block;
+    grid-column: 3;
+    pointer-events: none;
+  }
+
+  .nav-me {
+    grid-column: 5;
+  }
+
+  .nav-link::after {
+    right: 24%;
+    left: 24%;
+    height: 1px;
+    bottom: 7px;
+    display: none;
+  }
+
+  .camera-tab {
+    position: absolute;
+    z-index: 3;
+    top: -40px;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    display: grid;
+    place-items: center;
+    border: 6px solid var(--paper);
+    border-radius: 50%;
+    padding: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    transform: translateX(-50%);
+    transition: transform 100ms ease;
+  }
+
+  .camera-tab::after {
+    position: absolute;
+    inset: -7px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    content: '';
+  }
+
+  .camera-tab:active {
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .camera-tab svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: var(--paper);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .camera-tab-input {
+    display: none;
+  }
+}
+
+/* Desktop readability pass. */
+@media (min-width: 768px) {
+  .brand {
+    font-size: 36px;
+  }
+
+  .nav-me {
+    display: block;
+  }
+
+  nav {
+    gap: 40px;
+  }
+
+  .nav-link {
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .nav-link::after {
+    bottom: 4px;
+    height: 2px;
+  }
+}
+
+/* Keep every mobile fridge row on the same fixed three-slot grid. */
+@media (max-width: 767px) {
+  /* globals rule; loads here to stay after nav */
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  /* globals rule; loads here to stay after *::-webkit-scrollbar */
+  html,
+  body {
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+}
+
+.mobile-page-scroll {
+  display: contents;
+}
+
+.mobile-page-end-spacer {
+  display: none;
+}
+
+/* Shared mobile viewport and bottom-control clearance for every page. */
+@media (max-width: 767px) {
+  .app-shell > .topbar {
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    background: var(--paper);
+    flex: 0 0 auto;
+  }
+
+  .mobile-page-scroll {
+    overflow: visible;
+    margin-bottom: 0;
+    min-height: 0;
+    display: block;
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-bottom: calc(64px + 34px + env(safe-area-inset-bottom));
+    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-page-end-spacer {
+    width: 100%;
+    height: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    display: block;
+    flex: 0 0 auto;
+    pointer-events: none;
+  }
+
+  /* globals rule; loads here to stay after .brand */
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    color: var(--ink);
+    opacity: 0.45;
+    border: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+}

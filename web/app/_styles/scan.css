@@ -1,0 +1,850 @@
+.add-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 60px 0;
+}
+
+.step-count {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.23em;
+}
+
+.step-panel {
+  width: min(100%, 780px);
+}
+
+.step-panel h1 {
+  margin-bottom: 55px;
+}
+
+.receipt-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.receipt-choice {
+  min-height: 230px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  border: 2px dashed var(--ink);
+}
+
+.receipt-choice:first-child {
+  min-height: 370px;
+  grid-template-columns: 180px 1fr;
+  gap: 26px;
+}
+
+.scan-mascot {
+  width: 160px;
+  height: 320px;
+  object-fit: contain;
+}
+
+.camera-choice-copy {
+  display: grid;
+  place-items: center;
+}
+
+.receipt-choice svg {
+  width: 42px;
+  margin-bottom: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.upload-file-icon {
+  display: none;
+}
+
+.receipt-choice span,
+.receipt-choice strong,
+.receipt-choice small {
+  display: block;
+}
+
+.receipt-icon {
+  margin-bottom: 18px;
+  font-size: 35px;
+}
+
+.receipt-choice strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+.receipt-choice small {
+  margin-top: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+}
+
+.receipt-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  place-items: center;
+  gap: 22px;
+}
+
+.receipt-preview img {
+  width: min(100%, 420px);
+  height: 300px;
+  border: 2px solid var(--ink);
+  object-fit: contain;
+}
+
+.preview-photoleek {
+  width: 80px;
+  height: 160px;
+  object-fit: contain;
+}
+
+.receipt-preview > div {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 12px;
+}
+
+.receipt-loading {
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.loading-photoleek {
+  width: 100px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.receipt-loading p {
+  font-family: var(--font-display), sans-serif;
+  font-size: 17px;
+  letter-spacing: 0.1em;
+}
+
+.step-panel > .add-button {
+  margin-top: 28px;
+}
+
+.parsed-list {
+  border-top: 2px solid var(--ink);
+}
+
+.parsed-row {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 1fr 210px;
+  align-items: center;
+  border-bottom: 1px solid var(--ink);
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+
+.parsed-row label {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-body), sans-serif;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.parsed-row input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 7px 3px;
+  background: transparent;
+  font-size: 11px;
+}
+
+.tip-card {
+  margin-top: 22px;
+  border: 2px solid var(--ink);
+  padding: 18px 20px;
+  transform: rotate(-1deg);
+}
+
+.tip-card span {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.tip-card strong {
+  margin: 0 12px;
+  font-family: var(--font-display), sans-serif;
+  font-weight: 400;
+}
+
+.tip-card p {
+  display: inline;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+/* globals rule; loads here to stay after .receipt-loading p */
+.empty-state p {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+@media (max-width: 620px) {
+  .receipt-options {
+    grid-template-columns: 1fr;
+  }
+
+  /* home rule; loads here to stay after .tip-card strong */
+  .task-copy strong {
+    font-size: 20px;
+  }
+
+  .parsed-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 13px 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .add-screen {
+    display: block;
+    padding: 42px 0 95px;
+  }
+
+  .step-count {
+    top: 18px;
+  }
+
+  .step-panel h1 {
+    margin-bottom: 38px;
+    font-size: 43px;
+  }
+
+  .receipt-options {
+    grid-template-columns: 1fr;
+  }
+
+  .receipt-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-photoleek {
+    width: 80px;
+    height: 160px;
+  }
+
+  .loading-photoleek {
+    width: 90px;
+    height: 200px;
+  }
+
+  .receipt-choice:last-child .receipt-icon,
+  .receipt-choice:last-child small {
+    display: none;
+  }
+
+  .receipt-preview img {
+    height: 340px;
+  }
+
+  .receipt-preview > div {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .receipt-preview .add-button {
+    width: 100%;
+  }
+
+  .parsed-row {
+    min-height: 52px;
+    grid-template-columns: 1fr 150px;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .parsed-row label {
+    grid-template-columns: auto 1fr;
+  }
+
+  .tip-card {
+    margin-bottom: 25px;
+  }
+
+  .receipt-options {
+    width: 100%;
+    gap: 16px;
+  }
+
+  .receipt-choice:first-child {
+    grid-template-columns: 1fr;
+    border-width: 2px;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    justify-content: flex-start;
+    border: 2px dashed var(--ink);
+    padding: 24px 16px;
+  }
+
+  .scan-mascot {
+    width: 100%;
+    height: 220px;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  .camera-choice-copy {
+    display: block;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  .camera-choice-copy svg,
+  .camera-choice-copy small {
+    display: none;
+  }
+
+  .camera-choice-copy strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    line-height: 1;
+  }
+
+  .receipt-choice:last-child {
+    border-style: solid;
+    width: 100%;
+    min-height: 52px;
+    height: 52px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ink);
+    padding: 0 16px;
+    background: var(--paper);
+  }
+
+  .receipt-choice:last-child .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex: 0 0 20px;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .receipt-choice:last-child strong {
+    font-family: var(--font-body), sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    line-height: 1;
+  }
+
+  /* friends rule; loads here to stay after .receipt-choice:last-child .receipt-icon */
+  .friends-list .thin-row > :nth-child(5) {
+    display: none;
+  }
+
+  .nav-scan {
+    display: none;
+  }
+
+  /* home rule; loads here to stay after .step-panel > .add-button */
+  .home-intro > .add-button {
+    margin-right: 0;
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    margin: 0 auto 24px;
+    border: 0;
+    border-radius: 50%;
+    padding: 12px;
+    background: var(--good);
+    color: var(--paper);
+    line-height: 1;
+    transition: transform 100ms ease;
+  }
+
+  /* home rule; loads here to stay after .tip-card strong */
+  .task-copy strong {
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+  }
+}
+
+.file-upload-option {
+  min-width: 0;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.file-leek {
+  width: auto;
+  height: 140px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.file-upload-option .receipt-choice {
+  width: 100%;
+  min-width: 0;
+  min-height: 230px;
+  flex: 1;
+}
+
+.file-upload-option .receipt-icon {
+  display: none;
+}
+
+.file-upload-option .upload-file-icon {
+  width: 32px;
+  display: block;
+  margin-bottom: 14px;
+  fill: none;
+  stroke: currentColor;
+}
+
+@media (max-width: 767px) {
+  .file-upload-option {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .file-leek {
+    height: 88px;
+  }
+
+  .file-upload-option .receipt-choice {
+    width: auto;
+    min-height: 52px;
+    height: 52px;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    gap: 8px;
+    border: 2px solid var(--ink);
+    padding: 0 12px;
+  }
+
+  .file-upload-option .receipt-choice::after {
+    width: 24px;
+    content: '';
+  }
+
+  .file-upload-option .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  .file-upload-option .receipt-choice strong {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  .file-upload-option .receipt-choice small {
+    display: none;
+  }
+}
+
+/* Desktop scan step: two equal action cards. */
+@media (min-width: 768px) {
+  .scan-step {
+    width: min(100%, 872px);
+  }
+
+  .scan-step .receipt-options {
+    display: grid;
+    grid-template-columns: repeat(2, 420px);
+    gap: 32px;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .scan-step .receipt-choice,
+  .scan-step .receipt-choice:first-child {
+    width: 420px;
+    height: 440px;
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--ink);
+    padding: 24px;
+    overflow: hidden;
+    transition: border-style 150ms ease;
+  }
+
+  .scan-step .scan-mascot,
+  .scan-step .file-leek {
+    width: auto;
+    height: 280px;
+    flex: 0 0 280px;
+    margin: 0;
+    object-fit: contain;
+    transition: transform 150ms ease;
+  }
+
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    min-height: 28px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-step .receipt-choice strong {
+    font-size: 22px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .scan-step .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    display: block;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .scan-step .receipt-choice:hover {
+    border-style: solid;
+  }
+
+  .scan-step .receipt-choice:hover .scan-mascot,
+  .scan-step .receipt-choice:hover .file-leek {
+    transform: translateY(-4px);
+  }
+}
+
+@media (max-width: 767px) {
+  .scan-step .upload-choice {
+    grid-template-columns: 88px minmax(0, 1fr);
+  }
+
+  .scan-step .file-leek {
+    justify-self: center;
+  }
+}
+
+/* Desktop readability pass. */
+@media (min-width: 768px) {
+  /* fridge rule; loads here to stay after .tip-card span */
+  .detail-line span {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  /* fridge rule; loads here to stay after .tip-card strong */
+  .stock-tooltip strong {
+    font-weight: 700;
+  }
+
+  /* fridge rule; loads here to stay after .tip-card strong */
+  .fridge-count-header strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  /* fridge rule; loads here to stay after .tip-card span */
+  .fridge-count-header span {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+}
+
+@media (max-width: 767px) {
+  /* fridge rule; loads here to stay after .tip-card strong */
+  .fridge-count-header strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  /* fridge rule; loads here to stay after .tip-card span */
+  .fridge-count-header span {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  /* fridge rule; loads here to stay after .tip-card strong */
+  .fridge-count-title strong {
+    font-size: 20px;
+  }
+
+  .app-shell:has(.scan-step) {
+    padding-right: 16px;
+    padding-bottom: 0;
+    padding-left: 16px;
+  }
+
+  .add-screen:has(.scan-step) {
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .scan-step {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .scan-step h1 {
+    margin-bottom: 24px;
+  }
+
+  .scan-step .receipt-options {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .scan-step .receipt-choice,
+  .scan-step .receipt-choice:first-child,
+  .scan-step .receipt-choice:last-child,
+  .scan-step .upload-choice {
+    width: 100%;
+    min-width: 0;
+    height: 240px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 2px dashed var(--ink);
+    padding: 12px;
+    background: var(--paper);
+    transition: border-style 100ms ease;
+  }
+
+  .scan-step .scan-mascot,
+  .scan-step .file-leek {
+    width: 100%;
+    height: 146px;
+    min-height: 0;
+    flex: 0 0 146px;
+    margin: 0;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 100ms ease;
+  }
+
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    width: 100%;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    text-align: center;
+  }
+
+  .scan-step .camera-choice-copy::before {
+    width: 18px;
+    height: 18px;
+    display: block;
+    flex: 0 0 18px;
+    content: '';
+  }
+
+  .scan-step .file-choice-copy .upload-file-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    flex: 0 0 18px;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .scan-step .receipt-choice strong,
+  .scan-step .receipt-choice:first-child strong,
+  .scan-step .receipt-choice:last-child strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .scan-step .receipt-choice:active {
+    border-style: solid;
+  }
+
+  .scan-step .receipt-choice:active .scan-mascot,
+  .scan-step .receipt-choice:active .file-leek {
+    transform: translateY(-4px);
+  }
+}
+
+/* Desktop task rows: number, checkbox, artwork, then copy. */
+@media (min-width: 768px) {
+  .tip-card {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    transform: none;
+  }
+}
+
+/* Mobile food-pile popup stays inside the illustration wrapper. */
+@media (max-width: 767px) {
+  /* fridge rule; loads here to stay after .file-upload-option .receipt-choice strong */
+  .fridge-screen .stock-tooltip strong {
+    margin-bottom: 4px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+  }
+}
+
+/* The receipt img rule above would otherwise frame the mascot like a photo. */
+.receipt-preview .preview-photoleek {
+  width: 80px;
+  height: 160px;
+  border: 0;
+}
+
+/* Pin each hidden file input over its own card; unpinned, the upload input covered the camera card. */
+.receipt-choice {
+  cursor: pointer;
+  position: relative;
+}
+
+.receipt-choice input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* The port adds a "days" unit after the input, so the label needs a third column. */
+.parsed-row label {
+  grid-template-columns: auto 1fr auto;
+}
+
+.parsed-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.parsed-controls label {
+  flex: 1;
+}
+
+.parsed-row.needs-date {
+  border-left: 4px solid var(--good);
+  padding-left: 10px;
+}
+
+.parsed-row.is-removed .parsed-name,
+.parsed-row.is-removed label {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.tip-card .outline-button {
+  display: block;
+  margin-top: 12px;
+}
+
+.manual-add {
+  margin-top: 36px;
+}
+
+.manual-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.manual-fields label {
+  display: grid;
+  gap: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.manual-fields input {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 7px 3px;
+  background: transparent;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .manual-fields {
+    grid-template-columns: 1fr;
+  }
+}
