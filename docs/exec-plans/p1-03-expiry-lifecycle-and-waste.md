@@ -53,7 +53,7 @@ Stats: `summarizeWaste(items, range, now)` in `lib/wasteStats.ts` is pure, and `
 - `wastedGrams` = sum of `weightGrams * fractionWasted`, and `wastedLbs` = `wastedGrams / 453.6`
 - items with no price or weight count toward item totals and are skipped in the money and weight sums; return `itemsMissingPrice` so the UI can say "about"
 
-Computing on read is fine at hackathon scale. P2's leaderboard will need these numbers per user per week and adds a denormalized `userStats` table then.
+Computing on read is fine at hackathon scale. P2's leaderboard (p2-03) computes on read too; a denormalized `userStats` table can come later if it gets slow.
 
 ## Progress
 

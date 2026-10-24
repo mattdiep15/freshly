@@ -16,8 +16,8 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 | Track | Where it fits | Plan |
 | --- | --- | --- |
-| Apify | Web shelf-life lookup (part B); later, recipes and recall alerts (p3) and store prices (p2) | This plan, p2, p3 |
-| Gemini | Receipt header check (part A); shelf-life extraction (B); later, recipe ranking (p3) | This plan, p3 |
+| Apify | Web shelf-life lookup (part B); later, recipes (p2-04), and recall alerts and store prices (p3) | This plan, p2-04, p3 |
+| Gemini | Receipt header check (part A); shelf-life extraction (B); later, recipe cards from web pages (p2-04) | This plan, p2-04 |
 | Convex | Already the backend: file storage for receipt photos, actions that call Gemini and Apify, the scheduler that runs lookups after a parse | p1-01, p1-02, this plan |
 | GoDaddy | Domain for the Vercel deployment (part D) | This plan |
 | People-First Social Impact | Food safety for students: sourced dates, storage tips, "looks spoiled?" card | p1-02, p1-03; pitch only |
@@ -66,7 +66,7 @@ Cost and speed: `apify/rag-web-browser` is listed at $1.33 per 1,000 fetched pag
 
 ## Part C: Recipes for use-soon items (moved to p3)
 
-Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the backend sketch. The team is finishing P1 first, and recipes are P3 in the spec. Two other Apify ideas went the same way: estimated store prices for unpriced items (p2) and food recall alerts (p3).
+Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the backend sketch. The team is finishing P1 first, and recipes are P3 in the spec. Two other Apify ideas went the same way: estimated store prices for unpriced items (p2) and food recall alerts (p3). Later the same day, recipes moved up to `p2-04-recipe-suggestions.md` and store prices moved down to p3.
 
 ## Part D: GoDaddy domain (about 30 minutes, needs a human)
 
