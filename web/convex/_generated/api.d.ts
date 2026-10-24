@@ -12,6 +12,7 @@ import type * as auth from "../auth.js";
 import type * as crons from "../crons.js";
 import type * as dev from "../dev.js";
 import type * as foods from "../foods.js";
+import type * as grocery from "../grocery.js";
 import type * as http from "../http.js";
 import type * as itemEdits from "../itemEdits.js";
 import type * as items from "../items.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   dev: typeof dev;
   foods: typeof foods;
+  grocery: typeof grocery;
   http: typeof http;
   itemEdits: typeof itemEdits;
   items: typeof items;

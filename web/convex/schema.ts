@@ -100,6 +100,17 @@ export default defineSchema({
     .index("by_status_expires", ["status", "expiresAt"])
     .index("by_receipt", ["receiptId"]),
 
+  groceryItems: defineTable({
+    userId: v.id("users"),
+    name: v.string(), // as typed, whitespace collapsed
+    key: v.string(), // lib/grocery groceryKey(name), so re-adding a name finds its row
+    completed: v.boolean(),
+    addedAt: v.number(), // list order, newest first; re-adding bumps it
+  })
+    .index("by_user_added", ["userId", "addedAt"])
+    .index("by_user_key", ["userId", "key"])
+    .index("by_user_completed", ["userId", "completed"]),
+
   foodFamiliarity: defineTable({
     userId: v.id("users"),
     foodId: v.id("foods"),
