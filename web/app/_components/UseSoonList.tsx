@@ -1,0 +1,36 @@
+"use client";
+
+import { useState } from "react";
+import { daysLeftLabel } from "@/lib/freshness";
+import type { FridgeItem } from "@/lib/types";
+
+export function UseSoonList({ items, now }: { items: FridgeItem[]; now: number }) {
+  // TODO(release): checking a task should mark the item used through Convex.
+  const [checked, setChecked] = useState<string[]>([]);
+
+  const toggle = (id: string) => {
+    setChecked((current) => (current.includes(id) ? current.filter((c) => c !== id) : [...current, id]));
+  };
+
+  return (
+    <section className="daily-list" aria-label="Use soon list">
+      {items.map((item, index) => {
+        const isChecked = checked.includes(item.id);
+        const label = daysLeftLabel(item.expiresAt, now);
+        return (
+          <label className={`daily-task ${isChecked ? "is-checked" : ""}`} key={item.id}>
+            <input type="checkbox" checked={isChecked} onChange={() => toggle(item.id)} />
+            <span className="large-check" aria-hidden="true">
+              {isChecked ? "✓" : ""}
+            </span>
+            <span className="task-number">0{index + 1}</span>
+            <span className="task-copy">
+              <strong>use up {item.name}</strong>
+              <small>{label === "today" ? "goes off today" : `good for ${label}`}</small>
+            </span>
+          </label>
+        );
+      })}
+    </section>
+  );
+}

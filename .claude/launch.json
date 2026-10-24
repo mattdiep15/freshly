@@ -4,8 +4,14 @@
     {
       "name": "next-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["--prefix", "web", "run", "dev"],
       "port": 3000
+    },
+    {
+      "name": "frontend-dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["web/node_modules/next/dist/bin/next", "dev", "web", "-p", "3001"],
+      "port": 3001
     }
   ]
 }

@@ -13,7 +13,10 @@ real users after, so code has to survive past the demo.
 Next.js (App Router) + TypeScript on Vercel. Convex for the database, server functions,
 and scheduled jobs.
 
+Run every command from `web/`, which holds all app code and its config.
+
 ```bash
+cd web
 npm run dev        # Next.js and `convex dev` together (concurrently)
 npm run lint
 npm run typecheck  # next typegen && tsc --noEmit
@@ -21,19 +24,26 @@ npm test           # vitest run
 ```
 
 Run lint and typecheck before every commit. Backend functions are testable in the browser through JSON routes under
-`app/api/` (see `docs/exec-plans/p1-01-backend-foundation.md`).
+`web/app/api/` (see `docs/exec-plans/p1-01-backend-foundation.md`).
 
 ### Where code goes
+
+The root holds only `web/` (everything that runs: code, config, `package.json`), `docs/`,
+`dev/` (design prototypes), and Markdown files. There is no `infra/`: Vercel and Convex
+are managed. Vercel's Root Directory setting is `web`. Paths below are inside `web/`.
 
 - `convex/schema.ts`: the only source of truth for data shape.
 - `convex/*.ts`: every read and write. Validate args with `v.*` and check the signed-in
   user in every public function. Outside services (receipt OCR, product lookup, push) go
   in Convex actions.
-- `lib/`: pure domain logic (expiry math, reminder schedule, waste stats). No React or
-  Convex imports, so it can be unit tested.
-- `components/ui/`: shared primitives. Search here before creating a component.
-  Components fill their slot; the page owns layout.
-- `app/`: routes compose components and call Convex hooks. No business logic in pages.
+- `lib/`: pure domain logic shared by the frontend and Convex (expiry math, reminder
+  schedule, waste stats). No React or Convex imports, so it can be unit tested.
+- `app/`: all frontend code. Routes compose components and call Convex hooks. No business
+  logic in pages.
+- `app/_components/`: React components; `app/_components/ui/` holds shared primitives.
+  Search there before creating a component. Components fill their slot; the page owns
+  layout. Folders starting with `_` are not routed.
+- `public/`: static files (Next.js requires this name).
 
 Secrets live in Convex or Vercel env vars. Never put a key in a `NEXT_PUBLIC_` var.
 
