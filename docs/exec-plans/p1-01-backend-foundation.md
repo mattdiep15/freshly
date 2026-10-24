@@ -131,6 +131,8 @@ A route that reads no request input (no `req.url`, no headers) calls `await conn
 
 To move to a real team project, someone runs `npx convex login`, then `npx convex dev --configure existing` (or `new`) and picks the team's project. That rewrites `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` in `.env.local`. Repeat step 2 against the new dev deployment, never the production one, and run `npx convex run foods:importReference`. Local data does not carry over.
 
+The team project now exists (`dev:secret-opossum-432`). To test a worktree against it, see "Testing against the team dev deployment" in `CLAUDE.md`.
+
 ## Progress
 
 - [x] 1. Scaffold Next.js at the repo root (2026-10-23: Next.js 16.4, Tailwind 4, `/api/health` live, `npm run typecheck` added)
