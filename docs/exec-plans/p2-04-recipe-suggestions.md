@@ -63,12 +63,13 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 
 ## Progress
 
-- [ ] 1. `convex/model/apify.ts`
-- [ ] 2. Recipe schema and prompt
-- [ ] 3. `lib/recipeWeb.ts` and tests
-- [ ] 4. `convex/recipes.ts` and `convex/recipesWeb.ts`
-- [ ] 5. `/api` routes
-- [ ] 6. Recipes page
+- [x] 0. p2-01's `recipeStep` and `recipe` validators, the `recipeSuggestions` table, and `Recipe.sourceUrl`, added here because p2-01 was not run on its own (2026-10-24)
+- [x] 1. `convex/model/apify.ts` (2026-10-24). Not yet verified with `shelfLifeWeb:lookupNext`: the worktree's local deployment has no `APIFY_TOKEN`.
+- [x] 2. Recipe schema and prompt (2026-10-24)
+- [x] 3. `lib/recipeWeb.ts` and tests (2026-10-24)
+- [x] 4. `convex/recipes.ts` and `convex/recipesWeb.ts` (2026-10-24). Checked on a local deployment without `APIFY_TOKEN`: `request` writes a `pending` row, `suggest` saves `failed` with "APIFY_TOKEN is not set", the fourth call of the day returns the newest row without a new run, and a `ready` row with the same ingredients is returned as is. The Apify and Gemini run is not yet checked.
+- [x] 5. `/api` routes (2026-10-24)
+- [x] 6. Recipes page (2026-10-24). Clicked through on a local deployment with a hand-saved `ready` row: the web recipe ranks first, shows "from example.com", and the mushroom chip filters to it.
 
 ## Validation
 
@@ -87,7 +88,14 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 - 2026-10-24: Recipes moved from p3 to p2 because the recipes tab is in v5 and the designer is working on it.
 - 2026-10-24: Cache one row per user per day, refreshed only when the use-soon ingredients change, at most 3 runs a day.
 - 2026-10-24: Keep the fixed recipes as a fallback instead of deleting them, so the tab works without Apify.
+- 2026-10-24: Each run inserts a new row instead of replacing today's row, so the 3-a-day cap can count today's rows. `today` and `request` use the newest one.
+- 2026-10-24: A `failed` row, or a run that finds no grounded recipes (saved as `failed`), is retried on the next page open and counts against the cap.
+- 2026-10-24: `groundedRecipes` assigns ids (`web-<n>-<slug>`), keeps at most 3 recipes, dedupes ingredients, and clamps `minutes` to 5-240, `servings` to 1-12, and `timedMinutes` to the recipe's `minutes`.
+- 2026-10-24: Web recipes can have several steps in one phase, so `RecipeList` keys steps by index instead of phase.
+- 2026-10-24: The "from <site>" link sits in the recipe's meta row with no new CSS, since the v6 port owns the styles.
+- 2026-10-24: `recipes.today` reads `Date.now()` for the local date, like `items.list`. Convex's guidelines advise passing time in instead; the page also calls `request` on mount, which writes and so refreshes the query.
 
 ## Surprises
 
-(none yet)
+- `react-hooks/rules-of-hooks` lints Convex files too: a helper named `useSoonIngredients` failed lint, so it is `soonestIngredients`.
+- `npm run typecheck` failed in the worktree on stale `.next/dev/types` from an older route set ("Cannot find module '../../../app/page.js'"). Deleting `.next/dev/types` fixed it; nothing in the repo changed.

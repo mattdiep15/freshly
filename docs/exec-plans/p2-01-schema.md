@@ -102,6 +102,7 @@ This plan owns `convex/schema.ts` and the `Recipe` type in `lib/recipes.ts`. Aft
 - 2026-10-24: No `userStats` table. p2-03 computes the leaderboard and streaks from `items` on read. Add the table if the leaderboard query gets slow.
 - 2026-10-24: No `status: "pending" | "accepted"` on `friendships`. Entering someone's invite code is their consent, so both rows are written at once and there is no request to accept.
 - 2026-10-24: `groceryItems` stores `checkedAt` instead of a `checked` boolean, so the list can show recently bought items and clear old ones.
+- 2026-10-24: Not run as its own step. p2-04 added the `recipeStep` and `recipe` validators, the `recipeSuggestions` table, and `Recipe.sourceUrl`. The v6 design port defines its own grocery table, so `groceryItems`, `friendships`, and `profiles.inviteCode` wait for that port and p2-03.
 
 ## Surprises
 
