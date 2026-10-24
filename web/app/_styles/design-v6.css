@@ -152,6 +152,33 @@
   filter: invert(1);
 }
 
+/* One line per suggestion: the variants truncate before the food name does. */
+.food-suggestion-name {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.food-suggestion-base,
+.food-suggestion-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.food-suggestion-base {
+  flex: 0 1 auto;
+}
+
+.food-suggestion-detail {
+  flex: 1 1 0;
+  min-width: 0;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
 .grocery-list,
 .grocery-completed {
   width: min(100%, 920px);
