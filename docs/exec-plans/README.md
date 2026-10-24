@@ -10,6 +10,7 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, manual entry (P1.5), item matching, expiry dates, storage tips for unfamiliar foods | Done; freezer-move bug open in `docs/bugs.md` | ~4-5 h |
 | [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards with the "looks spoiled?" second card, waste stats | Done; a real system notification still needs a human check (see Surprises) | ~5-6 h |
 | [p1-04-frontend-integration.md](p1-04-frontend-integration.md) | P1 | Home, fridge, swipe cards, scan, manual add, and stats pages wired to Convex | Done; package-date highlights and freshness hints need `foods:backfillTips` on the deployment | ~7-8 h |
+| [p1-04-sponsor-tracks.md](p1-04-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini as model provider, web shelf-life lookup (Apify + Gemini), recipes for use-soon items, GoDaddy domain | Draft; needs questions 8 and 9 | ~8-10 h |
 | [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, location reminders, takeout leftovers | Draft | not estimated |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes, speech, Wrapped Waste, image-based spoilage model | Draft | not estimated |
 
@@ -26,6 +27,8 @@ p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-
 5. Test receipts. `data/` holds real receipts with Costco member numbers and card digits. Decide whether to commit them, redact them, or keep them local.
 6. Extending raw meat, poultry, and seafood. Design v2 lets a user keep an expired item 1 to 2 more days if it does not look spoiled. p1-03 caps that at the high end of the sourced range, so the date stays sourced. A look-and-smell check says less about raw meat than about produce, so decide whether those categories get the "1-2 more days" option at all.
 7. Spoilage model output. The P3 neural net would predict a shelf life from a photo, and `CLAUDE.md` allows only FDA, FoodKeeper, or user dates. Decide before training whether the model may move a date only within the sourced range, or whether it becomes a source listed in `CLAUDE.md`.
+8. Web shelf-life as a source. p1-04 part B fills gaps in the FDA chart and FoodKeeper with figures from allowlisted web pages (stilltasty.com, USDA, FDA, university extension sites), stored with `source: "web"`, the page URL, and a verbatim quote, and labeled "Estimate from <site>" in the UI. `CLAUDE.md` allows only FDA and FoodKeeper numbers today. Decide whether to add `web` to that rule, or keep web figures as tips only and never date an item from them.
+9. Gemini replacing Claude. The Gemini track asks for Gemini on receipt parsing. p1-04 part A makes Gemini the default behind an `LLM_PROVIDER` switch and keeps Claude as a fallback. Claude's parse scored 36 of 36 on the test receipts, so decide what happens if Gemini scores lower: ship Gemini anyway for the track, or use Gemini only for parts B and C.
 
 ## Working on a plan
 
