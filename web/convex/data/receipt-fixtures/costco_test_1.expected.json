@@ -1,0 +1,47 @@
+{
+  "file": "costco_test_1.jpeg",
+  "isReceipt": true,
+  "storeName": null,
+  "purchasedAt": null,
+  "totalCents": 49657,
+  "lines": [
+    {"rawText":"1532585 CLIFBARS26CT","displayName":"Clif bars","quantity":1,"unit":null,"priceCents":2299,"weightGrams":null,"foodName":"cereal or granola bars","newFood":null},
+    {"rawText":"2084032 SMRES CKIES","displayName":"S'mores cookies","quantity":1,"unit":null,"priceCents":1099,"weightGrams":null,"foodName":"cookies, soft","newFood":null},
+    {"rawText":"96715 ORG SPINACH","displayName":"Organic spinach","quantity":1,"unit":null,"priceCents":399,"weightGrams":null,"foodName":"spinach","newFood":null},
+    {"rawText":"8051 MADELEINES","displayName":"Madeleines","quantity":1,"unit":null,"priceCents":899,"weightGrams":null,"foodName":"commercial cakes and muffins","newFood":null},
+    {"rawText":"1877258 KETO CINN","displayName":"Keto cinnamon","quantity":1,"unit":null,"priceCents":1299,"weightGrams":null,"foodName":"cereal, ready-to-eat","newFood":null},
+    {"rawText":"1059995 ORG GRN GRPS","displayName":"Organic green grapes","quantity":1,"unit":null,"priceCents":799,"weightGrams":null,"foodName":"grapes","newFood":null},
+    {"rawText":"6995 GOLD KIWI","displayName":"Gold kiwi","quantity":1,"unit":null,"priceCents":1199,"weightGrams":null,"foodName":"kiwi fruit","newFood":null},
+    {
+      "rawText": "1843341 KOREANNOODLE",
+      "displayName": "Korean noodles",
+      "quantity": 1,
+      "unit": null,
+      "priceCents": 839,
+      "weightGrams": null,
+      "foodName": null,
+      "newFood": {
+        "name": "instant noodles",
+        "category": "grains",
+        "defaultLocation": "pantry",
+        "defaultWeightGrams": 600,
+        "storageTip": "Keep sealed in a cool, dry cupboard.",
+        "freshnessHint": "Toss if the seasoning packet smells rancid."
+      }
+    },
+    {"rawText":"38175 CARA ORANGES","displayName":"Cara cara oranges","quantity":1,"unit":null,"priceCents":849,"weightGrams":null,"foodName":"citrus fruit, lemon, lime, orange, grapefruit, tangerines, clementines","newFood":null},
+    {"rawText":"1250599 ORG CHX APPL","displayName":"Organic chicken apple sausage","quantity":1,"unit":null,"priceCents":1649,"weightGrams":null,"foodName":"sausages, precooked","newFood":null},
+    {"rawText":"1745982 QUESDLA CHZ","displayName":"Quesadilla cheese","quantity":1,"unit":null,"priceCents":779,"weightGrams":null,"foodName":"cheese, shredded; cheddar, mozzarella, etc.","newFood":null},
+    {"rawText":"47355 GROUND BEEF","displayName":"Ground beef","quantity":1,"unit":null,"priceCents":6025,"weightGrams":null,"foodName":"ground beef","newFood":null},
+    {"rawText":"47355 GROUND BEEF","displayName":"Ground beef","quantity":1,"unit":null,"priceCents":6055,"weightGrams":null,"foodName":"ground beef","newFood":null},
+    {"rawText":"1767102 KS MANGO","displayName":"Mango","quantity":1,"unit":null,"priceCents":899,"weightGrams":null,"foodName":"papaya, mango, feijoa, passionfruit, casaha melon","newFood":null},
+    {"rawText":"1767102 KS MANGO","displayName":"Mango","quantity":1,"unit":null,"priceCents":899,"weightGrams":null,"foodName":"papaya, mango, feijoa, passionfruit, casaha melon","newFood":null},
+    {"rawText":"60357 MIXED PEPPER","displayName":"Mixed peppers","quantity":1,"unit":null,"priceCents":849,"weightGrams":null,"foodName":"peppers","newFood":null},
+    {"rawText":"796993 ORG AVOCADOS","displayName":"Organic avocados","quantity":1,"unit":null,"priceCents":999,"weightGrams":null,"foodName":"avocados","newFood":null},
+    {"rawText":"8051 MADELEINES","displayName":"Madeleines","quantity":1,"unit":null,"priceCents":899,"weightGrams":null,"foodName":"commercial cakes and muffins","newFood":null},
+    {"rawText":"2004281 TALLOW CHIPS","displayName":"Tallow chips","quantity":1,"unit":null,"priceCents":799,"weightGrams":null,"foodName":"potato chips","newFood":null},
+    {"rawText":"221177 KS SOCKEYE","displayName":"Sockeye salmon","quantity":1,"unit":null,"priceCents":4299,"weightGrams":null,"foodName":"fatty fish","newFood":null},
+    {"rawText":"1276954 LYCHEENECTAR","displayName":"Lychee nectar","quantity":1,"unit":null,"priceCents":729,"weightGrams":null,"foodName":"fruit juice in cartons, fruit drinks, punch","newFood":null},
+    {"rawText":"984865 MANGO NECTAR","displayName":"Mango nectar","quantity":1,"unit":null,"priceCents":699,"weightGrams":null,"foodName":"nectar, papaya, mango, guava, or guavabana","newFood":null}
+  ]
+}
