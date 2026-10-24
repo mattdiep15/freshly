@@ -5,6 +5,10 @@ const art = {
   fridge: { file: "leekly-fridge", width: 690, height: 538 },
   point: { file: "leekly-point", width: 287, height: 635 },
   photo: { file: "photoleek", width: 290, height: 682 },
+  cool: { file: "new/cool", width: 297, height: 687 },
+  "number-one": { file: "new/number-one", width: 336, height: 696 },
+  file: { file: "new/file", width: 342, height: 687 },
+  friends: { file: "new/friends", width: 834, height: 695 },
 } as const;
 
 export type LeeklyPose = keyof typeof art;
