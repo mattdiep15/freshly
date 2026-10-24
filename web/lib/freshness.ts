@@ -30,11 +30,15 @@ export function daysLeftLabel(expiresAt: number | undefined, now: number): strin
   return days === 1 ? "1 day" : `${days} days`;
 }
 
-// Pill text for an expired item; an item that expired earlier today reads "expired today".
-export function expiredLabel(expiresAt: number, now: number): string {
+// "today", "1 day ago", "3 days ago" for an item past its date.
+export function daysAgoLabel(expiresAt: number, now: number): string {
   const days = -daysUntil(expiresAt, now);
-  if (days <= 0) return "expired today";
-  return days === 1 ? "expired 1 day ago" : `expired ${days} days ago`;
+  if (days <= 0) return "today";
+  return days === 1 ? "1 day ago" : `${days} days ago`;
+}
+
+export function expiredLabel(expiresAt: number, now: number): string {
+  return `expired ${daysAgoLabel(expiresAt, now)}`;
 }
 
 // A picked calendar date means "good through that day", so it expires at the end of it.
@@ -49,9 +53,9 @@ export function dateInputValue(t: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-const URGENCY_RANK: Record<Freshness, number> = { soon: 0, fresh: 1, unknown: 2, expired: 3 };
+const URGENCY_RANK: Record<Freshness, number> = { expired: 0, soon: 1, fresh: 2, unknown: 3 };
 
-// Expired items sink to the bottom because they wait for a swipe, not for cooking.
+// Expired items lead so the swipe check-in is the first thing the user sees.
 export function sortByUrgency<T extends { expiresAt?: number }>(items: T[], now: number): T[] {
   return [...items].sort(
     (a, b) =>

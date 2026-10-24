@@ -1,5 +1,5 @@
 import type { ItemView } from "@/convex/items";
-import { daysLeftLabel, endOfLocalDay, expiredLabel, freshness } from "@/lib/freshness";
+import { daysAgoLabel, daysLeftLabel, endOfLocalDay, expiredLabel, freshness } from "@/lib/freshness";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
@@ -45,6 +45,7 @@ export function FoodCard({
   item,
   now,
   expanded,
+  filteredOut = false,
   extended = false,
   checkIn = false,
   onToggle,
@@ -56,6 +57,7 @@ export function FoodCard({
   item: ItemView;
   now: number;
   expanded: boolean;
+  filteredOut?: boolean;
   extended?: boolean;
   checkIn?: boolean;
   onToggle: () => void;
@@ -71,7 +73,7 @@ export function FoodCard({
 
   return (
     <article
-      className={`food-card food-card--${status} ${expanded ? "is-expanded" : ""}`}
+      className={`food-card food-card--${status} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""}`}
       onMouseEnter={onHover}
     >
       <button
@@ -84,12 +86,19 @@ export function FoodCard({
           <span className="card-title">{item.name}</span>
           <span className="card-meta">
             {isExpired && item.expiresAt !== undefined ? (
-              <span className="status-pill">{expiredLabel(item.expiresAt, now)}</span>
+              <span className="status-pill">
+                <span className="expired-label-desktop">{expiredLabel(item.expiresAt, now)}</span>
+                <span className="expired-label-mobile">expired</span>
+              </span>
             ) : (
               <StatusPill status={status} />
             )}
             {extended && <span className="extended-tag">extended</span>}
-            {!isExpired && <span className="days-left">{daysLeftLabel(item.expiresAt, now)}</span>}
+            {isExpired && item.expiresAt !== undefined ? (
+              <span className="expired-days-mobile">{daysAgoLabel(item.expiresAt, now)}</span>
+            ) : (
+              <span className="days-left">{daysLeftLabel(item.expiresAt, now)}</span>
+            )}
             {checkIn && <span className="check-in-tag">check in</span>}
           </span>
         </span>
