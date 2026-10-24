@@ -18,22 +18,18 @@ function ReceiptOptions({ onPick }: { onPick: (file?: File) => void }) {
         <input type="file" accept="image/*" capture="environment" onChange={(e) => onPick(e.target.files?.[0])} />
         <Leekly pose="photo" className="scan-mascot" />
         <span className="camera-choice-copy">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M4 10h6l2-3h8l2 3h6v16H4z" />
-            <circle cx="16" cy="18" r="5" />
-          </svg>
           <strong>take a photo</strong>
-          <small>open your camera</small>
         </span>
       </label>
-      <label className="receipt-choice">
+      <label className="receipt-choice upload-choice">
         <input type="file" accept="image/*,.pdf" onChange={(e) => onPick(e.target.files?.[0])} />
-        <span className="receipt-icon">↑</span>
-        <svg className="upload-file-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 2h9l5 5v15H5zM14 2v5h5" />
-        </svg>
-        <strong>upload from files</strong>
-        <small>photo or pdf</small>
+        <Leekly pose="file" className="file-leek" />
+        <span className="file-choice-copy">
+          <svg className="upload-file-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M5 2h9l5 5v15H5zM14 2v5h5" />
+          </svg>
+          <strong>upload from files</strong>
+        </span>
       </label>
     </div>
   );
@@ -124,7 +120,6 @@ export function ScanFlow({ parsedLines, onDone }: { parsedLines: ParsedReceiptLi
 
   return (
     <main className="add-screen">
-      <div className="step-count">0{step} / 03</div>
       {reading && (
         <section className="receipt-loading">
           <Leekly pose="photo" className="loading-photoleek" />
@@ -132,7 +127,7 @@ export function ScanFlow({ parsedLines, onDone }: { parsedLines: ParsedReceiptLi
         </section>
       )}
       {!reading && step === 1 && (
-        <section className="step-panel">
+        <section className="step-panel scan-step">
           <p className="eyebrow">scan receipt</p>
           <h1>show us your receipt.</h1>
           <ReceiptOptions onPick={pick} />

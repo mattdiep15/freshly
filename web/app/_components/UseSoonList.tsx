@@ -18,6 +18,7 @@ export function UseSoonList({ items, now }: { items: FridgeItem[]; now: number }
       {items.map((item, index) => {
         const isChecked = checked.includes(item.id);
         const label = daysLeftLabel(item.expiresAt, now);
+        const note = label === "today" ? "goes off today" : `good for ${label}`;
         return (
           <label className={`daily-task ${isChecked ? "is-checked" : ""}`} key={item.id}>
             <input type="checkbox" checked={isChecked} onChange={() => toggle(item.id)} />
@@ -28,7 +29,10 @@ export function UseSoonList({ items, now }: { items: FridgeItem[]; now: number }
             <FoodArt name={item.name} className="task-icon" />
             <span className="task-copy">
               <strong>use up {item.name}</strong>
-              <small>{label === "today" ? "goes off today" : `good for ${label}`}</small>
+              <small>
+                <span className="desktop-task-note">{note}</span>
+                <span className="mobile-task-note">{note}</span>
+              </small>
             </span>
           </label>
         );

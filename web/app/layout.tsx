@@ -34,7 +34,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ConvexClientProvider>
           <div className="app-shell">
             <SiteHeader />
-            {children}
+            <div className="mobile-page-scroll">
+              {children}
+              <div className="mobile-page-end-spacer" aria-hidden="true" />
+            </div>
             <footer>
               <p>spoil less eat fresh!</p>
               <span>freshly © 2026</span>

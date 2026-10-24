@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { daysLeftLabel, daysUntil, freshness, numberWord, sortByUrgency, pickUseSoon } from "./freshness";
+import { daysAgoLabel, daysLeftLabel, daysUntil, freshness, numberWord, sortByUrgency, pickUseSoon } from "./freshness";
 
 // Local-time dates keep the tests independent of the machine's timezone.
 const now = new Date(2026, 9, 23, 10, 0).getTime();
@@ -42,8 +42,16 @@ describe("daysLeftLabel", () => {
   });
 });
 
+describe("daysAgoLabel", () => {
+  it("counts calendar days since the date", () => {
+    expect(daysAgoLabel(at(23, 9), now)).toBe("today");
+    expect(daysAgoLabel(at(22), now)).toBe("1 day ago");
+    expect(daysAgoLabel(at(20), now)).toBe("3 days ago");
+  });
+});
+
 describe("sortByUrgency", () => {
-  it("orders soon, fresh, undated, then expired", () => {
+  it("orders expired, soon, fresh, then undated", () => {
     const items = [
       { name: "expired", expiresAt: at(20) },
       { name: "undated" },
@@ -52,11 +60,11 @@ describe("sortByUrgency", () => {
       { name: "soon-first", expiresAt: at(23) },
     ];
     expect(sortByUrgency(items, now).map((i) => i.name)).toEqual([
+      "expired",
       "soon-first",
       "soon-later",
       "fresh",
       "undated",
-      "expired",
     ]);
   });
 });

@@ -192,6 +192,10 @@ h1 {
   color: var(--good);
 }
 
+.mobile-task-note {
+  display: none;
+}
+
 .daily-list {
   border-top: 2px solid var(--ink);
 }
@@ -301,6 +305,15 @@ h1 {
   min-width: 0;
 }
 
+.fridge-title-copy {
+  position: relative;
+}
+
+.mobile-fridge-leek,
+.mobile-item-count {
+  display: none;
+}
+
 .page-heading h1 {
   max-width: 100%;
   font-size: 64px;
@@ -336,17 +349,28 @@ h1 {
 
 .food-card {
   position: relative;
+  max-height: 1000px;
   overflow: hidden;
   border-right: 1px solid var(--ink);
   border-bottom: 1px solid var(--ink);
   border-left: 1px solid var(--ink);
   background: var(--paper);
   transition:
+    max-height 150ms ease,
+    opacity 150ms ease,
     color 200ms ease,
     background 200ms ease;
 }
 
-.food-card--soon::before {
+.food-card.is-filtered-out {
+  max-height: 0;
+  border-width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.food-card--soon::before,
+.food-card--fresh::before {
   position: absolute;
   z-index: 1;
   top: 0;
@@ -357,6 +381,10 @@ h1 {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M-3 3L3-3M-3 13L13-3M7 13L13 7' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E");
   border-right: 1px solid var(--ink);
   content: '';
+}
+
+.food-card--fresh::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M-3 3L3-3M-3 13L13-3M7 13L13 7' stroke='%23258007' stroke-width='1'/%3E%3C/svg%3E");
 }
 
 .food-card--expired {
@@ -395,6 +423,7 @@ h1 {
 }
 
 .food-card--expired .card-summary {
+  grid-template-columns: 220px 72px 1fr 130px 22px;
   padding-left: 18px;
   background: var(--ink);
 }
@@ -475,7 +504,7 @@ h1 {
   display: grid;
   place-content: center;
   overflow: hidden;
-  border: 1px dashed var(--ink);
+  border: 0;
   padding: 16px;
   text-align: center;
 }
@@ -545,6 +574,10 @@ h1 {
 
 .stock-tooltip strong {
   margin-right: 7px;
+}
+
+.stock-tooltip-hint {
+  display: none;
 }
 
 .stage-toggle {
@@ -900,12 +933,12 @@ h1 {
 .circle-stroke {
   stroke-dasharray: 900;
   stroke-dashoffset: 0;
-  animation: circle-draw 400ms ease-out;
 }
 
-.stat-circle:hover .circle-stroke,
-.stat-circle:focus-visible .circle-stroke {
-  animation: circle-draw 400ms ease-out;
+.circle-stroke.is-animating {
+  animation-name: circle-draw;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: both;
 }
 
 @keyframes circle-draw {
@@ -920,11 +953,15 @@ h1 {
 
 .circle-art strong {
   position: relative;
+  width: 3ch;
   font-family: var(--font-display), sans-serif;
   font-size: 96px;
   font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
   letter-spacing: 0.01em;
   line-height: 1;
+  text-align: center;
 }
 
 .stat-label {
@@ -996,11 +1033,12 @@ h1 {
   grid-template-columns: 70px 1fr 160px 130px 55px;
 }
 
+.friends-list .friend-columns > span:nth-child(2) {
+  text-align: left;
+}
+
 .friends-stage {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px;
-  gap: 28px;
-  align-items: start;
+  display: block;
 }
 
 .friends-leek-point {
@@ -1487,7 +1525,8 @@ footer {
     border-top-width: 1px;
   }
 
-  .food-card--soon::before {
+  .food-card--soon::before,
+  .food-card--fresh::before {
     width: 16px;
   }
 
@@ -1788,6 +1827,140 @@ footer {
   }
 }
 
+.swipe-back {
+  position: absolute;
+  z-index: 5;
+  top: 16px;
+  left: 32px;
+  min-width: 88px;
+  min-height: 44px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.swipe-back span {
+  transition: transform 150ms ease;
+}
+
+.swipe-back:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.swipe-back:hover span {
+  transform: translateX(-4px);
+}
+
+.swipe-progress {
+  right: 32px;
+}
+
+.swipe-progress.is-hidden {
+  visibility: hidden;
+}
+
+.swipe-card.swipe-enter-right {
+  animation: swipe-enter-right 250ms ease-out;
+}
+
+.swipe-card.swipe-enter-left {
+  animation: swipe-enter-left 250ms ease-out;
+}
+
+@keyframes swipe-enter-left {
+  from {
+    transform: translateX(-110vw) rotate(-8deg);
+  }
+
+  to {
+    transform: translateX(0) rotate(0);
+  }
+}
+
+.swipe-card.swipe-close {
+  transform: scale(0.94);
+  opacity: 0;
+  transition-duration: 200ms;
+}
+
+.check-in-tag {
+  border: 1px solid var(--ink);
+  padding: 4px 8px;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .check-in-tag {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .swipe-card--step-2 .swipe-progress {
+    right: 48px;
+    left: auto;
+  }
+
+  .swipe-card--step-2 .swipe-kicker {
+    right: 140px;
+  }
+}
+
+.decision-toast {
+  position: fixed;
+  z-index: 40;
+  bottom: 32px;
+  left: 50%;
+  border: 1px solid var(--ink);
+  padding: 14px 18px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 15px;
+  letter-spacing: 0.04em;
+  transform: translateX(-50%);
+}
+
+.decision-toast u {
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 767px) {
+  .swipe-back {
+    top: max(16px, env(safe-area-inset-top));
+    left: 16px;
+    height: 44px;
+  }
+
+  .swipe-card.swipe-close {
+    transform: translateY(110vh);
+    opacity: 1;
+  }
+
+  .decision-toast {
+    right: 16px;
+    bottom: calc(112px + env(safe-area-inset-bottom));
+    left: 16px;
+    width: auto;
+    text-align: center;
+    transform: none;
+  }
+}
+
 @media (max-width: 767px) {
   .app-shell {
     padding-right: 16px;
@@ -1892,7 +2065,8 @@ footer {
     line-height: 0.98;
   }
 
-  .food-card--soon::before {
+  .food-card--soon::before,
+  .food-card--fresh::before {
     width: 12px;
   }
 
@@ -2423,6 +2597,300 @@ footer {
   }
 }
 
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  nav {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(64px + env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: 1fr 1fr 84px 1fr 1fr;
+    align-items: start;
+    gap: 0;
+    border-top: 1px solid var(--ink);
+    padding: 0 8px env(safe-area-inset-bottom);
+    background: var(--paper);
+  }
+
+  .nav-scan {
+    display: none;
+  }
+
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    min-width: 44px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    color: var(--ink);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    opacity: 0.45;
+  }
+
+  .nav-fridge {
+    grid-column: 1;
+  }
+
+  .nav-stats {
+    grid-column: 2;
+  }
+
+  .nav-friends {
+    grid-column: 4;
+  }
+
+  .nav-me {
+    grid-column: 5;
+  }
+
+  .nav-fridge.active,
+  .nav-stats.active,
+  .nav-friends.active,
+  .nav-me.active {
+    opacity: 1;
+  }
+
+  .nav-link::after {
+    right: 18%;
+    bottom: 9px;
+    left: 18%;
+    height: 2px;
+  }
+
+  .camera-tab {
+    position: absolute;
+    z-index: 2;
+    top: -30px;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    display: grid;
+    place-items: center;
+    border: 6px solid var(--paper);
+    border-radius: 50%;
+    padding: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    transform: translateX(-50%);
+    transition: transform 100ms ease;
+  }
+
+  .camera-tab::after {
+    position: absolute;
+    inset: -7px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    content: '';
+  }
+
+  .camera-tab:active {
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .camera-tab svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: var(--paper);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .camera-tab-input {
+    display: none;
+  }
+
+  .stock-tooltip {
+    bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+
+  .mobile-pinned-action {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(88px + max(env(safe-area-inset-bottom), 20px));
+  }
+
+  nav {
+    height: calc(64px + max(env(safe-area-inset-bottom), 20px));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: start;
+    padding: 0 12px max(env(safe-area-inset-bottom), 20px);
+  }
+
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    min-width: 0;
+    min-height: 64px;
+    height: 64px;
+    padding: 0;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .nav-fridge.active,
+  .nav-stats.active,
+  .nav-friends.active,
+  .nav-me.active {
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .camera-tab {
+    position: relative;
+    top: -30px;
+    left: auto;
+    grid-column: 3;
+    justify-self: center;
+    transform: none;
+  }
+
+  .camera-tab:active {
+    transform: scale(0.95);
+  }
+
+  .stock-tooltip {
+    bottom: calc(72px + max(env(safe-area-inset-bottom), 20px));
+  }
+
+  .mobile-pinned-action {
+    bottom: calc(76px + max(env(safe-area-inset-bottom), 20px));
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(104px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  nav {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(64px + max(env(safe-area-inset-bottom), 24px));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: start;
+    gap: 0;
+    overflow: visible;
+    border-top: 1px solid var(--ink);
+    padding: 0 12px max(env(safe-area-inset-bottom), 24px);
+    background: var(--paper);
+  }
+
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    width: 100%;
+    min-width: 0;
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .nav-fridge {
+    grid-column: 1;
+  }
+
+  .nav-stats {
+    grid-column: 2;
+  }
+
+  .nav-friends {
+    grid-column: 4;
+  }
+
+  .nav-me {
+    grid-column: 5;
+  }
+
+  .camera-tab {
+    position: fixed;
+    z-index: 3;
+    top: auto;
+    bottom: calc(24px + max(env(safe-area-inset-bottom), 24px));
+    left: 50vw;
+    width: 80px;
+    height: 80px;
+    display: grid;
+    place-items: center;
+    border: 6px solid var(--paper);
+    border-radius: 50%;
+    padding: 0;
+    background: var(--ink);
+    transform: translateX(-50%);
+  }
+
+  .camera-tab:active {
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .camera-tab svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .nav-fridge.active,
+  .nav-stats.active,
+  .nav-friends.active,
+  .nav-me.active {
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .stock-tooltip {
+    bottom: calc(80px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  .mobile-pinned-action {
+    bottom: calc(80px + max(env(safe-area-inset-bottom), 24px));
+  }
+}
+
 /* Authoritative mobile bottom bar: four tabs, one empty center slot, floating camera. */
 @media (max-width: 767px) {
   .app-shell {
@@ -2561,6 +3029,3292 @@ footer {
   }
 }
 
+@media (max-width: 767px) {
+  .camera-tab {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: calc(24px + max(env(safe-area-inset-bottom), 24px));
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;
+    transform: none;
+  }
+
+  .camera-tab:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Authoritative mobile layout for the Me screen. */
+@media (max-width: 767px) {
+  .app-shell:has(.home-screen) {
+    padding-right: 16px;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    padding-left: 16px;
+  }
+
+  .home-screen {
+    min-height: 0;
+  }
+
+  .home-intro {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 24px;
+  }
+
+  .home-intro .eyebrow {
+    margin-bottom: 8px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+  }
+
+  .home-intro h1 {
+    font-size: 56px;
+    line-height: 0.96;
+  }
+
+  .hero-subtitle {
+    margin-top: 12px;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .home-mascot {
+    width: min(300px, 100%);
+    height: auto;
+    display: block;
+    margin: 16px auto;
+    object-fit: contain;
+  }
+
+  .home-intro > .add-button {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    margin: 0 auto 24px;
+    border: 0;
+    border-radius: 50%;
+    padding: 12px;
+    background: var(--good);
+    color: var(--paper);
+    line-height: 1;
+    transition: transform 100ms ease;
+  }
+
+  .home-intro > .add-button:hover {
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .home-intro > .add-button:active {
+    transform: scale(0.95);
+  }
+
+  .home-intro .add-symbol {
+    font-size: 32px;
+    font-weight: 400;
+    line-height: 0.9;
+  }
+
+  .home-intro .add-label {
+    display: grid;
+    gap: 1px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    line-height: 1.05;
+    text-align: center;
+  }
+
+  .daily-list {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    border-top: 1px solid var(--ink);
+  }
+
+  .daily-task {
+    min-height: 76px;
+    grid-template-columns: 44px 52px minmax(0, 1fr);
+    gap: 12px;
+    border-bottom: 1px solid var(--ink);
+    padding: 0 16px;
+  }
+
+  .large-check {
+    width: 28px;
+    height: 28px;
+    justify-self: center;
+    border: 2px solid var(--ink);
+    font-size: 19px;
+    line-height: 1;
+  }
+
+  .task-icon {
+    width: 48px;
+    height: 48px;
+    justify-self: center;
+  }
+
+  .task-copy {
+    min-width: 0;
+  }
+
+  .task-copy strong {
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+  }
+
+  .task-copy small {
+    margin-top: 3px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  .desktop-task-note {
+    display: none;
+  }
+
+  .mobile-task-note {
+    display: inline;
+  }
+
+  .daily-task.is-checked {
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .daily-task.is-checked .large-check {
+    border-color: var(--good);
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .daily-task.is-checked .task-copy strong {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 1px;
+  }
+
+  .home-screen > .quiet-link {
+    justify-content: center;
+    margin: 24px auto 0;
+    padding: 0;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Authoritative mobile layout for the fridge screen. */
+@media (max-width: 767px) {
+  .app-shell:has(.fridge-screen) {
+    padding-right: 16px;
+    padding-bottom: calc(144px + env(safe-area-inset-bottom));
+    padding-left: 16px;
+  }
+
+  .fridge-screen {
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .fridge-screen .page-heading,
+  .fridge-screen .fridge-list-stage,
+  .fridge-screen .food-list,
+  .fridge-screen .food-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fridge-screen .page-heading {
+    margin-bottom: 24px;
+  }
+
+  .fridge-screen .fullness-art {
+    width: min(300px, 100%);
+  }
+
+  .fridge-title-copy {
+    position: relative;
+    min-height: 120px;
+    order: 4;
+    padding-right: 92px;
+  }
+
+  .fridge-title-copy .eyebrow,
+  .fridge-title-copy h1 {
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .fridge-title-copy h1 {
+    font-size: 40px;
+    overflow-wrap: normal;
+  }
+
+  .mobile-fridge-leek {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 76px;
+    height: 120px;
+    display: block;
+    object-fit: contain;
+  }
+
+  .mobile-item-count {
+    display: block;
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-align: right;
+  }
+
+  .fridge-list-stage > .fridge-leek-point {
+    display: none;
+  }
+
+  .fridge-screen .food-list {
+    overflow: visible;
+    border-top: 1px solid var(--ink);
+  }
+
+  .fridge-screen .food-card {
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 1px;
+  }
+
+  .fridge-screen .food-card--soon::before,
+  .fridge-screen .food-card--fresh::before {
+    left: 0;
+    width: 12px;
+  }
+
+  .fridge-screen .card-summary {
+    min-height: 60px;
+  }
+}
+
+/* New Leekly placements. */
+.friends-heading {
+  min-height: 380px;
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: center;
+}
+
+.friends-header-art {
+  width: 360px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.stats-heading {
+  min-height: 300px;
+}
+
+.stats-leek-preview {
+  display: grid;
+  justify-items: center;
+}
+
+.stats-leek-preview .stats-mascot {
+  width: auto;
+  height: 280px;
+  display: block;
+  object-fit: contain;
+}
+
+.file-upload-option {
+  min-width: 0;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.file-leek {
+  width: auto;
+  height: 140px;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.file-upload-option .receipt-choice {
+  width: 100%;
+  min-width: 0;
+  min-height: 230px;
+  flex: 1;
+}
+
+.file-upload-option .receipt-icon {
+  display: none;
+}
+
+.file-upload-option .upload-file-icon {
+  width: 32px;
+  display: block;
+  margin-bottom: 14px;
+  fill: none;
+  stroke: currentColor;
+}
+
+@media (max-width: 767px) {
+  .friends-heading {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 24px 0;
+  }
+
+  .friends-header-art {
+    width: min(260px, 100%);
+    align-self: center;
+  }
+
+  .stats-heading {
+    min-height: 180px;
+    gap: 20px;
+  }
+
+  .stats-leek-preview {
+    flex: 0 0 auto;
+  }
+
+  .stats-leek-preview .stats-mascot {
+    height: 150px;
+  }
+
+  .file-upload-option {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .file-leek {
+    height: 88px;
+  }
+
+  .file-upload-option .receipt-choice {
+    width: auto;
+    min-height: 52px;
+    height: 52px;
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr) 24px;
+    gap: 8px;
+    border: 2px solid var(--ink);
+    padding: 0 12px;
+  }
+
+  .file-upload-option .receipt-choice::after {
+    width: 24px;
+    content: '';
+  }
+
+  .file-upload-option .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+  }
+
+  .file-upload-option .receipt-choice strong {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  .file-upload-option .receipt-choice small {
+    display: none;
+  }
+}
+
+/* Desktop scan step: two equal action cards. */
+@media (min-width: 768px) {
+  .scan-step {
+    width: min(100%, 872px);
+  }
+
+  .scan-step .receipt-options {
+    display: grid;
+    grid-template-columns: repeat(2, 420px);
+    gap: 32px;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  .scan-step .receipt-choice,
+  .scan-step .receipt-choice:first-child {
+    width: 420px;
+    height: 440px;
+    min-height: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed var(--ink);
+    padding: 24px;
+    overflow: hidden;
+    transition: border-style 150ms ease;
+  }
+
+  .scan-step .scan-mascot,
+  .scan-step .file-leek {
+    width: auto;
+    height: 280px;
+    flex: 0 0 280px;
+    margin: 0;
+    object-fit: contain;
+    transition: transform 150ms ease;
+  }
+
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    min-height: 28px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-step .receipt-choice strong {
+    font-size: 22px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .scan-step .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    display: block;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .scan-step .receipt-choice:hover {
+    border-style: solid;
+  }
+
+  .scan-step .receipt-choice:hover .scan-mascot,
+  .scan-step .receipt-choice:hover .file-leek {
+    transform: translateY(-4px);
+  }
+}
+
+.extended-tag {
+  border: 1px solid var(--good);
+  padding: 3px 6px;
+  color: var(--good);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+@media (min-width: 768px) {
+  .extended-tag {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin-left: 96px;
+  }
+
+  .food-card:has(.extended-tag) .card-summary {
+    grid-template-columns: 220px 72px 1fr 130px 22px;
+  }
+}
+
+.swipe-card {
+  position: relative;
+  width: min(90vw, 680px);
+  height: min(720px, 90vh);
+  min-height: 650px;
+  padding: 28px 45px;
+  touch-action: none;
+  user-select: none;
+  transition:
+    transform 200ms ease,
+    opacity 250ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.swipe-card.swipe-left {
+  transition-duration: 250ms;
+  transform: translateX(-110vw) rotate(-8deg);
+  opacity: 0;
+}
+
+.swipe-card.swipe-right {
+  transition-duration: 250ms;
+  transform: translateX(110vw) rotate(8deg);
+  opacity: 0;
+}
+
+.swipe-card.swipe-enter {
+  animation: swipe-enter-right 250ms ease-out;
+}
+
+@keyframes swipe-enter-right {
+  from {
+    transform: translateX(110vw) rotate(8deg);
+  }
+
+  to {
+    transform: translateX(0) rotate(0);
+  }
+}
+
+.swipe-progress {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.swipe-stamp {
+  position: absolute;
+  z-index: 10;
+  top: 50%;
+  left: 50%;
+  border: 3px solid currentColor;
+  padding: 10px 24px;
+  background: rgb(255 255 255 / 90%);
+  color: var(--good);
+  font-family: var(--font-display), sans-serif;
+  font-size: 56px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-8deg);
+  transition: opacity 150ms ease;
+}
+
+.swipe-stamp--left {
+  color: var(--ink);
+}
+
+.swipe-stamp--right {
+  right: auto;
+  color: var(--good);
+  transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+.swipe-card > p {
+  margin: 18px 0 8px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.swipe-card .swipe-food-art {
+  width: 240px;
+  height: 190px;
+  margin: -18px 0;
+}
+
+.swipe-card .swipe-mascot {
+  width: 80px;
+  height: 120px;
+  margin: -22px 0 -16px;
+}
+
+.swipe-card h1 {
+  font-size: 52px;
+}
+
+.swipe-card--step-2 {
+  gap: 8px;
+}
+
+.swipe-kicker {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.swipe-card--step-2 > p {
+  margin: 0;
+}
+
+.swipe-card--step-2 .swipe-food-art--check {
+  width: 240px;
+  height: 190px;
+  margin: -8px 0;
+}
+
+.swipe-card--step-2 h1 {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.swipe-card--step-2 .swipe-mascot--check {
+  width: 70px;
+  height: 120px;
+  margin: -8px 0;
+}
+
+.swipe-hints {
+  max-width: 560px;
+  text-align: center;
+}
+
+.swipe-hints p {
+  margin: 2px 0;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.swipe-card .swipe-actions {
+  gap: 18px;
+  justify-content: center;
+  margin-top: 22px;
+}
+
+.swipe-card .swipe-actions button {
+  width: 160px;
+  height: 52px;
+  padding: 8px 12px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+.extension-toast {
+  position: fixed;
+  z-index: 40;
+  bottom: 110px;
+  left: 50%;
+  border: 2px solid var(--good);
+  padding: 12px 18px;
+  background: var(--paper);
+  color: var(--good);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  transform: translateX(-50%);
+}
+
+@media (max-width: 767px) {
+  .swipe-takeover {
+    display: block;
+    padding: 16px;
+  }
+
+  .swipe-card {
+    width: 100%;
+    height: calc(100dvh - 32px);
+    min-height: 0;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 42px 16px 24px;
+  }
+
+  .swipe-card h1,
+  .swipe-card--step-2 h1 {
+    font-size: 34px;
+  }
+
+  .swipe-card .swipe-food-art,
+  .swipe-card--step-2 .swipe-food-art--check {
+    width: 210px;
+    height: 170px;
+  }
+
+  .swipe-card .swipe-mascot,
+  .swipe-card--step-2 .swipe-mascot--check {
+    height: 120px;
+  }
+
+  .swipe-card .swipe-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .swipe-card .swipe-actions button,
+  .swipe-card--step-2 .swipe-actions button {
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .swipe-takeover > small {
+    display: none;
+  }
+
+  .extension-toast {
+    right: 16px;
+    bottom: 120px;
+    left: 16px;
+    text-align: center;
+    transform: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .scan-step .upload-choice {
+    width: 100%;
+    min-height: 96px;
+    height: 96px;
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 10px;
+    padding: 4px 12px;
+  }
+
+  .scan-step .file-leek {
+    width: auto;
+    height: 88px;
+    justify-self: center;
+  }
+
+  .scan-step .file-choice-copy {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scan-step .file-choice-copy .upload-file-icon {
+    flex: 0 0 20px;
+  }
+}
+
+/* Desktop readability pass. */
+@media (min-width: 768px) {
+  .brand {
+    font-size: 36px;
+  }
+
+  .nav-me {
+    display: block;
+  }
+
+  nav {
+    gap: 40px;
+  }
+
+  .nav-link {
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .nav-link::after {
+    bottom: 4px;
+    height: 2px;
+  }
+
+  .eyebrow,
+  .hero-subtitle,
+  .add-button,
+  .task-number,
+  .task-copy small,
+  .quiet-link,
+  .item-count,
+  .stock-label,
+  .stock-tooltip p,
+  .stage-toggle button,
+  .used-button,
+  .step-count,
+  .receipt-choice small,
+  .outline-button,
+  .parsed-row label,
+  .parsed-row input,
+  .tip-card span,
+  .tip-card p,
+  .stat-tooltip,
+  .list-labels,
+  .empty-state p,
+  .swipe-card > p,
+  .swipe-edge,
+  .swipe-actions button,
+  .swipe-takeover > small,
+  footer {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .page-heading .eyebrow {
+    font-size: 14px;
+  }
+
+  .stock-label {
+    font-size: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  .stage-toggle {
+    gap: 8px;
+  }
+
+  .stage-toggle button {
+    min-width: 44px;
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: 14px;
+  }
+
+  .item-count {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .card-summary {
+    min-height: 88px;
+  }
+
+  .card-title {
+    font-size: 28px;
+  }
+
+  .status-pill,
+  .days-left {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .status-pill {
+    padding: 6px 10px 5px;
+  }
+
+  .detail-line span {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .detail-line p {
+    font-size: 18px;
+    letter-spacing: 0.06em;
+  }
+
+  .used-button {
+    min-height: 44px;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+  }
+
+  .stock-tooltip {
+    top: auto;
+    bottom: 16px;
+    width: 320px;
+    padding: 12px;
+  }
+
+  .stock-tooltip p {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+    line-height: 1.45;
+  }
+
+  .stock-tooltip strong {
+    font-weight: 700;
+  }
+
+  .stat-label,
+  .thin-row {
+    font-size: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  .friends-list .thin-row strong {
+    font-size: 19px;
+    letter-spacing: 0.06em;
+  }
+
+  footer {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .list-labels {
+    font-size: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  .food-card.is-expanded .detail-line {
+    min-width: 0;
+    align-self: center;
+  }
+
+  .food-card.is-expanded .detail-line span {
+    margin-bottom: 8px;
+    color: var(--ink);
+    font-family: var(--font-display), sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .food-card.is-expanded .detail-line p {
+    color: rgb(0 0 0 / 80%);
+    font-family: var(--font-body), sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .food-card.is-expanded .used-button {
+    min-width: 160px;
+    min-height: 44px;
+    border: 2px solid var(--good);
+    color: var(--good);
+    font-size: 16px;
+  }
+
+  .food-card--expired.is-expanded .used-button {
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+}
+
+/* Spoilage check card. */
+@media (min-width: 768px) {
+  .swipe-card--step-2 {
+    position: relative;
+    width: min(960px, calc(100vw - 32px));
+    height: 560px;
+    min-height: 560px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: stretch;
+    border: 2px solid var(--ink);
+    padding: 76px 48px 48px;
+  }
+
+  .swipe-card--step-2::after {
+    position: absolute;
+    top: 48px;
+    bottom: 48px;
+    left: 50%;
+    border-left: 1px solid var(--ink);
+    content: '';
+    pointer-events: none;
+  }
+
+  .swipe-card--step-2 .swipe-progress {
+    top: 28px;
+    right: auto;
+    left: 48px;
+    font-size: 14px;
+  }
+
+  .swipe-card--step-2 .swipe-kicker {
+    position: absolute;
+    top: 28px;
+    right: 48px;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+  }
+
+  .spoil-food-column {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spoil-food-column .status-pill {
+    position: static;
+    font-size: 14px;
+  }
+
+  .spoil-food-name {
+    margin: 10px 0 0;
+    font-family: var(--font-display), sans-serif;
+    font-size: 36px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .spoil-food-art {
+    width: 100%;
+    height: 300px;
+    display: grid;
+    place-items: center;
+  }
+
+  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
+    width: 280px;
+    height: 280px;
+    max-width: 100%;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  .spoil-expiry {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+
+  .spoil-question-column {
+    position: relative;
+    min-width: 0;
+    padding-bottom: 136px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    max-width: 390px;
+    margin: 0;
+    font-size: 52px;
+    line-height: 0.98;
+    text-align: left;
+  }
+
+  .spoil-check-box {
+    margin-top: 24px;
+    border: 1px solid var(--ink);
+    padding: 16px;
+  }
+
+  .spoil-check-box strong {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .spoil-check-box p {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .spoil-hint {
+    margin: 16px 0 0;
+    padding-right: 120px;
+    color: rgb(0 0 0 / 70%);
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    width: 100%;
+    height: 56px;
+    font-size: 18px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-mascot--check {
+    position: absolute;
+    right: 0;
+    bottom: 148px;
+    width: auto;
+    height: 110px;
+    margin: 0;
+    object-fit: contain;
+  }
+}
+
+.swipe-takeover > small {
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+
+.swipe-takeover > small.is-hidden {
+  opacity: 0;
+}
+
+@media (max-width: 767px) {
+  .swipe-card--step-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: stretch;
+    padding: 52px 16px 24px;
+  }
+
+  .swipe-card--step-2 .swipe-progress {
+    top: 18px;
+    right: auto;
+    left: 16px;
+    font-size: 14px;
+  }
+
+  .swipe-card--step-2 .swipe-kicker {
+    position: absolute;
+    top: 18px;
+    right: 16px;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+  }
+
+  .spoil-food-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .spoil-food-name {
+    margin: 6px 0 0;
+    font-family: var(--font-display), sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .spoil-food-art {
+    width: 100%;
+    height: 170px;
+    display: grid;
+    place-items: center;
+  }
+
+  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
+    width: 190px;
+    height: 170px;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  .spoil-expiry {
+    display: none;
+  }
+
+  .spoil-question-column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    margin: 0;
+    font-size: 34px;
+    line-height: 1;
+    text-align: left;
+  }
+
+  .spoil-check-box {
+    border: 1px solid var(--ink);
+    padding: 12px;
+  }
+
+  .spoil-check-box strong {
+    display: block;
+    margin-bottom: 6px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .spoil-check-box p {
+    margin: 0;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+  }
+
+  .spoil-hint {
+    margin: 0;
+    padding-right: 88px;
+    color: rgb(0 0 0 / 70%);
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding-right: 0;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    width: 100%;
+    height: 52px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-mascot--check {
+    width: auto;
+    height: 80px;
+    align-self: flex-end;
+    margin: 0 8px 0 0;
+    object-fit: contain;
+  }
+}
+
+/* Final swipe-card navigation positions. */
+@media (min-width: 768px) {
+  .swipe-card--step-2 .swipe-progress {
+    right: 48px;
+    left: auto;
+  }
+
+  .swipe-card--step-2 .swipe-kicker {
+    right: 140px;
+  }
+}
+
+@media (max-width: 767px) {
+  .swipe-card--step-2 .swipe-progress {
+    right: 16px;
+    left: auto;
+  }
+
+  .swipe-card--step-2 .swipe-kicker {
+    top: 18px;
+    right: auto;
+    left: 120px;
+  }
+}
+
+/* Fridge list count and status gutter. */
+@media (min-width: 768px) {
+  .fridge-screen .page-heading {
+    margin-bottom: 32px;
+  }
+
+  .fridge-screen .fridge-list-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fridge-screen .fridge-leek-gutter {
+    display: none;
+  }
+
+  .fridge-list-main {
+    min-width: 0;
+  }
+
+  .fridge-count-header {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid var(--ink);
+    padding: 0 0 12px;
+    margin-bottom: 16px;
+  }
+
+  .fridge-count-header strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+
+  .fridge-count-header span {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  .fridge-leek-gutter {
+    position: sticky;
+    top: 120px;
+    align-self: start;
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+  }
+
+  .fridge-status-bubble {
+    position: relative;
+    width: 170px;
+    border: 2px solid var(--ink);
+    padding: 12px;
+    background: var(--paper);
+    font-size: 14px;
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  .fridge-status-bubble::before,
+  .fridge-status-bubble::after {
+    position: absolute;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    content: '';
+    transform: translateX(-50%);
+  }
+
+  .fridge-status-bubble::before {
+    bottom: -14px;
+    border-width: 13px 10px 0;
+    border-color: var(--ink) transparent transparent;
+  }
+
+  .fridge-status-bubble::after {
+    bottom: -10px;
+    border-width: 11px 8px 0;
+    border-color: var(--paper) transparent transparent;
+  }
+
+  .fridge-status-bubble.is-all-fresh {
+    border-color: var(--good);
+    color: var(--good);
+  }
+
+  .fridge-status-bubble.is-all-fresh::before {
+    border-top-color: var(--good);
+  }
+
+  .fridge-leek-gutter .fridge-leek-point {
+    position: static;
+    width: auto;
+    height: 260px;
+    margin: 0;
+    object-fit: contain;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-list-main {
+    width: 100%;
+  }
+
+  .fridge-count-header {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .fridge-count-header strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .fridge-count-header span {
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .fridge-leek-gutter {
+    display: none;
+  }
+}
+
+.expired-label-mobile,
+.expired-days-mobile {
+  display: none;
+}
+
+/* Keep every mobile fridge row on the same fixed three-slot grid. */
+@media (max-width: 767px) {
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  html,
+  body,
+  .app-shell:has(.fridge-screen) {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .app-shell:has(.fridge-screen) {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .fridge-screen,
+  .fridge-list-stage,
+  .fridge-list-main,
+  .fridge-screen .food-list,
+  .fridge-screen .food-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fridge-screen .food-list {
+    overflow: hidden;
+  }
+
+  .fridge-screen .card-summary,
+  .fridge-screen .food-card--expired .card-summary {
+    width: 100%;
+    min-width: 0;
+    min-height: 68px;
+    grid-template-columns: 52px minmax(0, 1fr) 44px;
+    gap: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 8px 4px 8px 16px;
+  }
+
+  .fridge-screen .food-icon {
+    width: 44px;
+    height: 44px;
+    justify-self: start;
+  }
+
+  .fridge-screen .card-info {
+    width: 100%;
+    min-width: 0;
+    gap: 5px;
+  }
+
+  .fridge-screen .card-title {
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    font-size: 18px;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .fridge-screen .card-meta {
+    min-width: 0;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .fridge-screen .status-pill {
+    padding: 2px 5px 1px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .extended-tag {
+    flex: 0 0 auto;
+    padding: 2px 5px 1px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .days-left,
+  .fridge-screen .expired-days-mobile {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .fridge-screen .expand-mark {
+    width: 44px;
+    height: 44px;
+    justify-self: end;
+    align-self: center;
+  }
+
+  .expired-label-desktop {
+    display: none;
+  }
+
+  .expired-label-mobile,
+  .expired-days-mobile {
+    display: inline;
+  }
+
+  .fridge-title-copy {
+    width: 100%;
+    min-width: 0;
+    min-height: 132px;
+    box-sizing: border-box;
+    padding-right: 76px;
+  }
+
+  .fridge-title-copy h1 {
+    max-width: 100%;
+    font-size: 36px;
+    overflow-wrap: break-word;
+  }
+
+  .mobile-fridge-leek {
+    right: 4px;
+    width: 64px;
+    max-width: calc(100% - 8px);
+  }
+}
+
+/* The mobile receipt scanner fits in place and does not scroll. */
+@media (max-width: 767px) {
+  body .app-shell:has(.add-screen) {
+    overflow: hidden;
+  }
+
+  .mobile-page-scroll:has(.add-screen) {
+    height: 100%;
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+
+  .mobile-page-scroll:has(.add-screen) .add-screen {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .mobile-page-scroll:has(.add-screen) .mobile-page-end-spacer {
+    display: none;
+  }
+}
+
+.filter-tab-meta {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.filter-marker-spacer {
+  display: none;
+}
+
+.filter-sticky-sentinel {
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .fridge-filter-tabs button {
+    display: inline-flex;
+  }
+
+  .fridge-filter-tabs .filter-tab-meta {
+    display: contents;
+  }
+
+  .fridge-filter-tabs .filter-marker {
+    order: 1;
+  }
+
+  .fridge-filter-tabs .filter-tab-label {
+    order: 2;
+  }
+
+  .fridge-filter-tabs .filter-tab-count {
+    order: 3;
+  }
+}
+
+/* Spacious two-line filters that compact only while stuck. */
+@media (max-width: 767px) {
+  .fridge-count-title {
+    margin-bottom: 16px;
+  }
+
+  .fridge-count-title strong {
+    font-size: 20px;
+  }
+
+  .fridge-count-title button {
+    font-size: 15px;
+  }
+
+  .fridge-filter-tabs {
+    width: calc(100% + 32px);
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: stretch;
+    margin-right: -16px;
+    margin-left: -16px;
+    border-bottom: 1px solid var(--ink);
+    padding: 0 16px 16px;
+  }
+
+  .fridge-filter-tabs button {
+    width: 100%;
+    height: 60px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--ink);
+    padding: 10px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs .filter-tab-label {
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .fridge-filter-tabs button:nth-child(3) .filter-tab-label {
+    letter-spacing: 0;
+  }
+
+  .fridge-filter-tabs .filter-tab-meta {
+    min-height: 18px;
+    gap: 6px;
+  }
+
+  .fridge-filter-tabs .filter-marker-spacer {
+    width: 12px;
+    height: 12px;
+    display: block;
+    flex: 0 0 12px;
+    visibility: hidden;
+  }
+
+  .fridge-filter-tabs .filter-tab-count {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--expired {
+    border-color: var(--paper);
+    background: var(--paper);
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--soon {
+    border-color: var(--paper);
+    background-color: var(--ink);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent 0 3px,
+      var(--paper) 3px 4px
+    );
+  }
+
+  .fridge-filter-tabs button.is-selected .filter-marker--fresh {
+    border-color: var(--paper);
+    background-color: var(--ink);
+  }
+
+  .fridge-screen .food-list {
+    margin-top: 16px;
+  }
+
+  .fridge-filter-tabs.is-compact {
+    height: 45px;
+    gap: 8px;
+    padding: 0 16px;
+  }
+
+  .fridge-filter-tabs.is-compact button {
+    height: 44px;
+    flex-direction: row;
+    gap: 4px;
+    padding: 0 4px;
+    font-size: 13px;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-marker {
+    display: none;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-marker-spacer {
+    display: none;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-tab-label,
+  .fridge-filter-tabs.is-compact .filter-tab-count {
+    font-size: 13px;
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+
+  .fridge-filter-tabs.is-compact .filter-tab-meta {
+    min-height: 0;
+    display: inline-flex;
+    gap: 0;
+  }
+}
+
+/* Fridge status filters. */
+.fridge-count-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fridge-count-title button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.fridge-filter-tabs {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.fridge-filter-tabs button {
+  height: 40px;
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+  padding: 0 12px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.fridge-filter-tabs button.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.fridge-filter-tabs button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.filter-marker {
+  width: 12px;
+  height: 12px;
+  display: block;
+  flex: 0 0 12px;
+  border: 1px solid currentColor;
+}
+
+.filter-marker--expired {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.filter-marker--soon {
+  border-color: var(--ink);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--ink) 3px 4px
+  );
+}
+
+.filter-marker--fresh {
+  border-color: var(--good);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 3px,
+    var(--good) 3px 4px
+  );
+}
+
+.filter-empty-state {
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 10px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.filter-empty-leek {
+  width: auto;
+  height: 120px;
+  margin-bottom: 6px;
+  object-fit: contain;
+}
+
+.filter-empty-state strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 28px;
+  font-weight: 400;
+}
+
+.filter-empty-state p {
+  margin: 0;
+  font-size: 16px;
+}
+
+@media (min-width: 768px) {
+  .fridge-count-header {
+    display: grid;
+    gap: 12px;
+    justify-content: start;
+  }
+
+  .fridge-filter-tabs {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-count-header {
+    display: contents;
+  }
+
+  .fridge-count-title {
+    margin-bottom: 10px;
+  }
+
+  .fridge-filter-tabs {
+    position: sticky;
+    z-index: 15;
+    top: calc(max(calc(env(safe-area-inset-top) + 12px), 56px) + 56px);
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    border-bottom: 1px solid var(--ink);
+    padding: 8px 0;
+    background: var(--paper);
+  }
+
+  .fridge-filter-tabs button {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+    gap: 4px;
+    padding: 0 3px;
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+
+  .filter-marker {
+    width: 12px;
+    height: 12px;
+    flex-basis: 12px;
+  }
+
+  .fridge-screen .food-list {
+    margin-top: 16px;
+  }
+
+  .filter-empty-state {
+    min-height: 300px;
+  }
+}
+
+/* Equal mobile receipt actions; desktop scan cards remain unchanged. */
+@media (max-width: 767px) {
+  .app-shell:has(.scan-step) {
+    padding-right: 16px;
+    padding-bottom: 0;
+    padding-left: 16px;
+  }
+
+  .add-screen:has(.scan-step) {
+    width: 100%;
+    box-sizing: border-box;
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .scan-step {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .scan-step h1 {
+    margin-bottom: 24px;
+  }
+
+  .scan-step .receipt-options {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .scan-step .receipt-choice,
+  .scan-step .receipt-choice:first-child,
+  .scan-step .receipt-choice:last-child,
+  .scan-step .upload-choice {
+    width: 100%;
+    min-width: 0;
+    height: 240px;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 2px dashed var(--ink);
+    padding: 12px;
+    background: var(--paper);
+    transition: border-style 100ms ease;
+  }
+
+  .scan-step .scan-mascot,
+  .scan-step .file-leek {
+    width: 100%;
+    height: 146px;
+    min-height: 0;
+    flex: 0 0 146px;
+    margin: 0;
+    object-fit: contain;
+    object-position: center;
+    transition: transform 100ms ease;
+  }
+
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    width: 100%;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+    text-align: center;
+  }
+
+  .scan-step .camera-choice-copy::before {
+    width: 18px;
+    height: 18px;
+    display: block;
+    flex: 0 0 18px;
+    content: '';
+  }
+
+  .scan-step .file-choice-copy .upload-file-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    flex: 0 0 18px;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .scan-step .receipt-choice strong,
+  .scan-step .receipt-choice:first-child strong,
+  .scan-step .receipt-choice:last-child strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  .scan-step .receipt-choice:active {
+    border-style: solid;
+  }
+
+  .scan-step .receipt-choice:active .scan-mascot,
+  .scan-step .receipt-choice:active .file-leek {
+    transform: translateY(-4px);
+  }
+}
+
+.swipe-mascot--decision,
+.mobile-swipe-hint,
+.swipe-label-mobile {
+  display: none;
+}
+
+/* Phone-shaped mobile swipe sheets. */
+@media (max-width: 767px) {
+  .swipe-takeover {
+    position: fixed;
+    z-index: 19;
+    inset: 0 0 calc(64px + env(safe-area-inset-bottom));
+    display: block;
+    overflow: hidden;
+    padding: 0;
+    background: var(--paper);
+  }
+
+  .swipe-card,
+  .swipe-card--step-2 {
+    position: absolute;
+    inset: 16px 16px 16px;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 2px solid var(--ink);
+    border-radius: 44px;
+    padding: max(72px, calc(env(safe-area-inset-top) + 64px)) 16px 16px;
+    background: var(--paper);
+    touch-action: pan-y;
+  }
+
+  .swipe-back,
+  .swipe-progress,
+  .swipe-kicker {
+    position: absolute;
+    z-index: 3;
+    top: max(16px, env(safe-area-inset-top));
+    height: 44px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .swipe-back {
+    left: 16px;
+    padding: 0;
+  }
+
+  .swipe-kicker,
+  .swipe-card--step-2 .swipe-kicker {
+    right: 88px;
+    left: 88px;
+    justify-content: center;
+    letter-spacing: 0.14em;
+    text-align: center;
+  }
+
+  .swipe-progress,
+  .swipe-card--step-2 .swipe-progress {
+    right: 16px;
+    left: auto;
+    justify-content: flex-end;
+    letter-spacing: 0.04em;
+  }
+
+  .swipe-card--step-1 .swipe-progress {
+    visibility: hidden;
+  }
+
+  .swipe-card .status-pill,
+  .spoil-food-column .status-pill {
+    position: static;
+    flex: 0 0 auto;
+    padding: 3px 7px 2px;
+    font-size: 12px;
+  }
+
+  .swipe-card--step-1 > p,
+  .spoil-food-name {
+    margin: 8px 0 0;
+    font-family: var(--font-display), sans-serif;
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+    text-align: center;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art {
+    width: min(180px, 100%);
+    height: 200px;
+    flex: 0 0 200px;
+    margin: 12px 0;
+    object-fit: contain;
+  }
+
+  .swipe-card--step-1 > h1 {
+    max-width: 100%;
+    margin: 16px 0 0;
+    font-size: 36px;
+    line-height: 0.98;
+    text-align: center;
+  }
+
+  .swipe-card .swipe-mascot--decision {
+    width: auto;
+    height: 90px;
+    display: block;
+    flex: 0 0 90px;
+    margin: 12px 0 0;
+    object-fit: contain;
+  }
+
+  .swipe-card .swipe-actions,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    z-index: 2;
+    width: 100%;
+    min-height: 56px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    flex: 0 0 auto;
+    align-self: stretch;
+    margin: auto 0 0;
+    padding-top: 16px;
+    background: var(--paper);
+  }
+
+  .swipe-card .swipe-actions button,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    width: 100%;
+    min-width: 0;
+    height: 56px;
+    min-height: 56px;
+    border: 2px solid var(--ink);
+    padding: 0 6px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .swipe-card .swipe-actions .used-choice,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions .used-choice {
+    border-color: var(--good);
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .mobile-swipe-hint {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    height: 28px;
+    display: flex;
+    flex: 0 0 28px;
+    align-items: flex-end;
+    justify-content: center;
+    background: var(--paper);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    opacity: 1;
+    transition: opacity 200ms ease;
+  }
+
+  .mobile-swipe-hint.is-hidden {
+    opacity: 0;
+  }
+
+  .swipe-takeover > small {
+    display: none;
+  }
+
+  .spoil-food-column,
+  .spoil-question-column {
+    display: contents;
+  }
+
+  .swipe-card--step-2 .spoil-food-art {
+    width: 100%;
+    height: 170px;
+    display: grid;
+    flex: 0 0 170px;
+    place-items: center;
+    margin: 12px 0;
+  }
+
+  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
+    width: min(150px, 100%);
+    height: 150px;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  .swipe-card--step-2 .spoil-expiry {
+    display: none;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    width: 100%;
+    margin: 16px 0 0;
+    font-size: 32px;
+    line-height: 1;
+    text-align: left;
+  }
+
+  .swipe-card--step-2 .spoil-check-box {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 12px;
+    border: 1px solid var(--ink);
+    padding: 12px;
+  }
+
+  .swipe-card--step-2 .spoil-check-box strong {
+    display: block;
+    margin: 0 0 6px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+  }
+
+  .swipe-card--step-2 .spoil-check-box p {
+    margin: 0;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .swipe-card--step-2 .spoil-hint {
+    width: 100%;
+    margin: 10px 0 0;
+    padding: 0;
+    color: rgb(0 0 0 / 70%);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+  }
+
+  .swipe-card--step-2 .swipe-mascot--check {
+    display: none;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions .used-choice {
+    order: 2;
+  }
+
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button:not(.used-choice) {
+    order: 1;
+  }
+
+  .swipe-label-desktop {
+    display: none;
+  }
+
+  .swipe-label-mobile {
+    display: inline;
+  }
+}
+
+/* Final viewport-fit rules for mobile swipe cards. */
+@media (max-width: 767px) {
+  html:has(.swipe-takeover),
+  body:has(.swipe-takeover),
+  body:has(.swipe-takeover) .app-shell {
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  html,
+  body,
+  .app-shell,
+  .swipe-takeover,
+  .swipe-card {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .app-shell::-webkit-scrollbar,
+  .swipe-takeover::-webkit-scrollbar,
+  .swipe-card::-webkit-scrollbar {
+    display: none;
+  }
+
+  .swipe-takeover {
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+
+  .swipe-card,
+  .swipe-card--step-2 {
+    top: max(76px, calc(env(safe-area-inset-top) + 20px));
+    right: 16px;
+    bottom: calc(108px + max(env(safe-area-inset-bottom), 24px));
+    left: 16px;
+    width: auto;
+    height: auto;
+    max-height: none;
+    overflow: hidden;
+    padding: 72px 16px 84px;
+  }
+
+  .swipe-back,
+  .swipe-progress,
+  .swipe-kicker,
+  .swipe-card--step-2 .swipe-progress,
+  .swipe-card--step-2 .swipe-kicker {
+    top: 16px;
+  }
+
+  .swipe-card--step-1 > p,
+  .spoil-food-name {
+    margin-top: 8px;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art,
+  .swipe-card--step-2 .spoil-food-art {
+    width: 100%;
+    height: clamp(110px, calc(31dvh - 88px), 170px);
+    flex-basis: clamp(110px, calc(31dvh - 88px), 170px);
+    margin: 8px 0;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art {
+    max-width: 180px;
+  }
+
+  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
+    width: min(150px, 100%);
+    height: 100%;
+  }
+
+  .swipe-card--step-1 > h1 {
+    margin-top: 8px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    margin-top: 0;
+    font-size: 30px;
+    line-height: 0.96;
+  }
+
+  .swipe-card--step-2 .spoil-check-box {
+    margin-top: 8px;
+    padding: 8px 12px;
+  }
+
+  .swipe-card--step-2 .spoil-check-box strong {
+    margin-bottom: 2px;
+    line-height: 1;
+  }
+
+  .swipe-card--step-2 .spoil-check-box p {
+    line-height: 1.2;
+  }
+
+  .swipe-card--step-2 .spoil-hint {
+    margin-top: 8px;
+    line-height: 1.2;
+  }
+
+  .swipe-card .swipe-actions,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    width: auto;
+    min-height: 52px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .swipe-card .swipe-actions button,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    height: 52px;
+    min-height: 52px;
+  }
+
+  .mobile-swipe-hint {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) and (max-height: 700px) {
+  .swipe-card,
+  .swipe-card--step-2 {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .swipe-card .swipe-actions,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    right: 12px;
+    left: 12px;
+  }
+
+  .swipe-card .swipe-mascot--decision {
+    display: none;
+  }
+
+  .swipe-card--step-1 > h1 {
+    font-size: 34px;
+  }
+
+  .swipe-card--step-2 .spoil-food-name {
+    line-height: 1;
+  }
+}
+
+/* One invisible-scrollbar page scroller on mobile. */
+@media (max-width: 767px) {
+  html,
+  body {
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  body .app-shell:has(.mobile-page-scroll) {
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 16px;
+    padding-bottom: 0;
+    padding-left: 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-shell > .topbar {
+    position: sticky;
+    z-index: 20;
+    top: 0;
+    flex: 0 0 auto;
+    background: var(--paper);
+  }
+
+  .mobile-page-scroll {
+    min-height: 0;
+    display: block;
+    flex: 0 0 auto;
+    overflow: visible;
+    margin-bottom: 0;
+    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+  }
+
+  html,
+  body,
+  .app-shell,
+  .mobile-page-scroll,
+  .home-screen,
+  .fridge-screen,
+  .add-screen,
+  .stats-page,
+  .friends-page,
+  .fridge-list-stage,
+  .fridge-list-main,
+  .food-list,
+  .friends-stage,
+  .thin-list {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .app-shell::-webkit-scrollbar,
+  .mobile-page-scroll::-webkit-scrollbar,
+  .home-screen::-webkit-scrollbar,
+  .fridge-screen::-webkit-scrollbar,
+  .add-screen::-webkit-scrollbar,
+  .stats-page::-webkit-scrollbar,
+  .friends-page::-webkit-scrollbar,
+  .fridge-list-stage::-webkit-scrollbar,
+  .fridge-list-main::-webkit-scrollbar,
+  .food-list::-webkit-scrollbar,
+  .friends-stage::-webkit-scrollbar,
+  .thin-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}
+
+/* Compact mobile swipe-card content without mascot artwork. */
+@media (max-width: 767px) {
+  .swipe-card,
+  .swipe-card--step-2 {
+    padding-top: 68px;
+    padding-bottom: 80px;
+  }
+
+  .swipe-card--step-1 > p,
+  .spoil-food-name {
+    margin-top: 6px;
+    font-size: 24px;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art,
+  .swipe-card--step-2 .spoil-food-art {
+    height: clamp(110px, calc(23dvh - 42px), 145px);
+    flex-basis: clamp(110px, calc(23dvh - 42px), 145px);
+    margin: 6px 0;
+  }
+
+  .swipe-card--step-1 > h1 {
+    margin-top: 6px;
+    font-size: 32px;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    font-size: 28px;
+  }
+
+  .swipe-card--step-2 .spoil-check-box,
+  .swipe-card--step-2 .spoil-hint {
+    margin-top: 6px;
+  }
+}
+
+/* Auto-height mobile swipe cards with an attached curved action bar. */
+@media (max-width: 767px) {
+  .swipe-takeover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding:
+      max(76px, calc(env(safe-area-inset-top) + 20px))
+      16px
+      calc(108px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  .swipe-card,
+  .swipe-card--step-2 {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 44px;
+    padding: 72px 16px 80px;
+  }
+
+  .swipe-card--step-1 > p,
+  .spoil-food-name {
+    margin-top: 8px;
+    font-size: 26px;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art,
+  .swipe-card--step-2 .spoil-food-art {
+    width: 100%;
+    height: clamp(110px, calc(30dvh - 80px), 170px);
+    flex-basis: clamp(110px, calc(30dvh - 80px), 170px);
+    margin: 12px 0;
+  }
+
+  .swipe-card--step-1 > h1,
+  .swipe-card--step-2 .spoil-question-column h1 {
+    margin-top: 16px;
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .swipe-card .swipe-mascot--decision {
+    width: auto;
+    height: 90px;
+    display: block;
+    flex: 0 0 90px;
+    margin: 12px 0;
+    object-fit: contain;
+  }
+
+  .swipe-card--step-2 .spoil-check-box {
+    margin-top: 12px;
+  }
+
+  .swipe-card--step-2 .spoil-hint {
+    margin-top: 8px;
+  }
+
+  .swipe-card .swipe-actions,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 62px;
+    min-height: 62px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    border-top: 2px solid var(--ink);
+    padding: 0;
+    background: var(--paper);
+  }
+
+  .swipe-card .swipe-actions button,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    width: 100%;
+    height: 60px;
+    min-height: 60px;
+    border: 0;
+    border-radius: 0;
+    transition:
+      background-color 100ms ease,
+      color 100ms ease;
+  }
+
+  .swipe-card--step-1 .swipe-actions button:first-child,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button:not(.used-choice) {
+    border-right: 2px solid var(--ink);
+  }
+
+  .swipe-card .swipe-actions button:not(.used-choice):active,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button:not(.used-choice):active {
+    background: #d8d8d8;
+  }
+
+  .swipe-card .swipe-actions .used-choice:active,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions .used-choice:active {
+    background: #1b6106;
+  }
+}
+
+/* Let the card itself clip the mobile action fills into its bottom curve. */
+@media (max-width: 767px) {
+  .swipe-card--step-1 {
+    padding-bottom: 86px;
+  }
+
+  .swipe-card--step-2 {
+    padding-bottom: 82px;
+  }
+
+  .swipe-card .swipe-actions,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    box-sizing: border-box;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .swipe-card .swipe-actions button,
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
+    box-sizing: border-box;
+    border-radius: 0;
+  }
+
+  .swipe-stamp {
+    max-width: calc(100% - 24px);
+    box-sizing: border-box;
+    padding: 10px 18px;
+    font-size: 40px;
+  }
+}
+
+/* Simplified mobile spoilage check. */
+@media (max-width: 767px) {
+  .swipe-card--step-2 .spoil-food-art {
+    width: 100%;
+    height: clamp(150px, 25dvh, 200px);
+    flex-basis: clamp(150px, 25dvh, 200px);
+    margin: 12px 0;
+  }
+
+  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
+    width: min(200px, 100%);
+    height: 100%;
+  }
+
+  .swipe-card--step-2 .spoil-question-column h1 {
+    width: 100%;
+    margin-top: 16px;
+    font-size: clamp(22px, 7vw, 28px);
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .swipe-card--step-2 .spoil-check-box {
+    width: 100%;
+    margin-top: 12px;
+    border: 0;
+    padding: 0;
+    text-align: center;
+  }
+
+  .swipe-card--step-2 .spoil-check-box strong {
+    display: none;
+  }
+
+  .swipe-card--step-2 .spoil-check-box p {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--ink);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.25;
+    text-align: center;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .swipe-card--step-2 .spoil-hint {
+    width: 100%;
+    margin-top: 8px;
+    color: rgb(0 0 0 / 70%);
+    font-size: 13px;
+    line-height: 1.25;
+    text-align: center;
+  }
+}
+
+/* Desktop task rows: number, checkbox, artwork, then copy. */
+@media (min-width: 768px) {
+  .home-screen .daily-task {
+    grid-template-columns:
+      48px 16px
+      36px 32px
+      96px 48px
+      minmax(0, 1fr);
+    gap: 0;
+    align-items: center;
+  }
+
+  .home-screen .task-number {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    color: var(--ink);
+    font-size: 18px;
+  }
+
+  .home-screen .large-check {
+    width: 36px;
+    height: 36px;
+    grid-column: 3;
+    grid-row: 1;
+    box-sizing: border-box;
+    justify-self: start;
+    border: 2px solid var(--ink);
+  }
+
+  .home-screen .task-icon {
+    grid-column: 5;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .home-screen .task-copy {
+    min-width: 0;
+    grid-column: 7;
+    grid-row: 1;
+  }
+
+  .home-screen .daily-task.is-checked {
+    color: var(--ink);
+    opacity: 0.6;
+  }
+
+  .home-screen .daily-task.is-checked .large-check {
+    border-color: var(--good);
+    background: var(--good);
+    color: var(--paper);
+  }
+
+  .home-screen .daily-task.is-checked .task-copy strong {
+    text-decoration-color: currentColor;
+    text-decoration-thickness: 2px;
+  }
+
+  .home-intro > .add-button {
+    width: 96px;
+    height: 96px;
+    min-width: 96px;
+    flex: 0 0 96px;
+    flex-direction: column;
+    gap: 2px;
+    border-radius: 50%;
+    padding: 12px;
+    line-height: 1;
+    text-align: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .tip-card {
+    display: grid;
+    grid-template-columns: max-content max-content minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    transform: none;
+  }
+
+  .tip-card strong {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .tip-card p {
+    display: block;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+.mobile-page-scroll {
+  display: contents;
+}
+
+.mobile-page-end-spacer {
+  display: none;
+}
+
+/* Shared mobile viewport and bottom-control clearance for every page. */
+@media (max-width: 767px) {
+  body .app-shell:has(.mobile-page-scroll) {
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-right: 16px;
+    padding-bottom: 0;
+    padding-left: 16px;
+  }
+
+  .app-shell > .topbar {
+    flex: 0 0 auto;
+  }
+
+  .mobile-page-scroll {
+    min-height: 0;
+    display: block;
+    flex: 1 1 auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin-bottom: calc(64px + 34px + env(safe-area-inset-bottom));
+    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-page-end-spacer {
+    width: 100%;
+    height: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    display: block;
+    flex: 0 0 auto;
+    pointer-events: none;
+  }
+
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    border: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .nav-fridge:focus,
+  .nav-stats:focus,
+  .nav-friends:focus,
+  .nav-me:focus,
+  .nav-fridge:focus-visible,
+  .nav-stats:focus-visible,
+  .nav-friends:focus-visible,
+  .nav-me:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767px) and (max-height: 700px) {
+  .swipe-card--step-2 .spoil-food-art {
+    height: clamp(120px, 22dvh, 150px);
+    flex-basis: clamp(120px, 22dvh, 150px);
+  }
+}
+
+@media (max-width: 767px) and (max-height: 700px) {
+  .swipe-card,
+  .swipe-card--step-2 {
+    padding: 64px 12px 66px;
+  }
+
+  .swipe-card--step-1 > p,
+  .spoil-food-name {
+    margin-top: 4px;
+    font-size: 24px;
+  }
+
+  .swipe-card--step-1 > .swipe-food-art,
+  .swipe-card--step-2 .spoil-food-art {
+    height: clamp(70px, calc(100dvh - 570px), 110px);
+    flex-basis: clamp(70px, calc(100dvh - 570px), 110px);
+    margin: 8px 0;
+  }
+
+  .swipe-card--step-1 > h1,
+  .swipe-card--step-2 .spoil-question-column h1 {
+    margin-top: 8px;
+    font-size: 34px;
+  }
+
+  .swipe-card .swipe-mascot--decision {
+    height: 60px;
+    display: block;
+    flex-basis: 60px;
+    margin: 6px 0;
+  }
+
+  .swipe-card--step-2 .spoil-check-box {
+    margin-top: 6px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .swipe-card--step-2 .spoil-hint {
+    margin-top: 4px;
+  }
+}
+
+/* Final mobile filter geometry. */
+@media (max-width: 767px) {
+  .fridge-filter-tabs,
+  .fridge-filter-tabs.is-compact {
+    width: calc(100% + 32px);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: stretch;
+    margin-right: -16px;
+    margin-left: -16px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) {
+    height: auto;
+    padding-top: 0;
+    padding-bottom: 16px;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button {
+    width: 100%;
+    min-width: 0;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border: 1px solid var(--ink);
+    padding: 10px;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-label,
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-meta {
+    width: 100%;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) .filter-tab-meta {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button:first-child .filter-marker-spacer {
+    position: absolute;
+    left: calc(50% - 29px);
+  }
+
+  .fridge-filter-tabs:not(.is-compact) button:first-child .filter-tab-count {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+
+  .fridge-filter-tabs.is-compact {
+    height: 45px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .fridge-filter-tabs.is-compact button {
+    width: 100%;
+    min-width: 0;
+    height: 44px;
+  }
+}
+
+/* Mobile food-pile popup stays inside the illustration wrapper. */
+@media (max-width: 767px) {
+  .fridge-screen .fullness-preview {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    align-self: center;
+    overflow: visible;
+  }
+
+  .fridge-screen .fullness-art {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .fridge-screen .stock-tooltip {
+    position: absolute;
+    z-index: 10;
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    width: 100%;
+    max-width: 300px;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    padding: 16px;
+    background: rgb(255 255 255 / 95%);
+    text-align: center;
+    transform: translate(-50%, -50%);
+    animation: stock-tooltip-in 150ms ease both;
+  }
+
+  .fridge-screen .stock-tooltip p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.3;
+    text-align: center;
+  }
+
+  .fridge-screen .stock-tooltip p + p {
+    margin-top: 12px;
+  }
+
+  .fridge-screen .stock-tooltip strong,
+  .fridge-screen .stock-tooltip span {
+    display: block;
+    margin: 0;
+  }
+
+  .fridge-screen .stock-tooltip strong {
+    margin-bottom: 4px;
+    font-family: var(--font-display), sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+  }
+
+  .fridge-screen .stock-tooltip-hint {
+    display: block;
+    margin-top: 12px;
+    color: rgb(0 0 0 / 60%);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes stock-tooltip-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Final mobile fridge intro order and spacing. */
+@media (max-width: 767px) {
+  .fridge-screen .page-heading {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+    margin: 0;
+    padding: 20px 0 0;
+  }
+
+  .fridge-screen .fridge-title {
+    display: contents;
+  }
+
+  .fridge-screen .fridge-title-copy {
+    position: relative;
+    order: 1;
+    width: 100%;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+    padding-right: 106px;
+  }
+
+  .fridge-screen .fridge-title-copy .eyebrow {
+    width: 100%;
+    margin: 0 0 8px;
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    line-height: 1.2;
+    text-align: left;
+  }
+
+  .fridge-screen .fridge-title-copy h1 {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    font-size: 40px;
+    line-height: 0.98;
+    text-align: left;
+    overflow-wrap: normal;
+  }
+
+  .fridge-screen .mobile-fridge-leek {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 90px;
+    height: 120px;
+    display: block;
+    object-fit: contain;
+    transform: translateY(-50%);
+  }
+
+  .fridge-screen .fullness-preview {
+    order: 2;
+    width: 100%;
+    max-width: 300px;
+    height: 300px;
+    margin: 16px auto 0;
+  }
+
+  .fridge-screen .fullness-art {
+    width: 300px;
+    max-width: 100%;
+    height: 300px;
+    margin: 0 auto;
+  }
+
+  .fridge-screen .fullness-stage {
+    width: 100%;
+    height: 100%;
+  }
+
+  .fridge-screen .stock-label {
+    order: 3;
+    align-self: center;
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .fridge-screen .stage-toggle {
+    order: 4;
+    align-self: center;
+    justify-content: center;
+    margin: 12px 0 0;
+  }
+
+  .fridge-screen .stage-toggle button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .fridge-screen .fridge-list-stage {
+    margin-top: 32px;
+  }
+}
+
 /* Additions for the Next.js port: source labels and honest empty states. */
 .source-note {
   display: block;
@@ -2601,9 +6355,11 @@ footer {
   border: 0;
 }
 
-/* Line art is black; flip it so it shows on the black expired row. */
-.food-card--expired .food-icon {
-  filter: invert(1);
+/* Line art is black; flip it so it shows on the black expired row (v3 covers mobile). */
+@media (min-width: 768px) {
+  .food-card--expired .food-icon {
+    filter: invert(1);
+  }
 }
 
 /* Decorative art would start a native image drag and swallow the swipe. */

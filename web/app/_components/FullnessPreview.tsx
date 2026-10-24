@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export type FullnessStage = 10 | 40 | 70 | 100;
 
@@ -18,12 +18,30 @@ export function FullnessPreview({ stage, stocked, empty }: {
   empty: readonly string[];
 }) {
   const [showGroups, setShowGroups] = useState(false);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const isDesktop = () => window.innerWidth >= 768;
+
+  // On mobile the tooltip has no hover-out, so a tap anywhere else closes it.
+  useEffect(() => {
+    if (!showGroups) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (isDesktop() || previewRef.current?.contains(event.target as Node)) return;
+      setShowGroups(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [showGroups]);
 
   return (
     <div
+      ref={previewRef}
       className="fullness-preview"
-      onMouseEnter={() => setShowGroups(true)}
-      onMouseLeave={() => setShowGroups(false)}
+      onMouseEnter={() => {
+        if (isDesktop()) setShowGroups(true);
+      }}
+      onMouseLeave={() => {
+        if (isDesktop()) setShowGroups(false);
+      }}
     >
       <button
         type="button"
@@ -43,13 +61,16 @@ export function FullnessPreview({ stage, stocked, empty }: {
         />
       </button>
       {showGroups && (
-        <div className="stock-tooltip">
+        <div className="stock-tooltip" onClick={() => setShowGroups(false)}>
           <p>
-            <strong>stocked</strong> {stocked.join(", ") || "nothing yet"}
+            <strong>stocked</strong>
+            <span>{stocked.join(", ") || "nothing yet."}</span>
           </p>
           <p>
-            <strong>empty</strong> {empty.join(", ") || "nothing"}
+            <strong>empty</strong>
+            <span>{empty.join(", ") || "nothing empty."}</span>
           </p>
+          <small className="stock-tooltip-hint">tap to close</small>
         </div>
       )}
     </div>
