@@ -63,13 +63,14 @@ export const parse = internalAction({
   },
 });
 
-// Demo fallback when receipt parsing misbehaves: one typed name becomes one active item.
+// Manual entry: one typed name becomes one active item; a given expiresAt wins over the sourced date.
 export const addManual = action({
   args: {
     name: v.string(),
     quantity: v.optional(v.number()),
     location: v.optional(location),
     priceCents: v.optional(v.number()),
+    expiresAt: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Id<"items">> => {
     const name = args.name.trim();

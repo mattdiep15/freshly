@@ -150,7 +150,7 @@ These override the module names in the steps below (2026-10-23). p1-03 owns `con
 | `receipts.get({ receiptId })` | query, returns the receipt plus `drafts` | `GET /api/receipts/get?id=` |
 | `receipts.confirmDrafts({ receiptId, removeItemIds? })` | mutation | `GET /api/receipts/confirm-drafts?receiptId=&remove=id1,id2` |
 | `itemEdits.update({ itemId, name?, quantity?, location?, expiresAt? })` | mutation | `GET /api/item-edits/update?id=&expiresAt=2026-11-01&location=freezer` |
-| `receiptsNode.addManual({ name, quantity?, location?, priceCents? })` | action | `GET /api/receipts/add-manual?name=eggs` |
+| `receiptsNode.addManual({ name, quantity?, location?, priceCents?, expiresAt? })` | action | `GET /api/receipts/add-manual?name=eggs&expiresAt=2026-11-01` |
 | `foods.ackTip({ foodId })` | mutation, returns `{ tipViews, showTip }` | `GET /api/foods/ack-tip?id=` |
 | `receipts.devCreateParsed` | dev-only mutation, saves a fixture as the parse result | `GET /api/dev/parse-test?name=costco_test_2.jpeg&mock=1` |
 | `receiptsNode.parse`, `receipts.saveParsed` | internal action, internal mutation | scheduled by `receipts.create` |
@@ -200,7 +200,7 @@ Result on 2026-10-23, with no `ANTHROPIC_API_KEY`, against a local deployment on
 
 - 2026-10-23: No `ANTHROPIC_API_KEY` was available, so no live parse has run. `parse`, `addManual` with an unknown name, and `backfillTips` are deployed and fail with "ANTHROPIC_API_KEY is not set on this Convex deployment." Still unverified: the 80% accuracy check, the VOID, CRV, and alcohol rules, whether the API accepts `RECEIPT_SCHEMA` as written (it uses `anyOf` with `null` for optional fields), and step 8. To run them:
   1. `npx convex env set ANTHROPIC_API_KEY <key>` on the dev deployment. Optionally set `RECEIPT_MODEL`; the default is `claude-sonnet-5-5`.
-  2. With `npm run dev` running, open `/api/dev/parse-test?name=<file>` for `costco_test_1.jpeg`, `costco_test_2.jpeg`, and `tj_test_1.pdf`. Each returns a `receiptId`.
+  2. Copy the test receipts into `web/data/` (never commit them). With `npm run dev` running from `web/`, open `/api/dev/parse-test?name=<file>` for `costco_test_1.jpeg`, `costco_test_2.jpeg`, and `tj_test_1.pdf`. Each returns a `receiptId`.
   3. Refresh `/api/receipts/get?id=<receiptId>` until `status` is `parsed` or `failed`. The Convex log prints each line's name and price.
   4. Compare `drafts` (`name`, `priceCents`) with `convex/data/receipt-fixtures/<file>.expected.json` and record the share of the 36 expected lines that match under this section.
   5. Run `npx convex run foods:backfillTips`, then check that no `foods` row lacks a `freshnessHint` and that no range changed.

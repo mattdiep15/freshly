@@ -61,6 +61,7 @@ export const insertManual = internalMutation({
     quantity: v.optional(v.number()),
     location: v.optional(location),
     priceCents: v.optional(v.number()),
+    expiresAt: v.optional(v.number()),
     foodName: v.union(v.string(), v.null()),
     newFood: v.union(newFood, v.null()),
   },
@@ -69,7 +70,10 @@ export const insertManual = internalMutation({
     const food = await resolveFood(ctx, args.foodName, args.newFood);
     const loc = args.location ?? food?.defaultLocation ?? "fridge";
     const purchasedAt = Date.now();
-    const expiry = expiryFor(food, loc, purchasedAt);
+    const expiry =
+      args.expiresAt !== undefined
+        ? { expiresAt: args.expiresAt, expirySource: "user" as const }
+        : expiryFor(food, loc, purchasedAt);
     const itemId = await ctx.db.insert("items", {
       userId,
       foodId: food?._id,

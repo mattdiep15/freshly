@@ -10,11 +10,15 @@ export async function GET(req: Request) {
   const params = new URL(req.url).searchParams;
   const num = (key: string) => (params.has(key) ? Number(params.get(key)) : undefined);
   const location = LOCATIONS.find((l) => l === params.get("location"));
+  const expires = params.get("expiresAt");
+  const expiresAt = expires ? Date.parse(expires) : undefined;
+  if (Number.isNaN(expiresAt)) return Response.json({ error: "expiresAt is not a date" }, { status: 400 });
   const itemId = await fetchAction(api.receiptsNode.addManual, {
     name: params.get("name") ?? "",
     quantity: num("quantity"),
     location,
     priceCents: num("priceCents"),
+    expiresAt,
   });
   return Response.json({ itemId });
 }
