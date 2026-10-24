@@ -449,7 +449,7 @@
   }
 
   .food-card--expired .food-icon {
-    filter: brightness(0) invert(1);
+    filter: var(--art-on-ink-mono-filter);
   }
 
   .expand-mark {
@@ -469,7 +469,7 @@
   }
 
   .food-card--expired .expanded-food-icon {
-    filter: brightness(0) invert(1);
+    filter: var(--art-on-ink-mono-filter);
   }
 
   .food-card--expired .illustration-slot {
@@ -759,7 +759,7 @@
   }
 
   .food-card.is-expanded .detail-line p {
-    color: rgb(0 0 0 / 80%);
+    color: color-mix(in srgb, var(--ink) 80%, transparent);
     font-family: var(--font-body), sans-serif;
     font-size: 16px;
     font-weight: 400;
@@ -1388,7 +1388,7 @@
     border: 2px solid var(--ink);
     border-radius: 20px;
     padding: 16px;
-    background: rgb(255 255 255 / 95%);
+    background: color-mix(in srgb, var(--paper) 95%, transparent);
     text-align: center;
     transform: translate(-50%, -50%);
     animation: stock-tooltip-in 150ms ease both;
@@ -1416,7 +1416,7 @@
   .fridge-screen .stock-tooltip-hint {
     display: block;
     margin-top: 12px;
-    color: rgb(0 0 0 / 60%);
+    color: color-mix(in srgb, var(--ink) 60%, transparent);
     font-size: 12px;
     letter-spacing: 0.02em;
   }
@@ -1533,7 +1533,7 @@
 
 /* Line art is black; flip it so it shows on the black expired row. */
 .food-card--expired .food-icon {
-  filter: invert(1);
+  filter: var(--art-on-ink-filter);
 }
 
 /* Mobile scrolls inside .mobile-page-scroll, which starts below the top bar; hidden overflow would trap the sticky filters. */

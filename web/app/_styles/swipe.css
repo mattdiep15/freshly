@@ -284,7 +284,7 @@
   left: 50%;
   border: 3px solid currentColor;
   padding: 10px 24px;
-  background: rgb(255 255 255 / 90%);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
   color: var(--good);
   font-family: var(--font-display), sans-serif;
   font-size: 56px;
@@ -622,7 +622,7 @@ footer {
   .spoil-hint {
     margin: 16px 0 0;
     padding-right: 120px;
-    color: rgb(0 0 0 / 70%);
+    color: color-mix(in srgb, var(--ink) 70%, transparent);
     font-size: 15px;
     letter-spacing: 0.02em;
     line-height: 1.4;
@@ -712,7 +712,7 @@ footer {
   .spoil-hint {
     margin: 0;
     padding-right: 88px;
-    color: rgb(0 0 0 / 70%);
+    color: color-mix(in srgb, var(--ink) 70%, transparent);
     font-size: 14px;
     letter-spacing: 0.02em;
     line-height: 1.35;
@@ -1042,12 +1042,12 @@ footer {
 
   .swipe-card .swipe-actions button:not(.used-choice):active,
   .swipe-card--step-2 .spoil-question-column .swipe-actions button:not(.used-choice):active {
-    background: #d8d8d8;
+    background: color-mix(in srgb, var(--ink) 15%, var(--paper));
   }
 
   .swipe-card .swipe-actions .used-choice:active,
   .swipe-card--step-2 .spoil-question-column .swipe-actions .used-choice:active {
-    background: #1b6106;
+    background: color-mix(in srgb, var(--good) 75%, #000);
   }
 
   .swipe-card--step-1 {
@@ -1174,7 +1174,7 @@ footer {
     letter-spacing: 0.02em;
     width: 100%;
     margin-top: 8px;
-    color: rgb(0 0 0 / 70%);
+    color: color-mix(in srgb, var(--ink) 70%, transparent);
     font-size: 13px;
     line-height: 1.25;
     text-align: center;

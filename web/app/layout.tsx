@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sniglet } from "next/font/google";
 import { SiteHeader } from "@/app/_components/SiteHeader";
+import { themeInitScript } from "@/app/_components/theme";
 import "./globals.css";
 // Order matters: some rules must load after rules in an earlier file (see the "loads here" comments).
 import "./_styles/fridge.css";
@@ -37,7 +38,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}>
+    // The init script sets data-theme before hydration, so React must not flag the mismatch.
+    <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>
         <ConvexClientProvider>
           <div className="app-shell">

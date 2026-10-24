@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useRef, type ReactNode } from "react";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
+import { ThemeToggle } from "@/app/_components/ThemeToggle";
 
 const pageTitles: Record<string, string> = {
   "/": "today",
@@ -88,6 +89,7 @@ export function SiteHeader() {
           }}
         />
       </nav>
+      <ThemeToggle />
     </header>
   );
 }

@@ -1,13 +1,36 @@
 @import 'tailwindcss';
 
+/* Tailwind dark: follows the app toggle instead of the OS setting. */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 @layer base {
   :root {
     --ink: #000;
     --paper: #fff;
     --good: #258007;
+    --art-filter: none;
+    --art-on-ink-filter: invert(1);
+    --art-on-ink-mono-filter: brightness(0) invert(1);
+    color-scheme: light;
     color: var(--ink);
     background: var(--paper);
     font-family: var(--font-body), sans-serif;
+  }
+
+  /* The inline script in layout.tsx sets data-theme before first paint. */
+  :root[data-theme='dark'] {
+    --ink: #fff;
+    --paper: #000;
+    --good: #4caf2a;
+    --art-filter: invert(1) hue-rotate(180deg);
+    --art-on-ink-filter: none;
+    --art-on-ink-mono-filter: brightness(0);
+    color-scheme: dark;
+  }
+
+  /* Decorative line art has empty alt; photos like the receipt preview keep their colors. */
+  img[alt=''] {
+    filter: var(--art-filter);
   }
 
   body {
