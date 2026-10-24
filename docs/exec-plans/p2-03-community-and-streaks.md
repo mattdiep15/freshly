@@ -131,6 +131,7 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: v6's period table had no used-rate column, so "% used" became its fourth column when the streak took the third circle.
 - 2026-10-24: Stats use calendar periods, not rolling windows (team call). "Week" starts Monday 00:00 and "month" on the 1st, both in the user's time zone (`periodStart` in `lib/wasteStats.ts`). With rolling windows, ranks shifted every day as old items aged out; now they move only when someone resolves an item, and everyone resets on Monday. This changes p1-03's `summarizeWaste`, which now takes `utcOffsetMinutes`.
 - 2026-10-24: Dollars wasted shows to the user as a "$ wasted" column in the period table (team call). The leaderboard does not return it, so friends never see it.
+- 2026-10-24: The leaderboard shows a "% used" column, since it sorts on that number. The plan said to keep `Leaderboard.tsx` as is, but without the column the order looked arbitrary. Phones show rank, name, % used, and streak, and drop lbs.
 - 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
 
 ## Surprises
