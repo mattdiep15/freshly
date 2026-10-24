@@ -3,7 +3,6 @@
 import { useEffect, useState, type PointerEvent } from "react";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
-import { Leekly } from "@/app/_components/ui/Leekly";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 import { StatusPill } from "@/app/_components/ui/StatusPill";
 
@@ -14,6 +13,8 @@ type Direction = "left" | "right";
 const SWIPE_THRESHOLD = 0.4;
 const EXIT_ANIMATION_MS = 250;
 const CLOSE_ANIMATION_MS = 200;
+// A tapped or keyed answer shows its stamp this long before the card leaves.
+const STAMP_MS = 300;
 
 export function SwipeTakeover({
   item,
@@ -38,11 +39,13 @@ export function SwipeTakeover({
   // Pointer x where the drag began, and the card width the threshold is measured against.
   const [drag, setDrag] = useState<{ start: number; width: number } | null>(null);
   const [hasSwiped, setHasSwiped] = useState(false);
+  const [stamp, setStamp] = useState<Direction | null>(null);
   const busy = exit !== null || closing;
 
   const finish = (direction: Direction) => {
     if (busy) return;
     setDragX(0);
+    setStamp(direction);
     setExit(direction);
     window.setTimeout(() => {
       if (step === 1 && direction === "right") onResolve("used");
@@ -51,13 +54,20 @@ export function SwipeTakeover({
         setStep(2);
         setExit(null);
         setEntry("right");
+        setStamp(null);
       } else if (step === 2 && direction === "right") onResolve("extended");
       else onResolve("wasted");
     }, EXIT_ANIMATION_MS);
   };
 
+  const choose = (direction: Direction) => {
+    if (busy || stamp) return;
+    setStamp(direction);
+    window.setTimeout(() => finish(direction), STAMP_MS);
+  };
+
   const goBack = () => {
-    if (busy) return;
+    if (busy || stamp) return;
     if (step === 2) {
       setExit("right");
       window.setTimeout(() => {
@@ -75,8 +85,8 @@ export function SwipeTakeover({
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") goBack();
-      if (event.key === "ArrowLeft") finish("left");
-      if (event.key === "ArrowRight") finish("right");
+      if (event.key === "ArrowLeft") choose("left");
+      if (event.key === "ArrowRight") choose("right");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -84,7 +94,7 @@ export function SwipeTakeover({
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     // Let the buttons inside the card receive normal clicks.
-    if (busy || (event.target as HTMLElement).closest("button")) return;
+    if (busy || stamp || (event.target as HTMLElement).closest("button")) return;
     setDrag({ start: event.clientX - dragX, width: event.currentTarget.offsetWidth || 1 });
     event.currentTarget.setPointerCapture(event.pointerId);
   };
@@ -104,7 +114,7 @@ export function SwipeTakeover({
   };
 
   const rotation = drag ? Math.max(-8, Math.min(8, (dragX / drag.width) * 16)) : 0;
-  const stampOpacity = Math.min(Math.abs(dragX) / 120, 1);
+  const stampOpacity = drag ? Math.min(Math.abs(dragX) / (drag.width * SWIPE_THRESHOLD), 1) : 0;
   const dragStyle = busy
     ? undefined
     : {
@@ -137,11 +147,11 @@ export function SwipeTakeover({
         <span className={`swipe-progress ${step === 1 && !visitedStepTwo ? "is-hidden" : ""}`}>{step} of 2</span>
         <span
           className={`swipe-stamp swipe-stamp--left ${step === 2 ? "" : "swipe-stamp--wasted"}`}
-          style={{ opacity: dragX < 0 ? stampOpacity : 0 }}
+          style={{ opacity: stamp === "left" ? 1 : dragX < 0 ? stampOpacity : 0 }}
         >
           {step === 2 ? "toss" : "wasted"}
         </span>
-        <span className="swipe-stamp swipe-stamp--right" style={{ opacity: dragX > 0 ? stampOpacity : 0 }}>
+        <span className="swipe-stamp swipe-stamp--right" style={{ opacity: stamp === "right" ? 1 : dragX > 0 ? stampOpacity : 0 }}>
           {step === 2 ? "extended" : "used"}
         </span>
 
@@ -152,11 +162,12 @@ export function SwipeTakeover({
             <FoodArt name={item.name} className="swipe-food-art" />
             <h1>did you use it?</h1>
             <div className="swipe-actions">
-              <button onClick={() => finish("left")}>← wasted</button>
-              <button className="used-choice" onClick={() => finish("right")}>
+              <button onClick={() => choose("left")}>← wasted</button>
+              <button className="used-choice" onClick={() => choose("right")}>
                 used →
               </button>
             </div>
+            <small className={`mobile-swipe-hint ${hasSwiped ? "is-hidden" : ""}`}>swipe left or right</small>
           </>
         ) : (
           <>
@@ -184,12 +195,15 @@ export function SwipeTakeover({
               </div>
               <p className="spoil-hint">our dates are cautious estimates. trust your eyes and nose.</p>
               <div className="swipe-actions">
-                <button className="used-choice" onClick={() => finish("right")}>
-                  no, 1-2 more days →
+                <button className="used-choice" onClick={() => choose("right")}>
+                  <span className="swipe-label-desktop">no, 1-2 more days →</span>
+                  <span className="swipe-label-mobile">1-2 more days →</span>
                 </button>
-                <button onClick={() => finish("left")}>← yes, toss :(</button>
+                <button onClick={() => choose("left")}>
+                  <span className="swipe-label-desktop">← yes, toss :(</span>
+                  <span className="swipe-label-mobile">← toss it</span>
+                </button>
               </div>
-              <Leekly className="swipe-mascot swipe-mascot--check" />
             </div>
           </>
         )}
