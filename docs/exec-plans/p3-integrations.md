@@ -45,7 +45,7 @@ Added 2026-10-24 (not in the product spec). Warn a user when something in their 
 Data sources:
 
 - FDA recalls cover most packaged food. Apify has several community actors that wrap openFDA's food enforcement data, for example [FDA Food Recall Scraper](https://apify.com/copious_atoll/fda-food-recalls) (filter by keyword, state, class, and date; listed at $1.00 per 1,000 results). openFDA also has a free official API, so Apify here mainly serves the sponsor track.
-- USDA FSIS handles meat, poultry, and egg products, which are the riskiest items in a student's fridge. No Apify actor covers FSIS, so meat recalls would need FSIS's own feed or a custom actor.
+- USDA FSIS handles meat, poultry, and egg products, which are the riskiest items in a student's fridge. Apify has a community [USDA FSIS Recalls Scraper](https://apify.com/crawlerbros/usda-fsis-recalls-scraper); check its output fields before relying on it.
 
 Backend sketch:
 
@@ -53,7 +53,7 @@ Backend sketch:
 2. Match active and draft `items` against recalls by brand and product words from the receipt line (`rawText`, `displayName`). Generic receipt names ("GROUND BEEF") will produce false matches, so a match asks the user to check the package instead of telling them to throw food out.
 3. Matches go out through the p1-03 notification path, with the recall's reason and a link to the FDA notice.
 
-Open questions: how precise matching has to be before a warning is worth showing, and whether to wait for FSIS coverage before launching, since meat is where a recall matters most.
+Open question: how precise matching has to be before a warning is worth showing. Launch with FDA and FSIS together if the FSIS actor works, since meat is where a recall matters most.
 
 ### Speech accessibility (TTS and STT)
 
@@ -85,7 +85,7 @@ Backend sketch: an action `predictions.produce({ itemId, fileId })` that returns
 
 1. Wrapped Waste (no outside dependencies)
 2. Recipe suggestions, Apify and Gemini approach (option 3)
-3. Food recall alerts, FDA first
+3. Food recall alerts (FDA and FSIS)
 4. Speech input
 5. Store and farmers market connections, after the product questions are answered
 6. Spoilage model, after the data and safety questions are answered. Collecting photos can start earlier, since it only needs the p1-03 second card.
