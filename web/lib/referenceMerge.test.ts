@@ -46,6 +46,13 @@ describe("mergeReferenceFood", () => {
     expect(twice).toEqual(once);
   });
 
+  test("re-importing a dataset drops a range it no longer lists, but keeps other datasets' ranges", () => {
+    const withFreezer = { ...fda, freezerDays: { min: 365, max: 365, source: "fda_chart" as const, ref: "FDA chart 2018-03" } };
+    const merged = mergeReferenceFood(mergeReferenceFood(withFreezer, foodkeeper, "foodkeeper"), fda, "fda_chart");
+    expect(merged.freezerDays).toBeUndefined();
+    expect(merged.pantryDays).toEqual(foodkeeper.pantryDays);
+  });
+
   test("a model-written tip never replaces a sourced one", () => {
     const merged = mergeReferenceFood(foodkeeper, { ...foodkeeper, storageTip: { text: "guess", source: "llm" } });
     expect(merged.storageTip).toEqual(foodkeeper.storageTip);

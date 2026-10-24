@@ -92,3 +92,5 @@ owns the Figma track, including a mascot. Where each one lands in the plans:
 ## Reference data
 
 `food_storage_chart.pdf` is the FDA refrigerator and freezer storage chart (March 2018).
+`cold_food_storage_chart_2023.md` is a snapshot of its newer edition on foodsafety.gov
+(reviewed September 19, 2023); rows that changed between the two cite the 2023 edition.

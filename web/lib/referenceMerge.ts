@@ -32,7 +32,12 @@ function rowRank(food: ReferenceFood): number {
   return Math.max(-1, ...RANGE_KEYS.map((k) => (food[k] ? RANK[food[k].source] : -1)));
 }
 
-export function mergeReferenceFood(existing: ReferenceFood | null, incoming: ReferenceFood): ReferenceFood {
+// dataset names the file incoming comes from, so a range that file no longer lists is dropped on re-import.
+export function mergeReferenceFood(
+  existing: ReferenceFood | null,
+  incoming: ReferenceFood,
+  dataset?: ShelfLifeSource,
+): ReferenceFood {
   if (!existing) return { ...incoming, aliases: uniqueAliases(incoming.name, incoming.aliases) };
   const base = rowRank(incoming) >= rowRank(existing) ? incoming : existing;
   const merged: ReferenceFood = {
@@ -42,7 +47,8 @@ export function mergeReferenceFood(existing: ReferenceFood | null, incoming: Ref
     defaultLocation: base.defaultLocation,
   };
   for (const key of RANGE_KEYS) {
-    const value = better(existing[key], incoming[key]);
+    const stale = dataset !== undefined && !incoming[key] && existing[key]?.source === dataset;
+    const value = better(stale ? undefined : existing[key], incoming[key]);
     if (value) merged[key] = value;
   }
   const tip = better(existing.storageTip, incoming.storageTip);
