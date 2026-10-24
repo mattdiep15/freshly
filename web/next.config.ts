@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  // Lets a phone load dev assets through a `cloudflared` quick tunnel.
+  allowedDevOrigins: ["*.trycloudflare.com"],
   // The use-soon list moved under the fridge list, so the fridge is home.
   async redirects() {
     return [
