@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { expiryFor, needsLabelDate } from "./expiry";
+import { expiryAfterMove, expiryFor, needsLabelDate } from "./expiry";
 
 const DAY = 24 * 60 * 60 * 1000;
 const bought = Date.UTC(2026, 9, 6);
@@ -34,6 +34,40 @@ describe("expiryFor", () => {
   test("uses the low end of the range", () => {
     const wide = { fridgeDays: { min: 3, max: 5, source: "fda_chart" as const, ref: "x" } };
     expect(expiryFor(wide, "fridge", bought)?.expiresAt).toBe(bought + 3 * DAY);
+  });
+});
+
+describe("expiryAfterMove", () => {
+  const inFridge = { purchasedAt: bought, expiresAt: bought + 1 * DAY, expirySource: "fda_chart" as const };
+
+  test("keeps a date that has passed instead of giving it a freezer date", () => {
+    const now = bought + 3 * DAY;
+    expect(expiryAfterMove(groundBeef, "freezer", inFridge, now)).toEqual({ expiresAt: bought + 1 * DAY, expirySource: "fda_chart" });
+  });
+
+  test("keeps a passed date the user set", () => {
+    const item = { purchasedAt: bought, expiresAt: bought + 2 * DAY, expirySource: "user" as const };
+    expect(expiryAfterMove(groundBeef, "freezer", item, bought + 3 * DAY)).toEqual({ expiresAt: bought + 2 * DAY, expirySource: "user" });
+  });
+
+  test("counts the freezer range from the move, not the purchase", () => {
+    const now = bought + 0.5 * DAY;
+    expect(expiryAfterMove(groundBeef, "freezer", inFridge, now)).toEqual({ expiresAt: now + 90 * DAY, expirySource: "fda_chart" });
+  });
+
+  test("counts from the purchase when the food has no freezer range", () => {
+    const item = { purchasedAt: bought, expiresAt: bought + 3 * DAY, expirySource: "foodkeeper" as const };
+    expect(expiryAfterMove(spinach, "freezer", item, bought + 2 * DAY)?.expiresAt).toBe(bought + 3 * DAY);
+  });
+
+  test("dates an undated item moved to the freezer from the move", () => {
+    const now = bought + 1 * DAY;
+    expect(expiryAfterMove(groundBeef, "freezer", { purchasedAt: bought }, now)?.expiresAt).toBe(now + 90 * DAY);
+  });
+
+  test("recomputes other moves from the purchase", () => {
+    const frozen = { purchasedAt: bought, expiresAt: bought + 90 * DAY, expirySource: "fda_chart" as const };
+    expect(expiryAfterMove(groundBeef, "fridge", frozen, bought + 10 * DAY)?.expiresAt).toBe(bought + 1 * DAY);
   });
 });
 

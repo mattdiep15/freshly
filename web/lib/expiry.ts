@@ -18,6 +18,20 @@ export function expiryFor(
   return { expiresAt: purchasedAt + range.min * DAY, expirySource: range.source };
 }
 
+// Freezing stops spoilage but does not undo it: a passed date stays, and the freezer range counts from the move.
+export function expiryAfterMove(
+  food: FoodRanges | null,
+  to: Location,
+  item: { purchasedAt: number; expiresAt?: number; expirySource?: ShelfLifeSource | "user" },
+  now: number,
+): { expiresAt: number; expirySource?: ShelfLifeSource | "user" } | null {
+  if (item.expiresAt !== undefined && item.expiresAt <= now) {
+    return { expiresAt: item.expiresAt, expirySource: item.expirySource };
+  }
+  const startsAt = to === "freezer" && food?.freezerDays ? now : item.purchasedAt;
+  return expiryFor(food, to, startsAt);
+}
+
 // Processed foods carry a printed date that beats our estimate; ask for it until the user has set one.
 export function needsLabelDate(
   food: { hasPrintedDate?: boolean } | null,
