@@ -11,6 +11,13 @@ export const storageTip = v.object({
   source: v.union(v.literal("fda_chart"), v.literal("foodkeeper"), v.literal("llm")),
 });
 export const freshnessHint = v.object({ text: v.string(), source: v.union(v.literal("foodkeeper"), v.literal("llm")) });
+// Mirrors ReviewFlag in lib/receiptCheck.ts.
+export const reviewFlag = v.union(
+  v.literal("implausible_date"),
+  v.literal("store_mismatch"),
+  v.literal("date_mismatch"),
+  v.literal("total_mismatch"),
+);
 export const itemStatus = v.union(
   v.literal("draft"),
   v.literal("active"),
@@ -54,6 +61,18 @@ export default defineSchema({
     purchasedAt: v.optional(v.number()),
     totalCents: v.optional(v.number()),
     error: v.optional(v.string()),
+    // Header fields the review screen should ask the user to confirm.
+    reviewFlags: v.optional(v.array(reviewFlag)),
+    // Gemini's second reading of the header; absent until receiptsNode.verify runs.
+    verification: v.optional(
+      v.object({
+        status: v.union(v.literal("done"), v.literal("skipped")),
+        storeName: v.optional(v.string()),
+        purchasedAt: v.optional(v.string()),
+        totalCents: v.optional(v.number()),
+        error: v.optional(v.string()),
+      }),
+    ),
   }).index("by_user", ["userId"]),
 
   items: defineTable({

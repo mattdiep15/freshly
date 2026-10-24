@@ -4,9 +4,9 @@ import { askGemini } from "./gemini";
 // A provider-neutral message part; file data is base64.
 export type Part = { type: "text"; text: string } | { type: "file"; mimeType: string; data: string };
 
-// LLM_PROVIDER picks the model per deployment; Gemini is the default for the hackathon's Gemini track.
+// LLM_PROVIDER picks the main model per deployment; Claude is the default and Gemini verifies receipt headers.
 export function askJson(system: string, parts: Part[], schema: Record<string, unknown>): Promise<unknown> {
-  return process.env.LLM_PROVIDER === "anthropic" ? askClaude(system, parts, schema) : askGemini(system, parts, schema);
+  return process.env.LLM_PROVIDER === "gemini" ? askGemini(system, parts, schema) : askClaude(system, parts, schema);
 }
 
 const nullable = (schema: object) => ({ anyOf: [schema, { type: "null" }] });
@@ -55,6 +55,24 @@ export const RECEIPT_SCHEMA = {
   required: ["isReceipt", "storeName", "purchasedAt", "totalCents", "lines"],
   additionalProperties: false,
 };
+
+// The verifier's reading: only the header fields, so a second model can check the main parse.
+export const HEADER_SCHEMA = {
+  type: "object",
+  properties: {
+    storeName: nullable({ type: "string" }),
+    purchasedAt: nullable({ type: "string", format: "date" }),
+    totalCents: nullable({ type: "integer" }),
+  },
+  required: ["storeName", "purchasedAt", "totalCents"],
+  additionalProperties: false,
+};
+
+export const HEADER_SYSTEM_PROMPT = `You check grocery receipts for Freshly, an app that tracks what is in a student's fridge. Read only these fields from the receipt:
+- storeName: the store's name, or null when the header is cut off.
+- purchasedAt: the purchase date printed on the receipt as YYYY-MM-DD, or null. Read the year digit by digit; do not guess it.
+- totalCents: the final total paid, in cents, or null.
+Never copy member numbers, card digits, cashier names, or other personal details.`;
 
 export const MANUAL_SCHEMA = {
   type: "object",

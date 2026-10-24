@@ -4,7 +4,17 @@ import { v, type Infer } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, internalAction } from "./_generated/server";
-import { askJson, MANUAL_SCHEMA, manualSystemPrompt, type Part, RECEIPT_SCHEMA, receiptSystemPrompt } from "./model/llm";
+import { askGemini } from "./model/gemini";
+import {
+  askJson,
+  HEADER_SCHEMA,
+  HEADER_SYSTEM_PROMPT,
+  MANUAL_SCHEMA,
+  manualSystemPrompt,
+  type Part,
+  RECEIPT_SCHEMA,
+  receiptSystemPrompt,
+} from "./model/llm";
 import type { newFood, receiptResult } from "./receipts";
 import { location } from "./schema";
 
@@ -47,9 +57,32 @@ export const parse = internalAction({
       )) as Infer<typeof receiptResult>;
       console.log(`receipt ${receiptId}: ${result.lines.length} lines`, result.lines.map((l) => `${l.displayName} ${l.priceCents}`));
       await ctx.runMutation(internal.receipts.saveParsed, { receiptId, result });
+      if (result.isReceipt) await ctx.scheduler.runAfter(0, internal.receiptsNode.verify, { receiptId });
     } catch (e) {
       const error = e instanceof Error ? e.message : String(e);
       await ctx.runMutation(internal.receipts.setStatus, { receiptId, status: "failed", error });
+    }
+  },
+});
+
+// Gemini reads the header a second time; any failure skips the check and leaves the main parse as it is.
+export const verify = internalAction({
+  args: { receiptId: v.id("receipts") },
+  handler: async (ctx, { receiptId }) => {
+    const input = await ctx.runQuery(internal.receipts.verifyInput, { receiptId });
+    if (!input) return;
+    try {
+      const blob = await ctx.storage.get(input.fileId);
+      if (!blob) throw new Error("The uploaded file is missing from storage.");
+      const header = (await askGemini(
+        HEADER_SYSTEM_PROMPT,
+        [await fileBlock(blob, input.fileType), { type: "text", text: "Read this receipt's header." }],
+        HEADER_SCHEMA,
+      )) as { storeName: string | null; purchasedAt: string | null; totalCents: number | null };
+      await ctx.runMutation(internal.receipts.saveVerification, { receiptId, header });
+    } catch (e) {
+      const error = e instanceof Error ? e.message : String(e);
+      await ctx.runMutation(internal.receipts.saveVerification, { receiptId, header: null, error });
     }
   },
 });

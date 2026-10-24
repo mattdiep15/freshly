@@ -38,7 +38,14 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 3. Keep the Anthropic branch working, so the team can switch back with one env var if Gemini scores worse.
    Verify: re-run the p1-02 live checks (Surprises, steps 1 to 6) with `LLM_PROVIDER=gemini`. Record the score next to Claude's 36 of 36 names and prices and 33 of 36 food matches.
 
-Every deployment that parses receipts needs `GEMINI_API_KEY`, or `LLM_PROVIDER=anthropic` to keep using Claude. That includes the team's cloud dev deployment (`secret-opossum-432`), which only has the Anthropic key today.
+Changed the same day, after the live check (see Decision log): Claude is the default again and Gemini verifies the receipt header.
+
+4. `LLM_PROVIDER` defaults to `anthropic`; `gemini` makes Gemini the main parser.
+5. After a successful parse, `receiptsNode.parse` schedules `receiptsNode.verify`. It sends the same file to Gemini with `HEADER_SCHEMA` (store, date, total only), and `receipts.saveVerification` compares the two readings with `headerMismatches` in `lib/receiptCheck.ts`. A disagreement adds `store_mismatch`, `date_mismatch`, or `total_mismatch` to `receipts.reviewFlags` for the review screen. It never changes a date. Any Gemini failure, including a missing key, saves `verification.status: "skipped"` with the error.
+6. `saveParsed` checks the main parser's date with `purchaseDate` in `lib/receiptCheck.ts`. A date in the future or more than 60 days before upload is replaced with the upload time and flagged `implausible_date`.
+   Verify: a parse with a 2023 date dates its items from the upload time and has `reviewFlags: ["implausible_date"]`; a Gemini reading with a different date adds `date_mismatch`; a Gemini 429 leaves the parse untouched with `verification.status: "skipped"`.
+
+`GEMINI_API_KEY` is optional. Without it every receipt parses with Claude and the check is skipped.
 
 ## Part B: Web shelf-life lookup with Apify and Gemini (about 3 to 4 hours)
 
@@ -76,7 +83,7 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 
 ## Progress
 
-- [x] Part A (2026-10-24: Gemini is the default provider; see Surprises for the live scores)
+- [x] Part A (2026-10-24: Gemini provider built and scored, see Surprises; then Claude made the default again, with Gemini as the header verifier and the receipt date guard)
 - [ ] Part B
 - [ ] Part C
 - [ ] Part D
@@ -96,6 +103,9 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 
 - 2026-10-24: Gemini is called through REST with `fetch` instead of `@google/genai`. No new dependency, and it runs in Convex's default runtime, which `foods.backfillTips` uses.
 - 2026-10-24: The Gemini branch retries 429 and 5xx responses three times with backoff (4, 8, and 16 seconds). Claude's branch already had server-side fallback, and Gemini has no equivalent.
+
+- 2026-10-24: Claude stays the main receipt parser and Gemini verifies the header, decided by Leo. Gemini matched fewer foods (30 of 36 against 33), misread a year once, and the team may not get a paid Gemini key. The free tier's 20 requests a day covers one header check per receipt for a demo. Free-tier prompts may be used by Google to improve its products, so the full receipt photo goes to Gemini only on test receipts until there is a paid key or the photo is cropped to its header.
+- 2026-10-24: A header mismatch only flags the receipt. Correcting the date is the user's call on the review screen, which needs a way to re-date a receipt's drafts (not built yet).
 
 ## Surprises
 
