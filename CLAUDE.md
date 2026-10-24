@@ -1,5 +1,76 @@
 # CLAUDE.md
 
+## Freshly
+
+Web app that tracks what's in a student's fridge, estimates when each item expires, and
+reminds them to use it before it goes bad. Product scope and priorities: `docs/PRODUCT.md`.
+
+Two-person team (Leo, Matthew). We are building for a hackathon demo and plan to ship to
+real users after, so code has to survive past the demo.
+
+### Stack and commands
+
+Next.js (App Router) + TypeScript on Vercel. Convex for the database, server functions,
+and scheduled jobs.
+
+```bash
+npm run dev        # Next.js + Convex dev
+npm run lint
+npm run typecheck
+npm test
+```
+
+Run lint and typecheck before every commit. These commands are placeholders until the
+project is scaffolded; update them to match `package.json`.
+
+### Where code goes
+
+- `convex/schema.ts`: the only source of truth for data shape.
+- `convex/*.ts`: every read and write. Validate args with `v.*` and check the signed-in
+  user in every public function. Outside services (receipt OCR, product lookup, push) go
+  in Convex actions.
+- `lib/`: pure domain logic (expiry math, reminder schedule, waste stats). No React or
+  Convex imports, so it can be unit tested.
+- `components/ui/`: shared primitives. Search here before creating a component.
+  Components fill their slot; the page owns layout.
+- `app/`: routes compose components and call Convex hooks. No business logic in pages.
+
+Secrets live in Convex or Vercel env vars. Never put a key in a `NEXT_PUBLIC_` var.
+
+### Demo shortcuts
+
+Shortcuts are fine when they are marked. Tag each one `// TODO(release): <what to fix>`
+so `grep -r "TODO(release)"` lists the cleanup before launch. Fake data goes in
+`convex/seed.ts`, never hardcoded in components.
+
+### Food safety data
+
+Shelf-life numbers are safety claims. Take them from `docs/food_storage_chart.pdf` (FDA)
+or USDA FoodKeeper and store the source next to each value. If an item has no sourced
+value, the UI says so instead of guessing.
+
+### Code style
+
+- TypeScript strict. No `any` without a one-line reason.
+- Comments are one short line explaining why. No multi-line blocks or long docstrings.
+- Don't add a UI, styling, or state library without asking.
+
+### Git
+
+- Work on a feature branch. Commit at each working checkpoint.
+- Never push, open a PR, or merge into `main` without asking, even when tests pass.
+- `main` deploys to Vercel and must always build.
+- PRs are squash-merged into `main`. Keep history linear and never create merge commits.
+- Commit messages and PR titles are one imperative line, 72 characters max, with no body.
+  Start with a type prefix: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, or `test:`.
+
+### Definition of done
+
+Lint and typecheck pass. The feature works when you click through it in the running app,
+not only in tests. New logic in `lib/` has a test.
+
+---
+
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
