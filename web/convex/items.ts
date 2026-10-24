@@ -26,7 +26,7 @@ export function extendedExpiry(item: Doc<"items">, food: Doc<"foods"> | null, no
   return range ? extendExpiry({ purchasedAt: item.purchasedAt, range, now }) : null;
 }
 
-async function utcOffsetFor(ctx: QueryCtx, userId: Id<"users">): Promise<number> {
+export async function utcOffsetFor(ctx: QueryCtx, userId: Id<"users">): Promise<number> {
   const profile = await ctx.db
     .query("profiles")
     .withIndex("by_user", (q) => q.eq("userId", userId))
