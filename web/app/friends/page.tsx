@@ -3,7 +3,7 @@ import { Leaderboard } from "@/app/_components/Leaderboard";
 import { Leekly } from "@/app/_components/ui/Leekly";
 
 export default function FriendsPage() {
-  // TODO(release): leaderboard is P2 (p2-social-and-shopping); this is demo data only.
+  // TODO(release): leaderboard is P2 (p2-03-community-and-streaks); this is demo data only.
   return (
     <main className="friends-page">
       <section className="compact-heading heading-with-action friends-heading">

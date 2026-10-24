@@ -164,7 +164,7 @@ Live check on 2026-10-24 against Leo's dev deployment (`dev:secret-opossum-432`)
 - 2026-10-24: The swipe card spec moved from p1-03 into this plan, so the frontend work has one home. p1-03 keeps a pointer.
 - 2026-10-24: The scan flow uploads on "continue" instead of on pick, so a retake does not spend a model call.
 - 2026-10-24: The scan check list edits dates instead of "good for N days". The backend stores `expiresAt`, and the printed-date flow (`checkLabel`) asks for the date on the package.
-- 2026-10-24: The stats table shows this week, this month, and all time instead of four calendar weeks, so no new query is needed. A per-week query can come with P2's `userStats` table.
+- 2026-10-24: The stats table shows this week, this month, and all time instead of four calendar weeks, so no new query is needed. A per-week query can come with a `userStats` table if P2 adds one.
 - 2026-10-24: The UI computes days left in the browser and ignores the backend's `daysLeft`, so labels roll over at local midnight without a data change.
 - 2026-10-24: The third stats circle shows `usedRate` ("% used") instead of being hidden. Hiding it left the 3-column circle grid off-center at every breakpoint, and the used rate is real data.
 - 2026-10-24: Rebased onto frontend v3 (#9). v3's swipe cards, undo toast, and "check in" tags replace this plan's auto-opening `SwipeQueue`, which was deleted. v3 already had the second card, so its `SwipeTakeover` is kept with one change: `freshnessHint` may be `null`, as the backend returns it.

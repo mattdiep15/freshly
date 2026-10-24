@@ -11,10 +11,15 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards with the "looks spoiled?" second card, waste stats | Done; a real system notification still needs a human check (see Surprises) | ~5-6 h |
 | [p1-04-frontend-integration.md](p1-04-frontend-integration.md) | P1 | Home, fridge, swipe cards, scan, manual add, and stats pages wired to Convex | Done; package-date highlights and freshness hints need `foods:backfillTips` on the deployment | ~7-8 h |
 | [p1-05-sponsor-tracks.md](p1-05-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini receipt check, web shelf-life lookup (Apify + Gemini), GoDaddy domain | A and B done (Claude parses, Gemini verifies; web shelf life); D not started; recipes (C) moved to p3 | ~8-10 h |
-| [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, estimated store prices (Apify), location reminders, takeout leftovers | Draft | not estimated |
-| [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes (Apify + Gemini), food recall alerts, speech, Wrapped Waste, image-based spoilage model | Draft | not estimated |
+| [p2-01-schema.md](p2-01-schema.md) | P2 | Tables for the grocery list, friends, and cached recipes; invite codes on profiles | Not started | ~30 min |
+| [p2-02-grocery-list.md](p2-02-grocery-list.md) | P2 | Grocery list, checked off by hand or by a scanned receipt | Not started | ~2-3 h |
+| [p2-03-community-and-streaks.md](p2-03-community-and-streaks.md) | P2 | Friends by invite code, weekly leaderboard on the friends tab, streak on the stats tab | Not started | ~4-5 h |
+| [p2-04-recipe-suggestions.md](p2-04-recipe-suggestions.md) | P2 | Recipes for use-soon items from web pages (Apify + Gemini), fixed recipes as fallback | Not started | ~3-4 h |
+| [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, food recall alerts, speech, Wrapped Waste, image-based spoilage model; grocery hints, estimated prices, location reminders, and takeout leftovers moved from P2 | Draft | not estimated |
 
 p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-01 defines the whole P1 schema up front so the two do not edit `convex/schema.ts` at the same time. p1-04 depends on all three.
+
+P2 follows the screens the designer is drawing: community (stats and friends tabs), grocery list, and recipes. Merge the v5 frontend branch (`claude/frontend-prototype-v5-19a533`) first, since p2-03 and p2-04 build on its tabs. p2-01 then adds every P2 table in one change, and p2-02, p2-03, and p2-04 can run in parallel after it. If one person builds all of P2, skip p2-01 and add each table in its own plan. Real sign-in is a prerequisite for friends between real accounts (see p2-03), but not for the demo, which uses the demo user and seeded friends.
 
 "Clean, demo-ready UI" is a P1 goal in the spec. p1-04 covers it for every page except friends, which waits for P2.
 

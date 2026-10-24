@@ -4,7 +4,7 @@ Tier: P3. Status: draft. Not ready to execute. Most items need a product decisio
 
 ## Purpose
 
-Connect Freshly to the world outside the fridge: local stores and farmers markets, recipe sources, and voice input. Add Wrapped Waste, a shareable summary of a user's food waste over a semester or year, and an image-based spoilage model for produce. This covers Priority 3 in `docs/PRODUCT.md`.
+Connect Freshly to the world outside the fridge: local stores and farmers markets, food recalls, store prices, and voice input. Add Wrapped Waste, a shareable summary of a user's food waste over a semester or year, and an image-based spoilage model for produce. This covers Priority 3 in `docs/PRODUCT.md`, plus four Priority 2 features moved here on 2026-10-24 so the p2 plans could focus on the screens the designer is drawing: grocery list hints, estimated prices, location-based reminders, and takeout leftovers.
 
 ## Features
 
@@ -18,25 +18,50 @@ Possible data source: USDA AMS publishes local food directories, including farme
 
 ### Recipe recommendations
 
-Moved here from p1-05 part C on 2026-10-24: recipes are P3 in the spec, and P1 comes first. Option 3 below is the preferred approach, since it uses both sponsor technologies.
+Moved to `p2-04-recipe-suggestions.md` on 2026-10-24, using the Apify and Gemini approach (option 3 of the earlier sketch). The v5 frontend already has a recipes tab, and the designer is working on it.
 
-Recommend recipes that use items close to expiry. The product spec mentions "MISE" and recipe databases. Confirm with the team which product or dataset "MISE" refers to.
+### Grocery list hints
 
-Three approaches:
+Moved from P2 on 2026-10-24. `p2-02-grocery-list.md` builds the list itself. This adds the "last time you bought too much X" warning from the spec.
 
-1. Recipe API (for example Spoonacular or TheMealDB). Real recipes with photos, but needs an API key, has rate limits, and ingredient names must be mapped to `foods`.
-2. LLM-generated recipes from `items.useSoon`. No new account, works with any ingredient, but recipes are untested and have no photos.
+Backend sketch: `grocery.hints()` looks at the user's last purchases of each listed food (matched by `foodId`). If at least two purchases averaged `fractionWasted` above 0.4, return a hint such as "You threw out about half your spinach the last 3 times. Get the small bag?"
 
-3. Real recipe pages through Apify, ranked by Gemini. Real recipes with working links, no recipe-API account, and it counts for the Apify and Gemini tracks. Apify's [Recipe Scraper (schema.org)](https://apify.com/crawlerbros/recipe-scraper) can return structured ingredients if search-result text is too loose.
+### Estimated prices for items without a receipt price
 
-Backend sketch for option 3, about 2 to 3 hours:
+Moved from P2 on 2026-10-24. Dollars wasted (p1-03 stats, Wrapped Waste below) uses `items.priceCents`, which only receipt items have. Manual adds and takeout leftovers have no price, so their waste counts in pounds but not dollars.
 
-1. Action `recipes.suggest()` takes the user's `items.useSoon` (p1-03), picks the two or three items expiring first, and runs `apify/rag-web-browser` (already called by `convex/shelfLifeWeb.ts`) with a query like `recipe ground beef spinach`, `maxResults: 5`.
-2. Gemini reads the pages and returns up to 3 recipes: title, source URL, the expiring items each one uses, and a one-line reason. It may only return recipes from the fetched pages, with their real URLs.
-3. Cache the result per user per day in a `recipeSuggestions` table, so opening the screen does not start a new Apify run.
-   Verify: with the demo seed, `recipes.suggest` returns recipes whose URLs open real recipe pages that mention at least one of the user's expiring items.
+Apify has grocery price scrapers: [Instacart Scraper](https://apify.com/piotrv1001/instacart-scraper) (many US chains through Instacart, listed from $5.00 per 1,000 products) and [Kroger Scraper](https://apify.com/getascraper/kroger-scraper) (price, unit price, and stock per store, from $3.30 per 1,000 products). Both are small community actors; test them on a few products before building on them.
 
-Option 2 needs no Apify account and is the fallback if the Apify run is too slow for the screen.
+Backend sketch:
+
+1. When an item is created without `priceCents`, schedule an action that searches one store for the food's name and saves the median unit price as `estimatedPriceCents`, marked as an estimate.
+2. Cache prices per food and ZIP code for a week, since prices vary by location and change slowly.
+3. Waste stats use `priceCents` when present and `estimatedPriceCents` otherwise, and the UI marks the estimated part ("about $4, estimated").
+
+The same price data could feed the grocery list hints ("the small bag is $2 less").
+
+### Location-based reminders
+
+Moved from P2 on 2026-10-24. Ping users when they are eating out ("you have X food left") and at the grocery store ("what would go well with what's left").
+
+A website cannot watch location in the background, and web push cannot be triggered by entering a place while the site is closed. Options:
+
+1. A "Shopping now" button that the user taps at the store. The backend returns `useSoon` items and items to skip based on grocery hints. No location needed.
+2. Location checks only while the app is open, matched against a places API. Works only when the user already has the app open.
+3. A native wrapper (Capacitor, Expo) with background geofencing. Real background pings, but a much larger build.
+
+Decide between these with the designer before writing backend code.
+
+### Takeout leftovers
+
+Moved from P2 on 2026-10-24. Track restaurant leftovers the same way as groceries.
+
+Backend sketch:
+- Add `kind: "grocery" | "leftover"` to `items` (default `grocery`).
+- `items.addLeftover({ name, restaurant? })` uses the FDA chart leftover rows already in `foods` ("Meat leftovers, cooked meat dishes: 3 to 4 days") and sets `location: "fridge"`.
+- Leftovers flow through the same reminders and swipe cards with no other changes.
+
+This is small and reuses everything, so it is the first thing to pick up after P2.
 
 ### Food recall alerts
 
@@ -83,13 +108,16 @@ Backend sketch: an action `predictions.produce({ itemId, fileId })` that returns
 
 ## Suggested order
 
-1. Wrapped Waste (no outside dependencies)
-2. Recipe suggestions, Apify and Gemini approach (option 3)
-3. Food recall alerts (FDA and FSIS)
-4. Speech input
-5. Store and farmers market connections, after the product questions are answered
-6. Spoilage model, after the data and safety questions are answered. Collecting photos can start earlier, since it only needs the p1-03 second card.
+1. Takeout leftovers (smallest, reuses P1)
+2. Wrapped Waste (no outside dependencies)
+3. Grocery list hints, after p2-02 lands
+4. Food recall alerts (FDA and FSIS)
+5. Estimated prices, after leftovers exist to use them
+6. Speech input
+7. Location reminders, after the option above is chosen
+8. Store and farmers market connections, after the product questions are answered
+9. Spoilage model, after the data and safety questions are answered. Collecting photos can start earlier, since it only needs the p1-03 second card.
 
 ## Decision log
 
-(none yet)
+- 2026-10-24: Leo reordered P2 around the screens the designer is drawing for the demo: community, grocery list, and recipes. Recipes moved from here to p2-04. Grocery hints, estimated prices, location reminders, and takeout leftovers moved here from the retired `p2-social-and-shopping.md`.
