@@ -105,7 +105,7 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 - 2026-10-24: The Gemini branch retries 429 and 5xx responses three times with backoff (4, 8, and 16 seconds). Claude's branch already had server-side fallback, and Gemini has no equivalent.
 
 - 2026-10-24: Claude stays the main receipt parser and Gemini verifies the header, decided by Leo. Gemini matched fewer foods (30 of 36 against 33), misread a year once, and the team may not get a paid Gemini key. The free tier's 20 requests a day covers one header check per receipt for a demo. Free-tier prompts may be used by Google to improve its products, so the full receipt photo goes to Gemini only on test receipts until there is a paid key or the photo is cropped to its header.
-- 2026-10-24: A header mismatch only flags the receipt. Correcting the date is the user's call on the review screen, which needs a way to re-date a receipt's drafts (not built yet).
+- 2026-10-24: A header mismatch only flags the receipt. Correcting the date is the user's call on the review screen, through `receipts.setPurchasedAt({ receiptId, purchasedAt })` (test route `GET /api/receipts/set-purchased-at?id=&date=2026-10-15`). It re-dates every draft with `expiryFor` from its sourced range, keeps an `expiresAt` the user typed (`expirySource: "user"`), clears `implausible_date` and `date_mismatch`, and rejects a date in the future. Confirmed items keep their dates.
 
 ## Surprises
 

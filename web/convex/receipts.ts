@@ -108,6 +108,35 @@ export const confirmDrafts = mutation({
   },
 });
 
+// The user's confirmed purchase date: re-dates drafts from their sourced ranges, keeps dates the user typed.
+export const setPurchasedAt = mutation({
+  args: { receiptId: v.id("receipts"), purchasedAt: v.number() },
+  handler: async (ctx, { receiptId, purchasedAt }) => {
+    const receipt = await ownReceipt(ctx, receiptId);
+    if (receipt.status !== "parsed") throw new Error("Receipt is not parsed yet");
+    // One day of slack, since the typed date is local and the clock is UTC.
+    if (purchasedAt > Date.now() + 24 * 60 * 60 * 1000) throw new Error("Purchase date is in the future");
+    const drafts = (
+      await ctx.db
+        .query("items")
+        .withIndex("by_receipt", (q) => q.eq("receiptId", receiptId))
+        .collect()
+    ).filter((i) => i.status === "draft");
+    for (const item of drafts) {
+      if (item.expirySource === "user") {
+        await ctx.db.patch(item._id, { purchasedAt });
+        continue;
+      }
+      const food = item.foodId ? await ctx.db.get(item.foodId) : null;
+      const expiry = expiryFor(food, item.location, purchasedAt);
+      await ctx.db.patch(item._id, { purchasedAt, expiresAt: expiry?.expiresAt, expirySource: expiry?.expirySource });
+    }
+    const flags = (receipt.reviewFlags ?? []).filter((f) => f !== "implausible_date" && f !== "date_mismatch");
+    await ctx.db.patch(receiptId, { purchasedAt, reviewFlags: flags.length > 0 ? flags : undefined });
+    return { redated: drafts.length };
+  },
+});
+
 export async function bumpTimesAdded(ctx: MutationCtx, userId: Id<"users">, foodId: Id<"foods">) {
   const row = await ctx.db
     .query("foodFamiliarity")
