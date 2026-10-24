@@ -71,7 +71,7 @@ Pure function `expiryFor(food, location, purchasedAt)` in `lib/expiry.ts`, with 
 - Use the food's range for `location`, or its fridge range if that location has none.
 - `expiresAt = purchasedAt + range.min` days. The low end of the range is used because these are safety claims.
 - Return `{ expiresAt, expirySource: range.source }`, or `null` when no sourced range exists. The item is then stored with no `expiresAt`, and the UI shows "No sourced shelf life. Set a date."
-- `purchasedAt` is the receipt date, or the upload time when the receipt has none (`costco_test_1.jpeg`).
+- `purchasedAt` is noon of the receipt date in the user's timezone (`profiles.utcOffsetMinutes`), or the upload time when the receipt has none (`costco_test_1.jpeg`). Changed 2026-10-24, see p1-05 Decision log.
 
 ### Storage tips for unfamiliar foods
 
@@ -205,7 +205,7 @@ Result on 2026-10-24, against a local deployment on `localhost:3004`, with `clau
 
 - 2026-10-24: The API accepts `RECEIPT_SCHEMA` as written (`anyOf` with `null` for optional fields).
 - 2026-10-24: The printed-date backfill flagged a few fresh foods, for example `yuca/cassava`. A wrong flag only adds a prompt to enter a date; it never changes a date.
-- 2026-10-24: A known food-safety bug in `itemEdits.update` (moving an expired item to the freezer gives it a new date) is recorded in `docs/bugs.md` and not fixed yet.
+- 2026-10-24: A known food-safety bug in `itemEdits.update` (moving an expired item to the freezer gives it a new date) was recorded in `docs/bugs.md` and fixed the same day: `expiryAfterMove` in `lib/expiry.ts` keeps a passed date and counts the freezer range from the move.
 - 2026-10-24: `backfillTips` filled 0 foods on its second batch: the foods were sent as `name (category)` and the model returned names that no longer matched exactly. Foods are now numbered in the prompt and matched back by number. The action also does one batch of 25 per run and schedules the next, because 27 calls in one action could pass Convex's 10-minute action limit. It stops when a batch fills nothing.
 - 2026-10-24: The key lives on each deployment. Setting it on the team's cloud dev deployment (`secret-opossum-432`) does not reach a worktree's local anonymous deployment.
 - To re-run the live checks on another deployment:

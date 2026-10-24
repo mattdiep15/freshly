@@ -60,7 +60,7 @@ function UseSoonList({
               <span className="large-check">{isChecked ? "✓" : ""}</span>
             </span>
             <span className="task-number">0{index + 1}</span>
-            <FoodArt name={item.name} className="task-icon" />
+            <FoodArt name={item.name} packaged={item.packaged} className="task-icon" />
             <span className="task-copy">
               <strong>use up {item.name}</strong>
               <small>{note}</small>

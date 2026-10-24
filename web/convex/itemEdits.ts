@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { expiryFor } from "../lib/expiry";
+import { expiryAfterMove, expiryFor } from "../lib/expiry";
 import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { getUserId } from "./model/auth";
 import { bumpTimesAdded, newFood, resolveFood } from "./receipts";
@@ -33,7 +33,7 @@ export const update = mutation({
       patch.expirySource = "user";
     } else if (loc !== undefined && loc !== item.location) {
       const food = item.foodId ? await ctx.db.get(item.foodId) : null;
-      const expiry = expiryFor(food, loc, item.purchasedAt);
+      const expiry = expiryAfterMove(food, loc, item, Date.now());
       patch.expiresAt = expiry?.expiresAt;
       patch.expirySource = expiry?.expirySource;
     }

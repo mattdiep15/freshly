@@ -170,6 +170,8 @@ Live check on 2026-10-24 against Leo's dev deployment (`dev:secret-opossum-432`)
 - 2026-10-24: Rebased onto frontend v3 (#9). v3's swipe cards, undo toast, and "check in" tags replace this plan's auto-opening `SwipeQueue`, which was deleted. v3 already had the second card, so its `SwipeTakeover` is kept with one change: `freshnessHint` may be `null`, as the backend returns it.
 - 2026-10-24: `reviews.pending` returns `extendsTo`, the date `items.extend` would set. v3 previewed an extension as now plus 2 days, which can pass the sourced range's high end and would show an unsourced date during the undo window.
 - 2026-10-24: A checked use-soon task waits 900 ms before calling `items.resolve`, so the check mark shows and a misclick can be unchecked before it is saved. Leaving the page during the wait saves the check instead of dropping it.
+- 2026-10-24: Home has two per-user settings stored on `profiles`. The wasted-% slider sets the `fractionWasted` that `items.resolve` stores for later tosses (default 50%). "Always ask 'does it look spoiled?'" shows card 2 even when `canExtend` is false; that card offers only "toss" and says the source gives no more days. It is off by default and makes the card easier to demo. Desktop fridge rows now collapse when the mouse leaves them.
+- 2026-10-24: A packaged food with no matching illustration shows `public/illustrations/food/box.png`. That box is a placeholder drawn for the demo; the designer is making the catch-all icon that replaces it (tagged `TODO(release)` in `FoodArt.tsx`).
 
 ## Open questions
 

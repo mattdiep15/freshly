@@ -38,8 +38,18 @@ and run `npm run dev` from `web/`.
 was there, so run it from one checkout at a time. When you finish, put main's functions back:
 in the worktree, `git checkout origin/main -- web/convex`, run `npx convex dev --once`, then
 `git checkout HEAD -- web/convex`. Pushing from the main checkout also works if its
-`node_modules` is current. `/api/dev/seed` resets the demo user's data for everyone using the
-deployment. Never copy a production env.
+`node_modules` is current. `/api/dev/seed` (also `/api/dev/reset-db`, or `npm run reset` without
+Next running) resets the demo user's items and receipts for everyone using the deployment; it
+keeps the demo settings. Never copy a production env.
+
+### Setting up a Convex deployment
+
+`npm run setup:convex` (from `web/`) prepares a new deployment with prompts. It targets the
+deployment in `web/.env.local` or the project's prod deployment, and prod needs a typed "yes".
+It generates the Convex Auth keys, sets `SITE_URL`, the API keys (input is hidden, Enter
+skips), VAPID keys, and optional model overrides, sets `ALLOW_DEMO_USER=true` on dev only,
+and offers to push functions, load data, and run `foods:backfillTips`. With no `.env.local`,
+run `npx convex dev --once` first.
 
 ### Where code goes
 

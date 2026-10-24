@@ -7,7 +7,7 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | Plan | Tier | Covers | Status | Estimate |
 | --- | --- | --- | --- | --- |
 | [p1-01-backend-foundation.md](p1-01-backend-foundation.md) | P1 | Convex project, vitest, schema, auth, sourced shelf-life data, demo seed | Done; milk has no sourced fridge range (see Surprises) | ~4 h |
-| [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, manual entry (P1.5), item matching, expiry dates, storage tips for unfamiliar foods | Done; freezer-move bug open in `docs/bugs.md` | ~4-5 h |
+| [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, manual entry (P1.5), item matching, expiry dates, storage tips for unfamiliar foods | Done | ~4-5 h |
 | [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards with the "looks spoiled?" second card, waste stats | Done; a real system notification still needs a human check (see Surprises) | ~5-6 h |
 | [p1-04-frontend-integration.md](p1-04-frontend-integration.md) | P1 | Home, fridge, swipe cards, scan, manual add, and stats pages wired to Convex | Done; package-date highlights and freshness hints need `foods:backfillTips` on the deployment | ~7-8 h |
 | [p1-05-sponsor-tracks.md](p1-05-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini receipt check, web shelf-life lookup (Apify + Gemini), GoDaddy domain | A and B done (Claude parses, Gemini verifies; web shelf life); D not started; recipes (C) moved to p3 | ~8-10 h |

@@ -13,6 +13,7 @@ import { demoFullness } from "@/app/_demo/fixtures";
 import { EmptyState } from "@/app/_components/EmptyState";
 import { FoodList } from "@/app/_components/FoodList";
 import { FullnessPreview, fullnessLabels } from "@/app/_components/FullnessPreview";
+import { SettingsCard } from "@/app/_components/SettingsCard";
 import { SwipeTakeover, type SwipeResult } from "@/app/_components/SwipeTakeover";
 import { UseSoonSection } from "@/app/_components/UseSoonSection";
 import { Leekly } from "@/app/_components/ui/Leekly";
@@ -68,6 +69,7 @@ function Fridge() {
   const { addedIds, highlightedIds, undoAdd } = useAddedItems();
   const active = useQuery(api.items.list, { status: "active" });
   const pendingReviews = useQuery(api.reviews.pending);
+  const settings = useQuery(api.profiles.settings);
   const resolve = useMutation(api.items.resolve);
   const extend = useMutation(api.items.extend);
   const update = useMutation(api.itemEdits.update);
@@ -86,7 +88,7 @@ function Fridge() {
     }
   }, UNDO_WINDOW_MS);
 
-  if (now === null || active === undefined || pendingReviews === undefined) {
+  if (now === null || active === undefined || pendingReviews === undefined || settings === undefined) {
     return <main className="fridge-screen" aria-busy="true" />;
   }
 
@@ -138,11 +140,13 @@ function Fridge() {
       />
       {items.length === 0 && <EmptyState message="your fridge is ready for something fresh." />}
       <UseSoonSection items={pickUseSoon(items, now)} now={now} onUse={(item) => decide(item, "used")} />
+      <SettingsCard />
       {reviewing && (
         <SwipeTakeover
           item={reviewing}
           timing={statusTiming(reviewing.expiresAt, now)}
           canExtend={reviewing.canExtend === true}
+          alwaysAskSpoiled={settings.alwaysAskSpoiled}
           onResolve={(result) => decide(reviewing, result)}
           onBack={() => {
             setCheckInIds((ids) => (ids.includes(reviewing._id) ? ids : [...ids, reviewing._id]));

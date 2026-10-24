@@ -48,6 +48,9 @@ const artByKeyword: [RegExp, Art][] = [
   [/\boil\b/, ART.oil],
 ];
 
+// TODO(release): box.png is a placeholder; replace it (and the size below) with the designer's catch-all icon.
+const packagedArt: Art = { file: "box", width: 433, height: 350 };
+
 // Manual entry shows the group's drawing for a food we have no drawing of.
 const artByGroup: Partial<Record<FoodGroup, Art>> = {
   vegetables: ART.broccoli,
@@ -57,14 +60,20 @@ const artByGroup: Partial<Record<FoodGroup, Art>> = {
   grains: ART.bread,
 };
 
-function artFor(name: string): Art | undefined {
+function artFor(name: string, packaged: boolean): Art | undefined {
   const lower = name.toLowerCase();
-  return artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
+  const match = artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
+  return match ?? (packaged ? packagedArt : undefined);
 }
 
 // Without a drawing, shows the name's first letter in a box of the same size.
-export function FoodArt({ name, group, className = "" }: { name: string; group?: FoodGroup | null; className?: string }) {
-  const art = artFor(name) ?? (group ? artByGroup[group] : undefined);
+export function FoodArt({ name, packaged = false, group, className = "" }: {
+  name: string;
+  packaged?: boolean;
+  group?: FoodGroup | null;
+  className?: string;
+}) {
+  const art = artFor(name, packaged) ?? (group ? artByGroup[group] : undefined);
   if (!art) {
     return (
       <span className={`food-letter-placeholder ${className}`} aria-hidden="true">

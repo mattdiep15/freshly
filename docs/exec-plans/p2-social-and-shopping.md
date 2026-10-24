@@ -8,6 +8,16 @@ Give users a reason to keep logging outcomes (friends and streaks) and use their
 
 Every feature here reads from P1 data: `items` with `fractionWasted`, `priceCents`, and `weightGrams`, and the `stats.summary` logic from p1-03.
 
+## Prerequisite: sign-in
+
+Waste is already stored per user. Every `items` row has a `userId`, and `stats.summary` and every other public function find the user through `getUserId` in `convex/model/auth.ts`. Convex Auth with the Password provider is installed (`convex/auth.ts`), but no page calls `signIn`, so everyone who opens the app is the seeded demo user through the `ALLOW_DEMO_USER` fallback.
+
+P1 does not need sign-in, since the demo runs as one user. The leaderboard and streaks below do, because they compare different people, and real users need it before launch. Before any P2 feature:
+
+1. Add sign-up and sign-in pages with `useAuthActions` from `@convex-dev/auth/react`. README open question 1 still asks whether to switch to Clerk.
+2. Create the `profiles` row on first sign-in, with `utcOffsetMinutes` from the browser (p1-04 open question 4). `profiles.updateSettings` throws until that row exists.
+3. Remove the demo-user fallback (the `TODO(release)` in `convex/model/auth.ts`) and keep the demo account as an ordinary seeded user.
+
 ## Features
 
 ### Community tab and leaderboard

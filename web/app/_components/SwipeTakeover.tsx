@@ -20,14 +20,17 @@ export function SwipeTakeover({
   item,
   timing,
   canExtend,
+  alwaysAskSpoiled,
   onResolve,
   onBack,
 }: {
-  item: { name: string; freshnessHint?: SourcedText | null };
+  item: { name: string; packaged?: boolean; freshnessHint?: SourcedText | null };
   // "2 days ago" or "today"; null when the item has no date.
   timing: string | null;
   // False when there is no sourced shelf life left to extend into, or it was already extended.
   canExtend: boolean;
+  // Shows card 2 with only "toss" when canExtend is false (a user setting, handy for demos).
+  alwaysAskSpoiled: boolean;
   onResolve: (result: SwipeResult) => void;
   onBack: () => void;
 }) {
@@ -42,15 +45,18 @@ export function SwipeTakeover({
   const [hasSwiped, setHasSwiped] = useState(false);
   const [stamp, setStamp] = useState<Direction | null>(null);
   const busy = exit !== null || closing;
+  // Card 2 without days to give has only "toss"; a right swipe there springs back.
+  const blocked = (direction: Direction) => step === 2 && direction === "right" && !canExtend;
 
   const finish = (direction: Direction) => {
     if (busy) return;
     setDragX(0);
+    if (blocked(direction)) return;
     setStamp(direction);
     setExit(direction);
     window.setTimeout(() => {
       if (step === 1 && direction === "right") onResolve("used");
-      else if (step === 1 && canExtend) {
+      else if (step === 1 && (canExtend || alwaysAskSpoiled)) {
         setVisitedStepTwo(true);
         setStep(2);
         setExit(null);
@@ -62,7 +68,7 @@ export function SwipeTakeover({
   };
 
   const choose = (direction: Direction) => {
-    if (busy || stamp) return;
+    if (busy || stamp || blocked(direction)) return;
     setStamp(direction);
     window.setTimeout(() => finish(direction), STAMP_MS);
   };
@@ -152,7 +158,7 @@ export function SwipeTakeover({
         >
           {step === 2 ? "toss" : "wasted"}
         </span>
-        <span className="swipe-stamp swipe-stamp--right" style={{ opacity: stamp === "right" ? 1 : dragX > 0 ? stampOpacity : 0 }}>
+        <span className="swipe-stamp swipe-stamp--right" style={{ opacity: stamp === "right" ? 1 : dragX > 0 && !blocked("right") ? stampOpacity : 0 }}>
           {step === 2 ? "extended" : "used"}
         </span>
 
@@ -164,7 +170,7 @@ export function SwipeTakeover({
                 {timing && <span className="status-timing">{timing}</span>}
               </span>
               <p>{item.name}</p>
-              <FoodArt name={item.name} className="swipe-food-art" />
+              <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art" />
             </div>
             <h1>did you use it?</h1>
             <div className="swipe-actions">
@@ -185,7 +191,7 @@ export function SwipeTakeover({
               </span>
               <p className="spoil-food-name">{item.name}</p>
               <div className="spoil-food-art">
-                <FoodArt name={item.name} className="swipe-food-art swipe-food-art--check" />
+                <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art swipe-food-art--check" />
               </div>
               <p className="spoil-expiry">{timing ? `expired ${timing}` : "expired"}</p>
             </div>
@@ -202,12 +208,18 @@ export function SwipeTakeover({
                   <p className="detail-missing">no sourced freshness hint yet.</p>
                 )}
               </div>
-              <p className="spoil-hint">our dates are cautious estimates. trust your eyes and nose.</p>
+              <p className="spoil-hint">
+                {canExtend
+                  ? "our dates are cautious estimates. trust your eyes and nose."
+                  : "it's past the longest time our source gives, so we can't add days."}
+              </p>
               <div className="swipe-actions">
-                <button className="used-choice" onClick={() => choose("right")}>
-                  <span className="swipe-label-desktop">no, 1-2 more days →</span>
-                  <span className="swipe-label-mobile">1-2 more days →</span>
-                </button>
+                {canExtend && (
+                  <button className="used-choice" onClick={() => choose("right")}>
+                    <span className="swipe-label-desktop">no, 1-2 more days →</span>
+                    <span className="swipe-label-mobile">1-2 more days →</span>
+                  </button>
+                )}
                 <button onClick={() => choose("left")}>
                   <span className="swipe-label-desktop">← yes, toss :(</span>
                   <span className="swipe-label-mobile">← toss it</span>
