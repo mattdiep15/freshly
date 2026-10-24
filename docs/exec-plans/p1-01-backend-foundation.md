@@ -127,6 +127,8 @@ A route that reads no request input (no `req.url`, no headers) calls `await conn
 2. Set the dev-only env vars on that deployment. Convex Auth needs `JWT_PRIVATE_KEY`, `JWKS`, and `SITE_URL`; `npx @convex-dev/auth` generates and sets all three. Then run `npx convex env set ALLOW_DEMO_USER true`.
 3. Open `http://localhost:3000/api/dev/seed`. On an empty deployment it also imports the reference foods.
 
+`npm run build` needs `NEXT_PUBLIC_CONVEX_URL`, because the root layout renders the Convex provider during prerender. A fresh clone with no `.env.local` fails the build until step 1 has run. On Vercel, set `NEXT_PUBLIC_CONVEX_URL` in the project's environment variables.
+
 To move to a real team project, someone runs `npx convex login`, then `npx convex dev --configure existing` (or `new`) and picks the team's project. That rewrites `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` in `.env.local`. Repeat step 2 against the new dev deployment, never the production one, and run `npx convex run foods:importReference`. Local data does not carry over.
 
 ## Progress
