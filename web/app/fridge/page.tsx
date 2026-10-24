@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { sortByUrgency } from "@/lib/freshness";
 import type { FridgeItem } from "@/lib/types";
-import { demoFridge } from "@/app/_demo/fixtures";
+import { demoFridge, demoFullness } from "@/app/_demo/fixtures";
+import { EmptyState } from "@/app/_components/EmptyState";
 import { FoodList } from "@/app/_components/FoodList";
+import { FullnessPreview, fullnessLabels } from "@/app/_components/FullnessPreview";
 import { SwipeTakeover } from "@/app/_components/SwipeTakeover";
+import { Leekly } from "@/app/_components/ui/Leekly";
 import { useNow } from "@/app/_components/useNow";
 
 export default function FridgePage() {
@@ -25,13 +28,25 @@ export default function FridgePage() {
   return (
     <main className="fridge-screen">
       <section className="page-heading">
-        <div>
+        <FullnessPreview {...demoFullness} />
+        <div className="fridge-title">
           <p className="eyebrow">sorted by urgency</p>
           <h1>everything in my fridge.</h1>
+          <p className="stock-label">{fullnessLabels[demoFullness.stage]}</p>
         </div>
         <p className="item-count">{String(items.length).padStart(2, "0")} items</p>
       </section>
-      <FoodList items={items} now={now} onMarkUsed={resolve} onReviewExpired={setReviewing} />
+      {items.length === 0 ? (
+        <EmptyState message="your fridge is ready for something fresh." />
+      ) : (
+        <FoodList
+          items={items}
+          now={now}
+          onMarkUsed={resolve}
+          onReviewExpired={setReviewing}
+          aside={<Leekly pose="point" className="leek-point fridge-leek-point" />}
+        />
+      )}
       {reviewing && (
         <SwipeTakeover
           itemName={reviewing.name}

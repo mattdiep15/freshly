@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import type { FridgeItem } from "@/lib/types";
 import { FoodCard } from "@/app/_components/FoodCard";
 
@@ -11,11 +11,13 @@ export function FoodList({
   now,
   onMarkUsed,
   onReviewExpired,
+  aside,
 }: {
   items: FridgeItem[];
   now: number;
   onMarkUsed: (item: FridgeItem) => void;
   onReviewExpired: (item: FridgeItem) => void;
+  aside?: ReactNode;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -23,19 +25,25 @@ export function FoodList({
 
   return (
     <>
-      <div className="food-list">
-        {visible.map((item) => (
-          <FoodCard
-            key={item.id}
-            item={item}
-            now={now}
-            expanded={expanded === item.id}
-            onToggle={() => setExpanded(expanded === item.id ? null : item.id)}
-            onHover={() => setExpanded(item.id)}
-            onMarkUsed={() => onMarkUsed(item)}
-            onReviewExpired={() => onReviewExpired(item)}
-          />
-        ))}
+      <div className="fridge-list-stage">
+        <div className="food-list">
+          {visible.map((item) => (
+            <FoodCard
+              key={item.id}
+              item={item}
+              now={now}
+              expanded={expanded === item.id}
+              onToggle={() => setExpanded(expanded === item.id ? null : item.id)}
+              onHover={() => {
+                // Hover-to-open is a desktop affordance; on touch it would fight the tap toggle.
+                if (window.matchMedia("(min-width: 768px)").matches) setExpanded(item.id);
+              }}
+              onMarkUsed={() => onMarkUsed(item)}
+              onReviewExpired={() => onReviewExpired(item)}
+            />
+          ))}
+        </div>
+        {aside}
       </div>
       {!showAll && items.length > COLLAPSED_COUNT && (
         <button className="quiet-link centered" onClick={() => setShowAll(true)}>

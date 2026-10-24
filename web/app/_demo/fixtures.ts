@@ -28,6 +28,13 @@ export function demoFridge(now: number): FridgeItem[] {
   ];
 }
 
+// TODO(release): no backend tracks fridge fullness or food groups yet; derive both from items.
+export const demoFullness = {
+  stage: 70,
+  stocked: ["vegetables", "fruit", "protein", "dairy", "grains"],
+  empty: ["frozen foods"],
+} as const;
+
 export type ParsedReceiptLine = {
   name: string;
   shelfLifeDays?: number;

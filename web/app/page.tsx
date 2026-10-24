@@ -4,6 +4,7 @@ import Link from "next/link";
 import { numberWord, pickUseSoon } from "@/lib/freshness";
 import { demoFridge } from "@/app/_demo/fixtures";
 import { UseSoonList } from "@/app/_components/UseSoonList";
+import { Leekly } from "@/app/_components/ui/Leekly";
 import { useNow } from "@/app/_components/useNow";
 
 export default function HomePage() {
@@ -28,6 +29,7 @@ export default function HomePage() {
               : `${numberWord(items.length)} small ${items.length === 1 ? "thing" : "things"} to save today.`}
           </p>
         </div>
+        <Leekly pose="fridge" className="home-mascot" />
         <Link className="add-button" href="/scan">
           <span>+</span> add an item
         </Link>
