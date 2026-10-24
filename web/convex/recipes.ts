@@ -3,7 +3,7 @@ import { daysLeft, localDateKey } from "../lib/digest";
 import { USE_SOON_DAYS } from "../lib/freshness";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
-import { internalMutation, internalQuery, mutation, query, type QueryCtx } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { utcOffsetFor } from "./items";
 import { getUserId } from "./model/auth";
 import { recipe } from "./schema";
@@ -43,25 +43,27 @@ async function soonestIngredients(ctx: QueryCtx, userId: Id<"users">, now: numbe
 
 const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
 
-// Called when the recipes page opens; starts a web search only when today's use-soon ingredients changed.
+// Starts a web search when today's use-soon ingredients changed; a preload waits for a running search instead of stacking runs.
+export async function requestSuggestion(ctx: MutationCtx, userId: Id<"users">, { preload = false } = {}) {
+  const now = Date.now();
+  const offset = await utcOffsetFor(ctx, userId);
+  const ingredients = await soonestIngredients(ctx, userId, now, offset);
+  if (ingredients.length === 0) return null;
+  const dateKey = localDateKey(now, offset);
+  const rows = await todaysRows(ctx, userId, dateKey);
+  const latest = rows[0];
+  if (latest && latest.status !== "failed" && sameSet(latest.ingredients, ingredients)) return view(latest);
+  if (latest && (rows.length >= MAX_RUNS_PER_DAY || (preload && latest.status === "pending"))) return view(latest);
+  const row = { userId, dateKey, ingredients, status: "pending" as const, recipes: [] };
+  const suggestionId = await ctx.db.insert("recipeSuggestions", row);
+  await ctx.scheduler.runAfter(0, internal.recipesWeb.suggest, { suggestionId });
+  return { _id: suggestionId, dateKey, ingredients, status: row.status, recipes: row.recipes, error: undefined };
+}
+
+// Called when the recipes page opens; adding items preloads through requestSuggestion too.
 export const request = mutation({
   args: {},
-  handler: async (ctx) => {
-    const userId = await getUserId(ctx);
-    const now = Date.now();
-    const offset = await utcOffsetFor(ctx, userId);
-    const ingredients = await soonestIngredients(ctx, userId, now, offset);
-    if (ingredients.length === 0) return null;
-    const dateKey = localDateKey(now, offset);
-    const rows = await todaysRows(ctx, userId, dateKey);
-    const latest = rows[0];
-    if (latest && latest.status !== "failed" && sameSet(latest.ingredients, ingredients)) return view(latest);
-    if (rows.length >= MAX_RUNS_PER_DAY) return view(latest);
-    const row = { userId, dateKey, ingredients, status: "pending" as const, recipes: [] };
-    const suggestionId = await ctx.db.insert("recipeSuggestions", row);
-    await ctx.scheduler.runAfter(0, internal.recipesWeb.suggest, { suggestionId });
-    return { _id: suggestionId, dateKey, ingredients, status: row.status, recipes: row.recipes, error: undefined };
-  },
+  handler: async (ctx) => await requestSuggestion(ctx, await getUserId(ctx)),
 });
 
 export const today = query({

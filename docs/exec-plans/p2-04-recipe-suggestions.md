@@ -27,6 +27,8 @@ Replace the five fixed recipes in v5's `lib/recipes.ts` with real recipes found 
 
 Without `APIFY_TOKEN`, `suggest` saves `failed` with "APIFY_TOKEN is not set" and the page shows the fixed list.
 
+Preloading (added 2026-10-24): confirming a receipt (`receipts.confirmDrafts`) and adding an item by hand (`itemEdits.insertManual`) run the same check as `request`, so recipes are usually ready before the tab opens. A preload does not start a second search while one is `pending`; the page's own `request` catches up when the tab opens.
+
 ## Steps
 
 1. Move `searchPages` from `convex/shelfLifeWeb.ts` to `convex/model/apify.ts` with an optional site filter, so both callers share it. Shelf-life lookups keep their `allowedSite` filter.
@@ -70,6 +72,7 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 - [x] 4. `convex/recipes.ts` and `convex/recipesWeb.ts` (2026-10-24). Checked on a local deployment without `APIFY_TOKEN`: `request` writes a `pending` row, `suggest` saves `failed` with "APIFY_TOKEN is not set", the fourth call of the day returns the newest row without a new run, and a `ready` row with the same ingredients is returned as is. End to end on the team dev deployment after a reseed: `request` used "chicken breast" and "mushrooms", and the row was `ready` about 98 seconds later with 3 recipes from recipetineats.com, allrecipes.com, and vikalinka.com. Gemini answered (no Claude fallback), and 3 of the 5 Apify results had page text. All three source pages are real recipes with chicken and mushrooms. A second `request` returned the same row, and the table held one row, so one Apify run.
 - [x] 5. `/api` routes (2026-10-24)
 - [x] 6. Recipes page (2026-10-24). Clicked through on a local deployment with a hand-saved `ready` row: the web recipe ranks first, shows "from example.com", and the mushroom chip filters to it. Clicked through again against the team dev deployment: the 3 web recipes rank first with their "from <site>" links, the chicken chip leaves them plus the fixed chicken pasta, and adding the mushroom chip leaves only the 3 web recipes. No console errors.
+- [x] 7. Preload on receipt confirm and manual add (2026-10-24). Checked on a local deployment without `APIFY_TOKEN`: a manual add of spinach expiring tomorrow started a search with "baby spinach, chicken breast, mushrooms"; after a `ready` row, adding butter that expires in 12 days started none; confirming a receipt with ground beef started one with "baby spinach, chicken breast, ground beef". The rule that skips a preload while a search is `pending` is not exercised, since a local run without a token fails at once.
 
 ## Validation
 
@@ -93,6 +96,8 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 - 2026-10-24: `groundedRecipes` assigns ids (`web-<n>-<slug>`), keeps at most 3 recipes, dedupes ingredients, and clamps `minutes` to 5-240, `servings` to 1-12, and `timedMinutes` to the recipe's `minutes`.
 - 2026-10-24: Web recipes can have several steps in one phase, so `RecipeList` keys steps by index instead of phase.
 - 2026-10-24: The "from <site>" link sits in the recipe's meta row with no new CSS, since the v6 port owns the styles.
+- 2026-10-24: Preload from the two places items become active instead of a cron, so a search runs only when the fridge changes. No on/off setting yet; the 3-a-day cap bounds cost.
+- 2026-10-24: A preload skips while today's newest search is `pending`, so a burst of manual adds does not use up the 3 daily runs in a minute.
 - 2026-10-24: `recipes.today` reads `Date.now()` for the local date, like `items.list`. Convex's guidelines advise passing time in instead; the page also calls `request` on mount, which writes and so refreshes the query.
 
 ## Surprises

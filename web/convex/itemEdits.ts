@@ -4,6 +4,7 @@ import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { getUserId } from "./model/auth";
 import { checkOffGroceries } from "./model/grocery";
 import { bumpTimesAdded, newFood, resolveFood } from "./receipts";
+import { requestSuggestion } from "./recipes";
 import { location } from "./schema";
 import { scheduleWebLookup } from "./shelfLifeWeb";
 
@@ -99,6 +100,7 @@ export const insertManual = internalMutation({
     if (food) await bumpTimesAdded(ctx, userId, food._id);
     await checkOffGroceries(ctx, userId, [{ name: args.name, foodId: food?._id }]);
     await scheduleWebLookup(ctx, [food?._id]);
+    await requestSuggestion(ctx, userId, { preload: true });
     return itemId;
   },
 });
