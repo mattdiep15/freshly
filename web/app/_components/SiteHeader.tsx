@@ -7,8 +7,8 @@ import { useRef, type ReactNode } from "react";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
 
 const pageTitles: Record<string, string> = {
-  "/": "today",
   "/fridge": "my fridge",
+  "/recipes": "recipes",
   "/scan": "scan",
   "/stats": "stats",
   "/friends": "friends",
@@ -39,7 +39,7 @@ export function SiteHeader() {
 
   return (
     <header className="topbar">
-      <Link className="brand" href="/" aria-label="freshly home">
+      <Link className="brand" href="/fridge" aria-label="freshly fridge">
         <Image className="logo-mark" src="/brand/fridge-logo.png" width={342} height={557} alt="" aria-hidden="true" />
         <span>freshly</span>
       </Link>
@@ -48,14 +48,13 @@ export function SiteHeader() {
         <NavLink href="/fridge" className="nav-fridge" pathname={pathname}>
           fridge
         </NavLink>
-        <NavLink href="/scan" className="nav-scan" pathname={pathname}>
-          <span className="desktop-label">scan receipt</span>
-          <span className="mobile-label">scan</span>
+        <NavLink href="/recipes" className="nav-recipes" pathname={pathname}>
+          recipes
         </NavLink>
+        <span className="nav-camera-spacer" aria-hidden="true" />
         <NavLink href="/stats" className="nav-stats" pathname={pathname}>
           stats
         </NavLink>
-        <span className="nav-camera-spacer" aria-hidden="true" />
         <NavLink href="/friends" className="nav-friends" pathname={pathname}>
           friends
         </NavLink>
@@ -72,9 +71,6 @@ export function SiteHeader() {
             <path d="M11 15.4c0-3 2.2-5.3 5.1-5.3s5.1 2.3 5.1 5.3-2.2 5.2-5.1 5.2-5.1-2.2-5.1-5.2z" />
           </svg>
         </button>
-        <NavLink href="/" className="nav-me" pathname={pathname}>
-          me
-        </NavLink>
         <input
           ref={cameraInputRef}
           className="camera-tab-input"

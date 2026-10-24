@@ -1550,3 +1550,9 @@
     top: 0;
   }
 }
+
+/* The add-item control is a link, so it needs the vertical centering a <button> gets by default. */
+.fridge-add-item {
+  display: inline-flex;
+  align-items: center;
+}

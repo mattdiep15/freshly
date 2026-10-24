@@ -1,9 +1,12 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
-import { daysAgoLabel, daysLeftLabel, endOfLocalDay, expiredLabel, freshness } from "@/lib/freshness";
+import { endOfLocalDay, freshness, statusTiming, type Freshness } from "@/lib/freshness";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
-import { StatusPill } from "@/app/_components/ui/StatusPill";
+import { StatusTag } from "@/app/_components/ui/StatusTag";
 
 function DetailLine({ label, value, missing }: { label: string; value?: SourcedText | null; missing: string }) {
   return (
@@ -41,6 +44,25 @@ function DateForm({ item, onSetDate }: { item: ItemView; onSetDate: (expiresAt: 
   );
 }
 
+const STATUS_TRANSITION_MS = 400;
+
+// Animates a row that crosses into or out of expired while it is on screen.
+function useStatusTransition(status: Freshness) {
+  const previous = useRef(status);
+  const [transition, setTransition] = useState<"expiring" | "restoring" | null>(null);
+  useEffect(() => {
+    const before = previous.current;
+    previous.current = status;
+    if (before === status) return;
+    const next = status === "expired" ? "expiring" : before === "expired" ? "restoring" : null;
+    if (!next) return;
+    setTransition(next);
+    const timer = window.setTimeout(() => setTransition(null), STATUS_TRANSITION_MS);
+    return () => window.clearTimeout(timer);
+  }, [status]);
+  return transition;
+}
+
 export function FoodCard({
   item,
   now,
@@ -48,6 +70,7 @@ export function FoodCard({
   filteredOut = false,
   extended = false,
   checkIn = false,
+  highlighted = false,
   onToggle,
   onHover,
   onLeave,
@@ -61,6 +84,7 @@ export function FoodCard({
   filteredOut?: boolean;
   extended?: boolean;
   checkIn?: boolean;
+  highlighted?: boolean;
   onToggle: () => void;
   onHover: () => void;
   onLeave: () => void;
@@ -70,12 +94,14 @@ export function FoodCard({
 }) {
   const status = freshness(item.expiresAt, now);
   const isExpired = status === "expired";
+  const transition = useStatusTransition(status);
+  const timing = statusTiming(item.expiresAt, now);
   // The swipe card needs the backend's expired status; the cron sets it up to an hour after the date passes.
   const needsReview = item.status === "expired";
 
   return (
     <article
-      className={`food-card food-card--${status} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""}`}
+      className={`food-card food-card--${status} ${isExpired ? "expired-surface" : ""} ${transition ? `is-${transition}` : ""} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""} ${highlighted ? "is-newly-added" : ""}`}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
     >
@@ -84,35 +110,30 @@ export function FoodCard({
         onClick={checkIn ? onReviewExpired : onToggle}
         aria-expanded={expanded}
       >
-        <FoodArt name={item.name} packaged={item.packaged} className="food-icon" />
+        <span className="food-icon-slot">
+          <FoodArt name={item.name} packaged={item.packaged} className="food-icon" />
+        </span>
         <span className="card-info">
           <span className="card-title">{item.name}</span>
           <span className="card-meta">
-            {isExpired && item.expiresAt !== undefined ? (
-              <span className="status-pill">
-                <span className="expired-label-desktop">{expiredLabel(item.expiresAt, now)}</span>
-                <span className="expired-label-mobile">expired</span>
-              </span>
-            ) : (
-              <StatusPill status={status} />
-            )}
+            <StatusTag status={status} />
+            {timing && <span className="status-timing">{timing}</span>}
             {extended && <span className="extended-tag">extended</span>}
-            {isExpired && item.expiresAt !== undefined ? (
-              <span className="expired-days-mobile">{daysAgoLabel(item.expiresAt, now)}</span>
-            ) : (
-              <span className="days-left">{daysLeftLabel(item.expiresAt, now)}</span>
-            )}
             {checkIn && <span className="check-in-tag">check in</span>}
           </span>
         </span>
         <span className="expand-mark">{expanded ? "−" : "+"}</span>
       </button>
       <div className="card-details">
-        <div className="illustration-slot">
-          <FoodArt name={item.name} packaged={item.packaged} className="expanded-food-icon" />
+        <div className="detail-main">
+          <div className="illustration-slot">
+            <FoodArt name={item.name} packaged={item.packaged} className="expanded-food-icon" />
+          </div>
+          <div className="detail-copy">
+            <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />
+            <DetailLine label="check" value={item.freshnessHint} missing="no sourced freshness hint yet." />
+          </div>
         </div>
-        <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />
-        <DetailLine label="check" value={item.freshnessHint} missing="no sourced freshness hint yet." />
         <div className="card-actions">
           {(item.expiresAt === undefined || item.checkLabel) && <DateForm item={item} onSetDate={onSetDate} />}
           <button className="used-button" onClick={needsReview ? onReviewExpired : onMarkUsed}>

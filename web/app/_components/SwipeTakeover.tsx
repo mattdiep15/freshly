@@ -4,7 +4,7 @@ import { useEffect, useState, type PointerEvent } from "react";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
-import { StatusPill } from "@/app/_components/ui/StatusPill";
+import { StatusTag } from "@/app/_components/ui/StatusTag";
 
 export type SwipeResult = "used" | "wasted" | "extended";
 type Direction = "left" | "right";
@@ -18,14 +18,15 @@ const STAMP_MS = 300;
 
 export function SwipeTakeover({
   item,
-  expiredText,
+  timing,
   canExtend,
   alwaysAskSpoiled,
   onResolve,
   onBack,
 }: {
   item: { name: string; packaged?: boolean; freshnessHint?: SourcedText | null };
-  expiredText: string;
+  // "2 days ago" or "today"; null when the item has no date.
+  timing: string | null;
   // False when there is no sourced shelf life left to extend into, or it was already extended.
   canExtend: boolean;
   // Shows card 2 with only "toss" when canExtend is false (a user setting, handy for demos).
@@ -163,9 +164,14 @@ export function SwipeTakeover({
 
         {step === 1 ? (
           <>
-            <StatusPill status="expired" />
-            <p>{item.name}</p>
-            <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art" />
+            <div className="swipe-food-panel expired-surface">
+              <span className="swipe-status-meta">
+                <StatusTag status="expired" />
+                {timing && <span className="status-timing">{timing}</span>}
+              </span>
+              <p>{item.name}</p>
+              <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art" />
+            </div>
             <h1>did you use it?</h1>
             <div className="swipe-actions">
               <button onClick={() => choose("left")}>← wasted</button>
@@ -178,13 +184,16 @@ export function SwipeTakeover({
         ) : (
           <>
             <span className="swipe-kicker">one more check</span>
-            <div className="spoil-food-column">
-              <StatusPill status="expired" />
+            <div className="spoil-food-column expired-surface">
+              <span className="swipe-status-meta">
+                <StatusTag status="expired" />
+                {timing && <span className="status-timing">{timing}</span>}
+              </span>
               <p className="spoil-food-name">{item.name}</p>
               <div className="spoil-food-art">
                 <FoodArt name={item.name} packaged={item.packaged} className="swipe-food-art swipe-food-art--check" />
               </div>
-              <p className="spoil-expiry">{expiredText}</p>
+              <p className="spoil-expiry">{timing ? `expired ${timing}` : "expired"}</p>
             </div>
             <div className="spoil-question-column">
               <h1>does it look spoiled?</h1>

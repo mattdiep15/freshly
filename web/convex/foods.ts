@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
-import type { Id } from "./_generated/dataModel";
-import { internalAction, internalMutation, internalQuery, mutation } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
+import { internalAction, internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { getUserId } from "./model/auth";
 import { askJson, TIPS_SCHEMA, TIPS_SYSTEM_PROMPT } from "./model/llm";
 import { importReferenceFoods } from "./model/foods";
@@ -9,11 +9,30 @@ import { importReferenceFoods } from "./model/foods";
 // items.get and items.list show a food's tip until the user has dismissed it this many times.
 export const TIP_VIEWS_TO_LEARN = 3;
 const TIP_BATCH = 25;
+const CATALOG_LIMIT = 2000;
 
 // Safe to re-run: upserts by name and merges per location.
 export const importReference = internalMutation({
   args: {},
   handler: async (ctx) => importReferenceFoods(ctx),
+});
+
+// Manual-entry autocomplete; ranges drop their ref to keep the payload small.
+export const catalog = query({
+  args: {},
+  handler: async (ctx) => {
+    await getUserId(ctx);
+    const range = (r: Doc<"foods">["fridgeDays"]) =>
+      r && { min: r.min, max: r.max, source: r.source };
+    // The reference import is about 700 rows; the cap keeps the payload bounded as LLM-added foods grow.
+    return (await ctx.db.query("foods").take(CATALOG_LIMIT)).map((f) => ({
+      name: f.name,
+      aliases: f.aliases,
+      category: f.category,
+      fridgeDays: range(f.fridgeDays),
+      freezerDays: range(f.freezerDays),
+    }));
+  },
 });
 
 export const ackTip = mutation({

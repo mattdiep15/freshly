@@ -41,6 +41,12 @@ export function expiredLabel(expiresAt: number, now: number): string {
   return `expired ${daysAgoLabel(expiresAt, now)}`;
 }
 
+// "today", "3 days", or "2 days ago" beside a status tag; null for an undated item, whose tag already says so.
+export function statusTiming(expiresAt: number | undefined, now: number): string | null {
+  if (expiresAt === undefined) return null;
+  return expiresAt <= now ? daysAgoLabel(expiresAt, now) : daysLeftLabel(expiresAt, now);
+}
+
 // A picked calendar date means "good through that day", so it expires at the end of it.
 export function endOfLocalDay(date: string): number {
   const [y, m, d] = date.split("-").map(Number);
@@ -51,6 +57,18 @@ export function endOfLocalDay(date: string): number {
 export function dateInputValue(t: number): string {
   const d = new Date(t);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+// The date `days` after a YYYY-MM-DD date, in the same format.
+export function addDays(date: string, days: number): string {
+  const [y, m, d] = date.split("-").map(Number);
+  return dateInputValue(new Date(y, m - 1, d + days, 12).getTime());
+}
+
+// A past purchase day as a timestamp; noon keeps it on that day across DST shifts.
+export function localNoon(date: string): number {
+  const [y, m, d] = date.split("-").map(Number);
+  return new Date(y, m - 1, d, 12).getTime();
 }
 
 const URGENCY_RANK: Record<Freshness, number> = { expired: 0, soon: 1, fresh: 2, unknown: 3 };

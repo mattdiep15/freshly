@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
 import { freshness } from "@/lib/freshness";
@@ -30,6 +31,7 @@ export function FoodList({
   now,
   extendedIds,
   checkInIds,
+  highlightedIds,
   onMarkUsed,
   onReviewExpired,
   onSetDate,
@@ -38,6 +40,7 @@ export function FoodList({
   now: number;
   extendedIds: readonly string[];
   checkInIds: readonly string[];
+  highlightedIds: readonly string[];
   onMarkUsed: (item: ItemView) => void;
   onReviewExpired: (item: ItemView) => void;
   onSetDate: (item: ItemView, expiresAt: number) => void;
@@ -86,12 +89,17 @@ export function FoodList({
       <div className="fridge-list-main">
         <div className="fridge-count-header">
           <div className="fridge-count-title">
-            <strong>{filter === "all" ? `${items.length} items` : `${visibleCount} ${filterLabels[filter]}`}</strong>
-            {filter !== "all" && (
-              <button type="button" onClick={() => changeFilter("all")}>
-                clear
-              </button>
-            )}
+            <div className="fridge-count-copy">
+              <strong>{filter === "all" ? `${items.length} items` : `${visibleCount} ${filterLabels[filter]}`}</strong>
+              {filter !== "all" && (
+                <button type="button" onClick={() => changeFilter("all")}>
+                  clear
+                </button>
+              )}
+            </div>
+            <Link className="fridge-add-item" href="/scan">
+              + add item
+            </Link>
           </div>
           <div className="filter-sticky-sentinel" ref={sentinelRef} aria-hidden="true" />
           <div
@@ -135,6 +143,7 @@ export function FoodList({
               filteredOut={filter !== "all" && freshness(item.expiresAt, now) !== filter}
               extended={extendedIds.includes(item._id)}
               checkIn={checkInIds.includes(item._id)}
+              highlighted={highlightedIds.includes(item._id)}
               onToggle={() => setExpanded(expanded === item._id ? null : item._id)}
               onHover={() => {
                 if (hoverOpens()) setExpanded(item._id);
