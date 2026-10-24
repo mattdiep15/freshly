@@ -132,12 +132,13 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: Stats use calendar periods, not rolling windows (team call). "Week" starts Monday 00:00 and "month" on the 1st, both in the user's time zone (`periodStart` in `lib/wasteStats.ts`). With rolling windows, ranks shifted every day as old items aged out; now they move only when someone resolves an item, and everyone resets on Monday. This changes p1-03's `summarizeWaste`, which now takes `utcOffsetMinutes`.
 - 2026-10-24: Dollars wasted shows to the user as a "$ wasted" column in the period table (team call). The leaderboard does not return it, so friends never see it.
 - 2026-10-24: The leaderboard shows a "% used" column, since it sorts on that number. The plan said to keep `Leaderboard.tsx` as is, but without the column the order looked arbitrary. Phones show rank, name, % used, and streak, and drop lbs.
+- 2026-10-24: An expired item still waiting for a swipe counts as wasted at its expiry in every stat, not only the streak: % used, lbs and $ wasted, and the leaderboard. It uses the user's toss fraction. Without this, a user could swipe only the items they used and skip the rest to show 100%. Swiping the card later moves it to used or wasted as usual.
 - 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
 
 ## Surprises
 
 - A streak longer than the days since Monday means nothing was wasted this week, so the old fixture's rows (theo: 0.7 lbs this week, 9-day streak) cannot happen. The seeded friends follow the definition: maya and theo show 0 lbs.
-- The seeded demo user ranks 4th of 5. The p1 seed resolves three of its four items this week as wasted (25% used). Its streak starts at 1, since its three swipe cards expired yesterday; tossing one drops it to 0.
+- The seeded demo user ranks last after a reseed. Its three unswiped cards count as wasted, so its week is 1 used of 7 (14%), below nina's 20%. Swiping one card as used moves it to 29%, above nina. Its streak starts at 1, since its three swipe cards expired yesterday; tossing one drops it to 0.
 - The p1 seed places the demo user's resolved items 1 to 11 days back, so a reseed early in the week puts most of them in last week. On a Monday the demo user has nothing resolved this week and ranks last. The friends' seed places this week's items inside the current week on any day.
 - The fridge holds a swipe decision for a 5-second undo window, and a full page reload inside that window drops the decision without saving it.
 - The worktree's `web/.env.local` pointed at the team dev deployment. Testing used a local anonymous deployment instead (`CONVEX_AGENT_MODE=anonymous npx convex dev`), with `ALLOW_DEMO_USER=true` set on it.

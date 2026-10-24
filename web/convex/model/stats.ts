@@ -1,10 +1,24 @@
 import { streakDays } from "../../lib/streak";
-import type { ResolvedItem } from "../../lib/wasteStats";
+import { DEFAULT_WASTED_FRACTION, type ResolvedItem } from "../../lib/wasteStats";
 import type { Id } from "../_generated/dataModel";
 import type { QueryCtx } from "../_generated/server";
 
+// Unswiped expired cards count as tossed at expiry, as in the streak, so skipping cards cannot raise % used.
 export async function loadResolved(ctx: QueryCtx, userId: Id<"users">): Promise<ResolvedItem[]> {
   const resolved: ResolvedItem[] = [];
+  const profile = await ctx.db
+    .query("profiles")
+    .withIndex("by_user", (q) => q.eq("userId", userId))
+    .unique();
+  const pending = await ctx.db
+    .query("items")
+    .withIndex("by_user_status", (q) => q.eq("userId", userId).eq("status", "expired"))
+    .collect();
+  const fractionWasted = profile?.wastedFraction ?? DEFAULT_WASTED_FRACTION;
+  for (const { expiresAt, priceCents, weightGrams } of pending) {
+    if (expiresAt === undefined) continue;
+    resolved.push({ status: "wasted", resolvedAt: expiresAt, fractionWasted, priceCents, weightGrams });
+  }
   for (const status of ["used", "wasted"] as const) {
     const rows = await ctx.db
       .query("items")
