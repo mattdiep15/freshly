@@ -4,15 +4,11 @@ import { allowedSite, needsWebLookup, pickWebRanges, type WebEntry, type WebPage
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { internalAction, internalMutation, type MutationCtx } from "./_generated/server";
+import { searchPages } from "./model/apify";
 import { askClaude } from "./model/claude";
 import { askGemini } from "./model/gemini";
 import { WEB_SHELF_LIFE_SCHEMA, webShelfLifeSystemPrompt } from "./model/llm";
 import { shelfLife } from "./schema";
-
-// 2 GB per run: the account caps all runs at 16 GB, and the plain HTTP fetcher needs little.
-const APIFY_ACTOR = "https://api.apify.com/v2/acts/apify~rag-web-browser/run-sync-get-dataset-items?memory=2048";
-// Long pages are mostly navigation and ads; the shelf-life sentences come early.
-const MAX_PAGE_CHARS = 20000;
 
 // Starts a lookup chain when any of these foods needs one; each chain claims foods one at a time.
 export async function scheduleWebLookup(ctx: MutationCtx, foodIds: (Id<"foods"> | undefined)[]) {
@@ -79,20 +75,6 @@ export const saveRanges = internalMutation({
   },
 });
 
-async function searchPages(query: string, token: string): Promise<WebPage[]> {
-  const res = await fetch(APIFY_ACTOR, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ query, maxResults: 5, outputFormats: ["markdown"], scrapingTool: "raw-http" }),
-  });
-  if (!res.ok) throw new Error(`Apify error ${res.status}: ${(await res.text()).slice(0, 200)}`);
-  const rows = (await res.json()) as { metadata?: { url?: string }; searchResult?: { url?: string }; markdown?: string }[];
-  return rows.flatMap((r) => {
-    const url = r.metadata?.url ?? r.searchResult?.url;
-    return url && r.markdown && allowedSite(url) ? [{ url, markdown: r.markdown.slice(0, MAX_PAGE_CHARS) }] : [];
-  });
-}
-
 // Gemini reads the pages for the Gemini track; Claude covers a Gemini outage or a spent free-tier quota.
 async function extract(foodName: string, pages: WebPage[]): Promise<WebEntry[]> {
   const system = webShelfLifeSystemPrompt(foodName);
@@ -115,7 +97,7 @@ export const lookupNext = internalAction({
     if (!next) return;
     try {
       // StillTasty has a page per packaged food; an OR of every allowed site returned fewer usable pages.
-      const pages = await searchPages(`${next.name.slice(0, 80)} site:stilltasty.com`, token);
+      const pages = await searchPages(`${next.name.slice(0, 80)} site:stilltasty.com`, token, allowedSite);
       const entries = pages.length > 0 ? await extract(next.name, pages) : [];
       const ranges = pickWebRanges(entries, pages);
       const result = await ctx.runMutation(internal.shelfLifeWeb.saveRanges, { foodId: next.foodId, ranges });

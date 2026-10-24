@@ -112,6 +112,62 @@ For every shelf-life figure a page states for this food, return one entry. Skip 
 Only use figures the pages state. Never estimate or fill in a figure yourself. Return no entries when the pages give none for this food.`;
 }
 
+// Mirrors WebRecipe in lib/recipeWeb.ts; the id is assigned after grounding.
+export const RECIPE_SCHEMA = {
+  type: "object",
+  properties: {
+    recipes: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          ingredients: { type: "array", items: { type: "string" } },
+          minutes: { type: "integer" },
+          dish: { type: "string", enum: ["pot", "pan", "bowl"] },
+          cookTool: { type: "string", enum: ["pot", "pan"] },
+          heat: { type: "string" },
+          servings: { type: "integer" },
+          steps: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                phase: { type: "string", enum: ["prep", "cook", "serve"] },
+                text: { type: "string" },
+                timedMinutes: nullable({ type: "integer" }),
+              },
+              required: ["phase", "text", "timedMinutes"],
+              additionalProperties: false,
+            },
+          },
+          sourceUrl: { type: "string" },
+        },
+        required: ["name", "ingredients", "minutes", "dish", "cookTool", "heat", "servings", "steps", "sourceUrl"],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ["recipes"],
+  additionalProperties: false,
+};
+
+export function recipeSystemPrompt(ingredients: string[]): string {
+  return `You pick recipes for Freshly, an app that helps a student cook food from their fridge before it goes bad. The student wants to use up: ${ingredients.join(", ")}. Each web page below starts with a line "URL: <url>".
+
+Return up to 3 recipes that use as many of those ingredients as possible.
+- Use only recipes that appear on the given pages. Never invent a recipe or combine two pages into one.
+- sourceUrl: the URL of the page the recipe is on, copied exactly as given.
+- name: the recipe's name in lowercase.
+- ingredients: every ingredient as one or two generic lowercase words, like "chicken", "spinach", "greek yogurt", "olive oil". No amounts, brands, or preparation notes.
+- minutes: total time in minutes. servings: how many people it feeds.
+- dish: what it is served in (pot for soups and stews, pan for skillet dishes and bakes, bowl for salads and bowls). cookTool: pot or pan, whichever the cooking mostly uses. heat: "low", "medium", "high", or "none".
+- steps: write the method in your own short words, one sentence per step, at most 6 steps. Each step has a phase: prep (washing, cutting, mixing), cook (anything on heat or in the oven), or serve (plating and finishing), in that order. Do not copy the page's wording.
+- timedMinutes: the minutes the page gives for that step, or null when the page gives no time for it.
+
+Return no recipes when no page has a recipe that uses any of the ingredients.`;
+}
+
 export const MANUAL_SCHEMA = {
   type: "object",
   properties: { foodName: nullable({ type: "string" }), newFood: nullable(NEW_FOOD_SCHEMA) },
