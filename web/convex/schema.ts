@@ -52,7 +52,10 @@ export default defineSchema({
     digestHour: v.number(), // local hour for the daily reminder, default 9
     wastedFraction: v.optional(v.number()), // share of a tossed item counted as wasted; DEFAULT_WASTED_FRACTION when absent
     alwaysAskSpoiled: v.optional(v.boolean()), // show the "looks spoiled?" card even when there are no days left to extend
-  }).index("by_user", ["userId"]),
+    inviteCode: v.optional(v.string()), // 6 characters, set the first time the user opens the friends view
+  })
+    .index("by_user", ["userId"])
+    .index("by_invite_code", ["inviteCode"]),
 
   foods: defineTable(foodFields).index("by_name", ["name"]),
 
@@ -108,6 +111,14 @@ export default defineSchema({
     checkedAt: v.optional(v.number()), // absent while unchecked
     checkedBy: v.optional(v.union(v.literal("user"), v.literal("receipt"))),
   }).index("by_user", ["userId"]),
+
+  // Shape from docs/exec-plans/p2-01-schema.md. One row per direction, so "my friends" is one index read.
+  friendships: defineTable({
+    userId: v.id("users"),
+    friendId: v.id("users"),
+  })
+    .index("by_user", ["userId"])
+    .index("by_pair", ["userId", "friendId"]),
 
   foodFamiliarity: defineTable({
     userId: v.id("users"),

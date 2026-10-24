@@ -2,9 +2,9 @@
 
 import { useQuery } from "convex/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { api } from "@/convex/_generated/api";
-import { demoLeaderboard } from "@/app/_demo/fixtures";
+import { AddFriendPanel, InviteConfirm } from "@/app/_components/AddFriend";
 import { Leaderboard } from "@/app/_components/Leaderboard";
 import { SettingsCard } from "@/app/_components/SettingsCard";
 import { setCommunityView, useCommunityView, type CommunityView } from "@/app/_components/useCommunityView";
@@ -17,13 +17,14 @@ function NumbersView() {
   const week = useQuery(api.stats.summary, { range: "week" });
   const month = useQuery(api.stats.summary, { range: "month" });
   const all = useQuery(api.stats.summary, { range: "all" });
-  if (!week || !month || !all) return <div className="numbers-view" aria-busy="true" />;
+  const streak = useQuery(api.stats.streak);
+  if (!week || !month || !all || !streak) return <div className="numbers-view" aria-busy="true" />;
 
   const periods = [
     { label: "this week", summary: week },
     { label: "this month", summary: month },
     { label: "all time", summary: all },
-  ].map(({ label, summary }) => ({ label, rescued: summary.itemsUsed, lbsWasted: summary.wastedLbs }));
+  ].map(({ label, summary }) => ({ label, rescued: summary.itemsUsed, lbsWasted: summary.wastedLbs, usedRate: summary.usedRate }));
 
   return (
     <div className="numbers-view">
@@ -36,7 +37,7 @@ function NumbersView() {
           totals={{
             rescued: month.itemsUsed,
             lbsWasted: month.wastedLbs,
-            usedRate: month.usedRate,
+            streakDays: streak.streakDays,
             approximate: month.itemsMissingWeight > 0,
           }}
         />
@@ -47,8 +48,9 @@ function NumbersView() {
   );
 }
 
-function FriendsView() {
-  // TODO(release): leaderboard is P2 (p2-03-community-and-streaks); this is demo data only.
+function FriendsView({ invite, onInviteDone }: { invite: string | null; onInviteDone: () => void }) {
+  const leaderboard = useQuery(api.friends.leaderboard);
+  const [adding, setAdding] = useState(false);
   return (
     <div className="friends-page">
       <section className="community-section-heading heading-with-action friends-heading">
@@ -57,12 +59,14 @@ function FriendsView() {
           <p className="eyebrow">this week</p>
           <h2>you + friends.</h2>
         </div>
-        <button className="outline-button" disabled>
-          + add a friend
+        <button className="outline-button" aria-expanded={adding} onClick={() => setAdding((open) => !open)}>
+          {adding ? "close" : "+ add a friend"}
         </button>
       </section>
+      {invite && <InviteConfirm code={invite} onDone={onInviteDone} />}
+      {adding && <AddFriendPanel />}
       <div className="friends-stage">
-        <Leaderboard entries={demoLeaderboard} />
+        {leaderboard && <Leaderboard entries={leaderboard.map((row) => (row.isYou ? { ...row, name: "you" } : row))} />}
       </div>
     </div>
   );
@@ -80,7 +84,10 @@ function Panel({ view, active, children }: { view: CommunityView; active: boolea
 function Community() {
   const view = useCommunityView();
   const router = useRouter();
-  const requested = useSearchParams().get("view");
+  const params = useSearchParams();
+  const requested = params.get("view");
+  // Kept in state because the URL is cleared below; invite links are /community?view=friends&invite=<code>.
+  const [invite, setInvite] = useState(() => params.get("invite"));
 
   // /stats and /friends redirect here with ?view=; it picks the tab once, then the URL goes back to plain /community.
   useEffect(() => {
@@ -111,7 +118,7 @@ function Community() {
         <NumbersView />
       </Panel>
       <Panel view="friends" active={view === "friends"}>
-        <FriendsView />
+        <FriendsView invite={invite} onInviteDone={() => setInvite(null)} />
       </Panel>
     </main>
   );

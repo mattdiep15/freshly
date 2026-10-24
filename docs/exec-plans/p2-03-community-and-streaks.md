@@ -90,19 +90,20 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 | `friends.inviteCode()` | mutation | `GET /api/friends/invite-code` |
 | `friends.add({ code })` | mutation | `GET /api/friends/add?code=` |
 | `friends.remove({ friendId })` | mutation | `GET /api/friends/remove?id=` |
+| `friends.invitePreview({ code })` | query | `GET /api/friends/invite-preview?code=` |
 | `friends.leaderboard()` | query | `GET /api/friends/leaderboard` |
 
 `friends.add` returns `{ friendId, name }` and throws on the cases above with a message the UI can show. `friends.leaderboard` returns the rows described in Behavior, already sorted.
 
 ## Progress
 
-- [ ] 1. `lib/streak.ts` and tests
-- [ ] 2. `convex/model/stats.ts` and `stats.streak`
-- [ ] 3. `convex/friends.ts`
-- [ ] 4. `/api` routes
-- [ ] 5. Seed friends
-- [ ] 6. Stats tab streak
-- [ ] 7. Friends tab
+- [x] 1. `lib/streak.ts` and tests
+- [x] 2. `convex/model/stats.ts` and `stats.streak`
+- [x] 3. `convex/friends.ts`
+- [x] 4. `/api` routes
+- [x] 5. Seed friends
+- [x] 6. My numbers streak
+- [x] 7. Friends view (demo user and seeded friends; two real accounts wait on sign-in)
 
 ## Validation
 
@@ -123,7 +124,16 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: Leaderboard and streaks compute on read, with no `userStats` table (p2-01).
 - 2026-10-24: Friends join by invite code or link, not by searching names, so users cannot browse other accounts.
 - 2026-10-24: Re-pointed at the v6 `/community` page (#23). `app/stats/page.tsx` and `app/friends/page.tsx` are gone, so the streak goes in `NumbersView` and the leaderboard in `FriendsView`, and the invite link is `/community?view=friends&invite=<code>` to reuse the page's `?view=` handling.
+- 2026-10-24: p2-01 was not run on its own. This plan added only `friendships`, `profiles.inviteCode`, and `by_invite_code` to `convex/schema.ts`, in the p2-01 shape; p2-04 adds the recipe table on its branch.
+- 2026-10-24: `streakInputs` uses the newest pending `expiresAt`, not the oldest the step 2 text named. The latest waste event bounds the streak, so the oldest would overstate it.
+- 2026-10-24: Added `friends.invitePreview({ code })`, a query returning `{ status: "ok" | "friends" | "self" | "unknown", name? }`, so the invite link can say "add <name> as a friend?" before anything is written.
+- 2026-10-24: Leaderboard ties after `lbsWasted` break by name, so the order is stable. A friend list is capped at 50 (`MAX_FRIENDS`).
+- 2026-10-24: v6's period table had no used-rate column, so "% used" became its fourth column when the streak took the third circle.
+- 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
 
 ## Surprises
 
-(none yet)
+- A streak of 7 or more days means nothing was wasted this week, so the old fixture's rows (theo: 0.7 lbs this week, 9-day streak) cannot happen. The seeded friends follow the definition: maya and theo show 0 lbs.
+- The seeded demo user ranks 4th of 5. The p1 seed resolves three of its four items this week as wasted (25% used). Its streak starts at 1, since its three swipe cards expired yesterday; tossing one drops it to 0.
+- The fridge holds a swipe decision for a 5-second undo window, and a full page reload inside that window drops the decision without saving it.
+- The worktree's `web/.env.local` pointed at the team dev deployment. Testing used a local anonymous deployment instead (`CONVEX_AGENT_MODE=anonymous npx convex dev`), with `ALLOW_DEMO_USER=true` set on it.

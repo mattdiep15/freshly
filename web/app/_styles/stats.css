@@ -258,3 +258,19 @@
     height: 150px;
   }
 }
+
+/* Fourth column for % used, which moved out of the third stat circle when the streak took it. */
+.week-list .thin-row {
+  grid-template-columns: 1fr 160px 160px 120px;
+}
+
+.week-list .thin-row > :nth-child(4) {
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .week-list .thin-row {
+    grid-template-columns: minmax(0, 1fr) 56px 48px 44px;
+    column-gap: 10px;
+  }
+}

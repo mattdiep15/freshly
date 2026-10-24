@@ -114,6 +114,7 @@ export async function seedDemo(ctx: MutationCtx) {
     }
   }
   await seedGrocery(ctx, userId);
+  await seedFriends(ctx, userId, now);
   return { userId, email: user?.email, items: ITEMS.length, reference };
 }
 
@@ -128,6 +129,92 @@ async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
       .withIndex("by_name", (q) => q.eq("name", name))
       .unique();
     await ctx.db.insert("groceryItems", { userId, name, foodId: food?._id });
+  }
+}
+
+// p2-03's friends. Streak is local days since the last toss, so a streak of 7 or more means nothing wasted this week.
+// Leaderboard order by weekly used rate: maya, theo, dev, you, nina.
+type FriendItem = { name: string; grams: number; resolvedDaysAgo: number; wasted?: true };
+const FRIENDS: { name: string; code: string; items: FriendItem[] }[] = [
+  {
+    name: "maya",
+    code: "MAYA42",
+    items: [
+      { name: "Kale", grams: 90, resolvedDaysAgo: 18, wasted: true },
+      ...[1, 2, 3, 4, 6].map((d) => ({ name: "Carrots", grams: 450, resolvedDaysAgo: d })),
+    ],
+  },
+  {
+    name: "theo",
+    code: "THEX27",
+    items: [
+      { name: "Tortillas", grams: 320, resolvedDaysAgo: 9, wasted: true },
+      { name: "Tofu", grams: 400, resolvedDaysAgo: 2 },
+      { name: "Rice", grams: 900, resolvedDaysAgo: 5 },
+    ],
+  },
+  {
+    name: "dev",
+    code: "DEVV58",
+    items: [
+      { name: "Cilantro", grams: 500, resolvedDaysAgo: 6, wasted: true },
+      ...[1, 3, 5].map((d) => ({ name: "Pasta", grams: 450, resolvedDaysAgo: d })),
+    ],
+  },
+  {
+    name: "nina",
+    code: "NINA36",
+    items: [
+      { name: "Avocados", grams: 150, resolvedDaysAgo: 6, wasted: true },
+      { name: "Berries", grams: 150, resolvedDaysAgo: 5, wasted: true },
+      { name: "Bagels", grams: 175, resolvedDaysAgo: 5, wasted: true },
+      { name: "Hummus", grams: 160, resolvedDaysAgo: 4, wasted: true },
+      { name: "Oats", grams: 500, resolvedDaysAgo: 2 },
+    ],
+  },
+];
+
+async function seedFriends(ctx: MutationCtx, demoId: Id<"users">, now: number) {
+  for (const row of await ctx.db.query("friendships").withIndex("by_user", (q) => q.eq("userId", demoId)).collect()) {
+    await ctx.db.delete(row._id);
+  }
+  for (const friend of FRIENDS) {
+    const email = `${friend.name}@freshly.test`;
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (q) => q.eq("email", email))
+      .unique();
+    const friendId = user?._id ?? (await ctx.db.insert("users", { name: friend.name, email }));
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", friendId))
+      .unique();
+    const profileFields = { userId: friendId, displayName: friend.name, utcOffsetMinutes: -420, digestHour: 9, inviteCode: friend.code };
+    if (profile) await ctx.db.patch(profile._id, profileFields);
+    else await ctx.db.insert("profiles", profileFields);
+
+    const stale = [
+      ...(await ctx.db.query("items").withIndex("by_user_status", (q) => q.eq("userId", friendId)).collect()),
+      ...(await ctx.db.query("friendships").withIndex("by_user", (q) => q.eq("userId", friendId)).collect()),
+    ];
+    for (const row of stale) await ctx.db.delete(row._id);
+    await ctx.db.insert("friendships", { userId: demoId, friendId });
+    await ctx.db.insert("friendships", { userId: friendId, friendId: demoId });
+
+    // No foodId or expiry: these rows only feed the friend's weekly numbers and streak.
+    for (const item of friend.items) {
+      await ctx.db.insert("items", {
+        userId: friendId,
+        name: item.name,
+        quantity: 1,
+        weightGrams: item.grams,
+        location: "fridge",
+        purchasedAt: now - 30 * DAY,
+        status: item.wasted ? "wasted" : "used",
+        fractionWasted: item.wasted ? 1 : 0,
+        resolvedAt: now - item.resolvedDaysAgo * DAY,
+      });
+    }
   }
 }
 
