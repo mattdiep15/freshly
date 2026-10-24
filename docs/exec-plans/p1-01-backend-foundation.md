@@ -74,19 +74,23 @@ items: {
   status: "draft" | "active" | "expired" | "used" | "wasted",
   fractionWasted?: number,        // 0..1, set when status becomes used or wasted
   resolvedAt?: number,
-}  index by_user_status [userId, status], index by_status_expires [status, expiresAt]
+}  index by_user_status [userId, status, expiresAt], index by_status_expires [status, expiresAt],
+   index by_receipt [receiptId]
 
 foodFamiliarity: { userId, foodId, timesAdded: number, tipViews: number }
   index by_user_food [userId, foodId]
 
 pushSubscriptions: { userId, endpoint: string, p256dh: string, auth: string }
-  index by_user [userId]
+  index by_user [userId], index by_endpoint [endpoint]
 
 notifications: {
   userId, kind: "digest", dateKey: string,  // "2026-10-24" in the user's local time
   title: string, body: string, itemIds: Id<"items">[], readAt?: number,
+  undatedCount?: number,          // set when the digest nudged about undated items, for the weekly limit
 }  index by_user_date [userId, dateKey]
 ```
+
+Schema changes made during p1-01 (2026-10-23): `by_user_status` gained `expiresAt` as a third field, so a user's items come back sorted by expiry (queries on `[userId, status]` still work as a prefix). Added `items.by_receipt` for `receipts.get` and `items.confirmDrafts`, `pushSubscriptions.by_endpoint` so `push.saveSubscription` can upsert, and `notifications.undatedCount` so `lifecycle.tick` can limit the undated nudge to once a week. Validators shared by these tables (`location`, `shelfLife`, `itemStatus`, `foodFields`, ...) are exported from `convex/schema.ts`.
 
 Item status flow: `draft` (parsed from a receipt, not yet confirmed) to `active` (in the fridge) to `expired` (past `expiresAt`, waiting for a swipe) to `used` or `wasted`. A user can also mark an `active` item `used` or `wasted` before it expires. Items without `expiresAt` stay `active` until the user resolves them or sets a date.
 
@@ -115,16 +119,26 @@ Rules:
 
 Browser requests to these routes carry no Convex auth token. To make them usable before the sign-in UI exists, `getUserId(ctx)` returns the signed-in user, and if there is none and the Convex env var `ALLOW_DEMO_USER` is `"true"`, it returns the seeded demo user. Set that variable on the dev deployment only, and tag the fallback `// TODO(release): remove demo-user fallback`.
 
+A route that reads no request input (no `req.url`, no headers) calls `await connection()` from `next/server` first, so `next build` never tries to prerender it. See `app/api/dev/seed/route.ts`. A Convex error currently surfaces as a 500 from Next.js; the message is in the dev server log.
+
+## Running locally
+
+1. `npm install`, then `npm run dev`. With no Convex login, `convex dev` uses the local anonymous deployment named in `.env.local` (`CONVEX_DEPLOYMENT=anonymous:anonymous-agent`, backend on `http://127.0.0.1:3210`). On a fresh clone with no `.env.local`, create it once with `CONVEX_AGENT_MODE=anonymous npx convex dev --once`.
+2. Set the dev-only env vars on that deployment. Convex Auth needs `JWT_PRIVATE_KEY`, `JWKS`, and `SITE_URL`; `npx @convex-dev/auth` generates and sets all three. Then run `npx convex env set ALLOW_DEMO_USER true`.
+3. Open `http://localhost:3000/api/dev/seed`. On an empty deployment it also imports the reference foods.
+
+To move to a real team project, someone runs `npx convex login`, then `npx convex dev --configure existing` (or `new`) and picks the team's project. That rewrites `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` in `.env.local`. Repeat step 2 against the new dev deployment, never the production one, and run `npx convex run foods:importReference`. Local data does not carry over.
+
 ## Progress
 
 - [x] 1. Scaffold Next.js at the repo root (2026-10-23: Next.js 16.4, Tailwind 4, `/api/health` live, `npm run typecheck` added)
-- [ ] 2. Add Convex and a combined dev script
-- [ ] 3. Add vitest and `npm test`
-- [ ] 4. Add auth and `getUserId`
-- [ ] 5. Write `convex/schema.ts`
-- [ ] 6. Load the FDA chart into `foods`
-- [ ] 7. Import USDA FoodKeeper into `foods`
-- [ ] 8. Add the demo seed and its `/api` route
+- [x] 2. Add Convex and a combined dev script (2026-10-23: local anonymous deployment, `concurrently`)
+- [x] 3. Add vitest and `npm test` (2026-10-23: vitest 5, `lib/placeholder.test.ts`)
+- [x] 4. Add auth and `getUserId` (2026-10-23: client-side `ConvexAuthProvider`, see Decision log)
+- [x] 5. Write `convex/schema.ts` (2026-10-23: four additions, listed under Schema)
+- [x] 6. Load the FDA chart into `foods` (2026-10-23: 55 rows from `scripts/fdaChart.mjs`)
+- [x] 7. Import USDA FoodKeeper into `foods` (2026-10-23: 649 rows from FoodKeeper data v128; milk has no fridge range, see Surprises)
+- [x] 8. Add the demo seed and its `/api` route (2026-10-23: 17 items)
 
 ## Steps
 
@@ -157,7 +171,17 @@ Browser requests to these routes carry no Convex auth token. To make them usable
 | --- | --- | --- |
 | `foods.importReference` | internal mutation | `npx convex run foods:importReference` |
 | `seed.demo` (via `dev.reseed`) | internal mutation | `GET /api/dev/seed` |
+| `profiles.me` | query | `GET /api/profiles/me` |
 | `getUserId(ctx)` | helper in `convex/model/auth.ts` | used by every public function |
+| `mergeReferenceFood` | pure function in `lib/referenceMerge.ts` | `npm test` |
+
+Notes for p1-02 and p1-03:
+
+- `getUserId` takes a query or mutation context. An action (such as p1-02's `items.addManual`) gets the user by calling a query or mutation through `ctx.runQuery` or `ctx.runMutation`, which carry the caller's auth.
+- Seeded items have `expiresAt` and `purchasedAt` that agree with their food's sourced range (`purchasedAt = expiresAt - range.min`), so `expiryFor` from p1-02 reproduces them.
+- The demo user is `demo@freshly.test` with UTC offset -420 and `digestHour` 9. Its whole milk has no `expiresAt`.
+- Food names are lowercase. FDA rows use short names ("ground beef", "chicken breast"). FoodKeeper rows use "name, subtitle" ("cheese, hard such as cheddar, swiss, block parmesan"), except a few renamed to what receipts say: "milk", "spinach", "lettuce", "butter", "yogurt". Rows that duplicate an FDA food are merged into it, and the FoodKeeper label becomes an alias.
+- No signed-up user gets a `profiles` row yet. Whoever builds the sign-in flow should create it, with the browser's UTC offset.
 
 ## Validation
 
@@ -169,6 +193,8 @@ Browser requests to these routes carry no Convex auth token. To make them usable
 - After `npm run build && npm start`, `GET /api/dev/seed` returns 404.
 - `grep -r "TODO(release)"` lists the demo-user fallback and `dev.reseed`.
 
+Result on 2026-10-23: all seven pass. `foods` has 673 rows and 1026 ranges, every one with `source` and `ref`. Two runs of `foods:importReference` both end at 673 rows. Two runs of `/api/dev/seed` each leave 17 demo items (3 expired, 3 at 1, 3, and 7 days, 2 fresh, 1 undated, 8 resolved). `next start` answers 404 on `/api/dev/seed`. With `ALLOW_DEMO_USER` unset, `npx convex run profiles:me` throws "Not signed in"; a Password sign-up through `auth:signIn` returns tokens, and `profiles:me` with that user's identity returns its id. The step 7 check fails for milk (see Surprises).
+
 ## Decision log
 
 - 2026-10-23: Use Convex for the whole backend, with no separate API server. `CLAUDE.md` and the product spec already pick Convex, and it covers file storage, scheduled jobs, and external API calls.
@@ -176,7 +202,19 @@ Browser requests to these routes carry no Convex auth token. To make them usable
 - 2026-10-23: Browser-testable `/api` routes instead of terminal scripts, at the team's request. A demo-user fallback gated by a dev-only Convex env var makes them work before sign-in exists.
 - 2026-10-23: Shelf-life values come only from the FDA chart, FoodKeeper, or the user, per `CLAUDE.md`. FoodKeeper moved from optional to required because without it most grocery items have no sourced value.
 - 2026-10-23: Kept Tailwind from the `create-next-app` default, approved by Leo.
+- 2026-10-23: Dev runs against a local anonymous Convex deployment (`CONVEX_AGENT_MODE=anonymous`), because the agent that built p1-01 could not log in to Convex. Nothing in the code depends on it. "Running locally" says how to switch to a team project.
+- 2026-10-23: Convex Auth runs client-side only: `ConvexAuthProvider` from `@convex-dev/auth/react` inside `app/ConvexClientProvider.tsx`. The Next.js setup puts `ConvexAuthNextjsServerProvider` in the root layout, which reads cookies at the top of the layout. With `cacheComponents` on, that is a build error unless the whole body sits in `<Suspense>`, and the frontend branch is rewriting the layout. Tokens live in localStorage, and there is no `proxy.ts`. Server components and route handlers cannot see the session; the `/api` routes use the demo user instead. Moving to the server provider later is a layout change plus a `proxy.ts`.
+- 2026-10-23: Unit conversion for both sources: a week is 7 days, a month 30, a year 365, an hour 1/24 day. "Don't freeze" and blank cells become no range.
+- 2026-10-23: The FDA chart is transcribed in `scripts/fdaChart.mjs`, which writes `convex/data/fdaChart.json`. Rows that cover several foods ("Ground turkey, veal, pork, lamb", "Chicken or turkey, parts", "Fresh shrimp, scallops, crawfish, squid") are split into one row per food with the same range and `ref`, so receipt matching can pick a specific name. Aliases such as "salmon" on "fatty fish" are matching hints chosen by the builder, not chart text.
+- 2026-10-23: FoodKeeper mapping (`scripts/foodkeeper.mjs`): for each location, use the "from date of purchase" column (`DOP_*`) when it has a metric, else the plain column. A range with no low end is dropped instead of filled in. Non-numeric metrics ("Package use-by date", "When Ripe", "Indefinitely", "Not Recommended") and FoodKeeper's tips go into `storageTip` with `source: "foodkeeper"`. After-opening and after-thawing columns are ignored. Baby food is skipped. `defaultLocation` is the pantry for fruit that ripens there, else the longest sourced storage between pantry and fridge, and the freezer for the "Food Purchased Frozen" category.
+- 2026-10-23: `foods.importReference` takes no arguments. It imports the two JSON files bundled into the function, FDA first, through `mergeReferenceFood`: per location the FDA range beats FoodKeeper, which beats nothing, and ties go to the incoming value. Tips rank FDA over FoodKeeper over `llm`. Re-running it changes nothing. `seed.demo` runs it when `foods` is empty.
+- 2026-10-23: vitest 5.0.5 and `@types/node` 22.20.5, matching the frontend branch so the lockfiles do not conflict on rebase.
 
 ## Surprises
+
+- 2026-10-23: fsis.usda.gov answers `curl` with 403 (Akamai). The FoodKeeper export was read in a browser from `https://www.fsis.usda.gov/shared/data/EN/foodkeeper.json` (file `FMA-Data-v128.xlsx`, data version 128, Last-Modified 2018-09-07, SHA-256 `037df0d301126acd8a48824506f04d49d8be1a1144b81fa69e4170228dc2e91a`), reduced to the columns the mapper uses, and checked by SHA-256 after transfer. To refresh, download that file in a browser and run `node scripts/foodkeeper.mjs <file>`.
+- 2026-10-23: FoodKeeper has no numeric fridge range for milk. It says "Package use-by date" (product 27), so the step 7 check fails for milk on purpose: `milk` has only `freezerDays` (3 months) and a tip to follow the package date. Plant milks are the same. Spinach (product 291, 3 - 7 days) and eggs (FDA, 3 - 5 weeks) pass. If the team wants a default milk date, it needs another source added to `CLAUDE.md`.
+- 2026-10-23: FoodKeeper product 574 (homemade bread) lists "Refrigerate 2 - 3 Months", which looks like the freezer value in the wrong column. The mapper skips that one range (`SKIP` in `scripts/foodkeeper.mjs`), so homemade bread has only its 3 - 5 day pantry range.
+- 2026-10-23: Port 3001 is taken by the frontend branch's dev server; this plan's checks ran on 3002 (`PORT=3002 npm run dev`).
 
 - 2026-10-23: `create-next-app` installed Next.js 16.4 with `cacheComponents` on. With `cacheComponents`, a `GET` handler that reads `req.url` or calls Convex runs per request, so the `/api` routes are not cached. `tsc` alone misses route types, so `npm run typecheck` runs `next typegen` first.

@@ -6,9 +6,9 @@ The designer is still working on the UI, so the P1 plans cover the backend only.
 
 | Plan | Tier | Covers | Status | Estimate |
 | --- | --- | --- | --- | --- |
-| [p1-01-backend-foundation.md](p1-01-backend-foundation.md) | P1 | Convex project, vitest, schema, auth, sourced shelf-life data, demo seed | In progress, step 1 of 8 done | ~4 h |
-| [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, item matching, expiry dates, storage tips for unfamiliar foods | Ready after p1-01 | ~4-5 h |
-| [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards, waste stats | Ready after p1-01 | ~4-5 h |
+| [p1-01-backend-foundation.md](p1-01-backend-foundation.md) | P1 | Convex project, vitest, schema, auth, sourced shelf-life data, demo seed | Done; milk has no sourced fridge range (see Surprises) | ~4 h |
+| [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, item matching, expiry dates, storage tips for unfamiliar foods | Ready | ~4-5 h |
+| [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards, waste stats | Ready | ~4-5 h |
 | [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, location reminders, takeout leftovers | Draft | not estimated |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes, speech, Wrapped Waste | Draft | not estimated |
 
