@@ -4383,10 +4383,6 @@ footer {
 
 /* Spacious two-line filters that compact only while stuck. */
 @media (max-width: 767px) {
-  .fridge-count-title {
-    margin-bottom: 16px;
-  }
-
   .fridge-count-title strong {
     font-size: 20px;
   }
@@ -4396,31 +4392,15 @@ footer {
   }
 
   .fridge-filter-tabs {
-    width: calc(100% + 32px);
     height: auto;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-auto-flow: column;
-    gap: 8px;
-    align-items: stretch;
-    justify-content: stretch;
-    margin-right: -16px;
-    margin-left: -16px;
-    border-bottom: 1px solid var(--ink);
-    padding: 0 16px 16px;
   }
 
   .fridge-filter-tabs button {
-    width: 100%;
-    height: 60px;
-    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 5px;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--ink);
-    padding: 10px;
     box-sizing: border-box;
     text-align: center;
   }
@@ -4474,18 +4454,11 @@ footer {
     background-color: var(--ink);
   }
 
-  .fridge-screen .food-list {
-    margin-top: 16px;
-  }
-
   .fridge-filter-tabs.is-compact {
-    height: 45px;
-    gap: 8px;
     padding: 0 16px;
   }
 
   .fridge-filter-tabs.is-compact button {
-    height: 44px;
     flex-direction: row;
     gap: 4px;
     padding: 0 4px;
@@ -4649,11 +4622,6 @@ footer {
   .fridge-filter-tabs {
     position: sticky;
     z-index: 15;
-    top: calc(max(calc(env(safe-area-inset-top) + 12px), 56px) + 56px);
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0;
     border-bottom: 1px solid var(--ink);
     padding: 8px 0;
     background: var(--paper);
@@ -4802,7 +4770,6 @@ footer {
   }
 }
 
-.swipe-mascot--decision,
 .mobile-swipe-hint,
 .swipe-label-mobile {
   display: none;
@@ -4813,21 +4780,13 @@ footer {
   .swipe-takeover {
     position: fixed;
     z-index: 19;
-    inset: 0 0 calc(64px + env(safe-area-inset-bottom));
-    display: block;
-    overflow: hidden;
     padding: 0;
     background: var(--paper);
   }
 
   .swipe-card,
   .swipe-card--step-2 {
-    position: absolute;
-    inset: 16px 16px 16px;
-    width: auto;
-    height: auto;
     min-height: 0;
-    max-height: none;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -4837,8 +4796,6 @@ footer {
     overflow-x: hidden;
     overflow-y: auto;
     border: 2px solid var(--ink);
-    border-radius: 44px;
-    padding: max(72px, calc(env(safe-area-inset-top) + 64px)) 16px 16px;
     background: var(--paper);
     touch-action: pan-y;
   }
@@ -4848,7 +4805,6 @@ footer {
   .swipe-kicker {
     position: absolute;
     z-index: 3;
-    top: max(16px, env(safe-area-inset-top));
     height: 44px;
     display: flex;
     align-items: center;
@@ -4896,7 +4852,6 @@ footer {
   .spoil-food-name {
     margin: 8px 0 0;
     font-family: var(--font-display), sans-serif;
-    font-size: 26px;
     font-weight: 400;
     letter-spacing: 0.04em;
     line-height: 1.05;
@@ -4904,52 +4859,29 @@ footer {
   }
 
   .swipe-card--step-1 > .swipe-food-art {
-    width: min(180px, 100%);
-    height: 200px;
     flex: 0 0 200px;
-    margin: 12px 0;
     object-fit: contain;
   }
 
   .swipe-card--step-1 > h1 {
     max-width: 100%;
     margin: 16px 0 0;
-    font-size: 36px;
-    line-height: 0.98;
     text-align: center;
   }
 
-  .swipe-card .swipe-mascot--decision {
-    width: auto;
-    height: 90px;
-    display: block;
-    flex: 0 0 90px;
-    margin: 12px 0 0;
-    object-fit: contain;
-  }
+  
 
   .swipe-card .swipe-actions,
   .swipe-card--step-2 .spoil-question-column .swipe-actions {
     z-index: 2;
-    width: 100%;
-    min-height: 56px;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
     flex: 0 0 auto;
     align-self: stretch;
-    margin: auto 0 0;
     padding-top: 16px;
-    background: var(--paper);
   }
 
   .swipe-card .swipe-actions button,
   .swipe-card--step-2 .spoil-question-column .swipe-actions button {
-    width: 100%;
     min-width: 0;
-    height: 56px;
-    min-height: 56px;
-    border: 2px solid var(--ink);
     padding: 0 6px;
     background: var(--paper);
     color: var(--ink);
@@ -4971,7 +4903,6 @@ footer {
     bottom: 0;
     width: 100%;
     height: 28px;
-    display: flex;
     flex: 0 0 28px;
     align-items: flex-end;
     justify-content: center;
@@ -4996,17 +4927,12 @@ footer {
   }
 
   .swipe-card--step-2 .spoil-food-art {
-    width: 100%;
-    height: 170px;
     display: grid;
     flex: 0 0 170px;
     place-items: center;
-    margin: 12px 0;
   }
 
   .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
-    width: min(150px, 100%);
-    height: 150px;
     margin: 0;
     object-fit: contain;
   }
@@ -5016,49 +4942,27 @@ footer {
   }
 
   .swipe-card--step-2 .spoil-question-column h1 {
-    width: 100%;
     margin: 16px 0 0;
-    font-size: 32px;
-    line-height: 1;
-    text-align: left;
   }
 
   .swipe-card--step-2 .spoil-check-box {
-    width: 100%;
     box-sizing: border-box;
-    margin-top: 12px;
-    border: 1px solid var(--ink);
-    padding: 12px;
   }
 
   .swipe-card--step-2 .spoil-check-box strong {
-    display: block;
     margin: 0 0 6px;
     font-family: var(--font-display), sans-serif;
     font-size: 20px;
     font-weight: 400;
   }
 
-  .swipe-card--step-2 .spoil-check-box p {
-    margin: 0;
-    font-size: 15px;
-    letter-spacing: 0.02em;
-    line-height: 1.3;
-  }
-
   .swipe-card--step-2 .spoil-hint {
-    width: 100%;
     margin: 10px 0 0;
     padding: 0;
-    color: rgb(0 0 0 / 70%);
-    font-size: 13px;
     letter-spacing: 0.02em;
-    line-height: 1.3;
   }
 
-  .swipe-card--step-2 .swipe-mascot--check {
-    display: none;
-  }
+  
 
   .swipe-card--step-2 .spoil-question-column .swipe-actions .used-choice {
     order: 2;
@@ -5119,11 +5023,6 @@ footer {
     right: 16px;
     bottom: calc(108px + max(env(safe-area-inset-bottom), 24px));
     left: 16px;
-    width: auto;
-    height: auto;
-    max-height: none;
-    overflow: hidden;
-    padding: 72px 16px 84px;
   }
 
   .swipe-back,
@@ -5134,73 +5033,13 @@ footer {
     top: 16px;
   }
 
-  .swipe-card--step-1 > p,
-  .spoil-food-name {
-    margin-top: 8px;
-  }
-
-  .swipe-card--step-1 > .swipe-food-art,
-  .swipe-card--step-2 .spoil-food-art {
-    width: 100%;
-    height: clamp(110px, calc(31dvh - 88px), 170px);
-    flex-basis: clamp(110px, calc(31dvh - 88px), 170px);
-    margin: 8px 0;
-  }
-
   .swipe-card--step-1 > .swipe-food-art {
     max-width: 180px;
-  }
-
-  .swipe-card--step-2 .spoil-food-art .swipe-food-art--check {
-    width: min(150px, 100%);
-    height: 100%;
-  }
-
-  .swipe-card--step-1 > h1 {
-    margin-top: 8px;
-  }
-
-  .swipe-card--step-2 .spoil-question-column h1 {
-    margin-top: 0;
-    font-size: 30px;
-    line-height: 0.96;
-  }
-
-  .swipe-card--step-2 .spoil-check-box {
-    margin-top: 8px;
-    padding: 8px 12px;
   }
 
   .swipe-card--step-2 .spoil-check-box strong {
     margin-bottom: 2px;
     line-height: 1;
-  }
-
-  .swipe-card--step-2 .spoil-check-box p {
-    line-height: 1.2;
-  }
-
-  .swipe-card--step-2 .spoil-hint {
-    margin-top: 8px;
-    line-height: 1.2;
-  }
-
-  .swipe-card .swipe-actions,
-  .swipe-card--step-2 .spoil-question-column .swipe-actions {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    left: 16px;
-    width: auto;
-    min-height: 52px;
-    margin: 0;
-    padding: 0;
-  }
-
-  .swipe-card .swipe-actions button,
-  .swipe-card--step-2 .spoil-question-column .swipe-actions button {
-    height: 52px;
-    min-height: 52px;
   }
 
   .mobile-swipe-hint {
@@ -5221,14 +5060,6 @@ footer {
     left: 12px;
   }
 
-  .swipe-card .swipe-mascot--decision {
-    display: none;
-  }
-
-  .swipe-card--step-1 > h1 {
-    font-size: 34px;
-  }
-
   .swipe-card--step-2 .spoil-food-name {
     line-height: 1;
   }
@@ -5245,14 +5076,8 @@ footer {
 
   body .app-shell:has(.mobile-page-scroll) {
     width: 100%;
-    height: 100dvh;
-    min-height: 100dvh;
-    max-height: 100dvh;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-right: 16px;
-    padding-bottom: 0;
-    padding-left: 16px;
     scrollbar-width: none;
     -ms-overflow-style: none;
     overscroll-behavior-y: contain;
@@ -5263,17 +5088,12 @@ footer {
     position: sticky;
     z-index: 20;
     top: 0;
-    flex: 0 0 auto;
     background: var(--paper);
   }
 
   .mobile-page-scroll {
-    min-height: 0;
-    display: block;
-    flex: 0 0 auto;
     overflow: visible;
     margin-bottom: 0;
-    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
   }
 
   html,
@@ -5322,32 +5142,6 @@ footer {
     padding-bottom: 80px;
   }
 
-  .swipe-card--step-1 > p,
-  .spoil-food-name {
-    margin-top: 6px;
-    font-size: 24px;
-  }
-
-  .swipe-card--step-1 > .swipe-food-art,
-  .swipe-card--step-2 .spoil-food-art {
-    height: clamp(110px, calc(23dvh - 42px), 145px);
-    flex-basis: clamp(110px, calc(23dvh - 42px), 145px);
-    margin: 6px 0;
-  }
-
-  .swipe-card--step-1 > h1 {
-    margin-top: 6px;
-    font-size: 32px;
-  }
-
-  .swipe-card--step-2 .spoil-question-column h1 {
-    font-size: 28px;
-  }
-
-  .swipe-card--step-2 .spoil-check-box,
-  .swipe-card--step-2 .spoil-hint {
-    margin-top: 6px;
-  }
 }
 
 /* Auto-height mobile swipe cards with an attached curved action bar. */
@@ -5397,30 +5191,9 @@ footer {
     line-height: 1;
   }
 
-  .swipe-card .swipe-mascot--decision {
-    width: auto;
-    height: 90px;
-    display: block;
-    flex: 0 0 90px;
-    margin: 12px 0;
-    object-fit: contain;
-  }
-
-  .swipe-card--step-2 .spoil-check-box {
-    margin-top: 12px;
-  }
-
-  .swipe-card--step-2 .spoil-hint {
-    margin-top: 8px;
-  }
-
   .swipe-card .swipe-actions,
   .swipe-card--step-2 .spoil-question-column .swipe-actions {
     position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    width: 100%;
     height: 62px;
     min-height: 62px;
     display: grid;
@@ -5438,7 +5211,6 @@ footer {
     height: 60px;
     min-height: 60px;
     border: 0;
-    border-radius: 0;
     transition:
       background-color 100ms ease,
       color 100ms ease;
@@ -5718,13 +5490,6 @@ footer {
 }
 
 @media (max-width: 767px) and (max-height: 700px) {
-  .swipe-card--step-2 .spoil-food-art {
-    height: clamp(120px, 22dvh, 150px);
-    flex-basis: clamp(120px, 22dvh, 150px);
-  }
-}
-
-@media (max-width: 767px) and (max-height: 700px) {
   .swipe-card,
   .swipe-card--step-2 {
     padding: 64px 12px 66px;
@@ -5749,12 +5514,7 @@ footer {
     font-size: 34px;
   }
 
-  .swipe-card .swipe-mascot--decision {
-    height: 60px;
-    display: block;
-    flex-basis: 60px;
-    margin: 6px 0;
-  }
+  
 
   .swipe-card--step-2 .spoil-check-box {
     margin-top: 6px;
@@ -5845,15 +5605,8 @@ footer {
 @media (max-width: 767px) {
   .fridge-screen .fullness-preview {
     position: relative;
-    width: 100%;
-    max-width: 300px;
     align-self: center;
     overflow: visible;
-  }
-
-  .fridge-screen .fullness-art {
-    width: 100%;
-    max-width: 300px;
   }
 
   .fridge-screen .stock-tooltip {
@@ -6013,17 +5766,9 @@ footer {
     text-align: center;
   }
 
-  .fridge-screen .stage-toggle {
-    order: 4;
-    align-self: center;
-    justify-content: center;
-    margin: 12px 0 0;
-  }
+  
 
-  .fridge-screen .stage-toggle button {
-    min-width: 44px;
-    min-height: 44px;
-  }
+  
 
   .fridge-screen .fridge-list-stage {
     margin-top: 32px;
