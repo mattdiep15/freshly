@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { FoodArt } from "@/app/_components/ui/FoodArt";
+import { Leekly } from "@/app/_components/ui/Leekly";
 import { StatusPill } from "@/app/_components/ui/StatusPill";
 
 export type SwipeResult = "used" | "wasted";
@@ -63,6 +65,8 @@ export function SwipeTakeover({
   return (
     <div className={`swipe-takeover ${result ? `result-${result}` : ""}`} role="dialog" aria-modal="true">
       <p className="eyebrow">quick check-in</p>
+      <span className="swipe-edge swipe-edge--left">wasted</span>
+      <span className="swipe-edge swipe-edge--right">used</span>
       <div
         className={`swipe-card ${result ? `swipe-${result}` : ""}`}
         style={dragStyle}
@@ -73,6 +77,8 @@ export function SwipeTakeover({
       >
         <StatusPill status="expired" />
         <p>{itemName}</p>
+        <FoodArt name={itemName} className="swipe-food-art" />
+        <Leekly className="swipe-mascot" />
         <h1>{result === "used" ? "nice save." : result === "wasted" ? "noted." : "did you use it?"}</h1>
         {!result && (
           <div className="swipe-actions">

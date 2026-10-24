@@ -2594,3 +2594,10 @@ footer {
   user-select: none;
 }
 
+
+/* The receipt img rule above would otherwise frame the mascot like a photo. */
+.receipt-preview .preview-photoleek {
+  width: 80px;
+  height: 160px;
+  border: 0;
+}
