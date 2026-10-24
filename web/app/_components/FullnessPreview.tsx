@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-
-export type FullnessStage = 10 | 40 | 70 | 100;
+import type { FullnessStage } from "@/lib/fullness";
 
 export const fullnessLabels: Record<FullnessStage, string> = {
   10: "nearly empty.",

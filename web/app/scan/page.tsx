@@ -14,6 +14,7 @@ function Scan() {
       receiptId={receiptId}
       onReceipt={(id) => router.replace(id ? `/scan?receipt=${id}` : "/scan")}
       onDone={() => router.push("/fridge")}
+      onManualAdded={(itemIds) => router.push(`/fridge?added=${itemIds.join(",")}`)}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -9,6 +9,7 @@ import { dateInputValue, endOfLocalDay } from "@/lib/freshness";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
 import { errorMessage } from "@/app/_components/errorMessage";
 import { shrinkImage } from "@/app/_components/shrinkImage";
+import { ManualEntryCard } from "@/app/_components/ManualEntryCard";
 import { Leekly } from "@/app/_components/ui/Leekly";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 
@@ -17,51 +18,7 @@ type Receipt = { file: File; previewUrl: string };
 // Mirrors MAX_PDF_BYTES in convex/receiptsNode.ts.
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 
-function ManualAdd({ onDone }: { onDone: () => void }) {
-  const addManual = useAction(api.receiptsNode.addManual);
-  const [adding, setAdding] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  return (
-    <form
-      className="manual-add"
-      onSubmit={async (event) => {
-        event.preventDefault();
-        const form = new FormData(event.currentTarget);
-        const name = String(form.get("name") ?? "").trim();
-        const date = String(form.get("date") ?? "");
-        if (!name) return;
-        setAdding(true);
-        setError(null);
-        try {
-          await addManual({ name, expiresAt: date ? endOfLocalDay(date) : undefined });
-          onDone();
-        } catch (e) {
-          setError(errorMessage(e));
-          setAdding(false);
-        }
-      }}
-    >
-      <p className="eyebrow">or type it instead</p>
-      <div className="manual-fields">
-        <label>
-          food
-          <input name="name" required placeholder="greek yogurt" autoComplete="off" />
-        </label>
-        <label>
-          good until (optional)
-          <input name="date" type="date" />
-        </label>
-        <button className="add-button" disabled={adding}>
-          {adding ? "adding..." : "add"}
-        </button>
-      </div>
-      {error && <p className="scan-error">{error}</p>}
-    </form>
-  );
-}
-
-function ReceiptOptions({ onPick, onDone }: { onPick: (file?: File) => void; onDone: () => void }) {
+function ReceiptOptions({ onPick, onManual }: { onPick: (file?: File) => void; onManual: () => void }) {
   return (
     <>
       <div className="receipt-options">
@@ -76,14 +33,13 @@ function ReceiptOptions({ onPick, onDone }: { onPick: (file?: File) => void; onD
           <input type="file" accept="image/*,.pdf" onChange={(e) => onPick(e.target.files?.[0])} />
           <Leekly pose="file" className="file-leek" />
           <span className="file-choice-copy">
-            <svg className="upload-file-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 2h9l5 5v15H5zM14 2v5h5" />
-            </svg>
             <strong>upload from files</strong>
           </span>
         </label>
       </div>
-      <ManualAdd onDone={onDone} />
+      <button type="button" className="add-button manual-entry-trigger" onClick={onManual}>
+        + add manually
+      </button>
     </>
   );
 }
@@ -102,7 +58,6 @@ function ReceiptPreview({ receipt, error, onRetake, onContinue }: {
         // eslint-disable-next-line @next/next/no-img-element -- local blob preview, nothing to optimize
         <img src={receipt.previewUrl} alt="Captured receipt preview" />
       )}
-      <Leekly pose="photo" className="preview-photoleek" />
       {error && <p className="scan-error">{error}</p>}
       <div>
         <button className="outline-button" onClick={onRetake}>
@@ -273,16 +228,18 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
   );
 }
 
-export function ScanFlow({ receiptId, onReceipt, onDone }: {
+export function ScanFlow({ receiptId, onReceipt, onDone, onManualAdded }: {
   receiptId: Id<"receipts"> | null;
   onReceipt: (receiptId: Id<"receipts"> | null) => void;
   onDone: () => void;
+  onManualAdded: (itemIds: Id<"items">[]) => void;
 }) {
   const generateUploadUrl = useMutation(api.receipts.generateUploadUrl);
   const createReceipt = useMutation(api.receipts.create);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [manual, setManual] = useState(false);
 
   const pick = useCallback(
     (file?: File) => {
@@ -291,6 +248,7 @@ export function ScanFlow({ receiptId, onReceipt, onDone }: {
       setReceipt({ file, previewUrl: URL.createObjectURL(file) });
       setUploading(false);
       setUploadError(null);
+      setManual(false);
       if (receiptId) onReceipt(null);
     },
     [onReceipt, receipt, receiptId],
@@ -336,7 +294,9 @@ export function ScanFlow({ receiptId, onReceipt, onDone }: {
 
   return (
     <main className="add-screen">
-      {receiptId ? (
+      {manual ? (
+        <ManualEntryCard onCancel={() => setManual(false)} onAdded={onManualAdded} />
+      ) : receiptId ? (
         <ReceiptReview receiptId={receiptId} onRetake={retake} onDone={onDone} />
       ) : uploading ? (
         <ReadingReceipt />
@@ -355,7 +315,7 @@ export function ScanFlow({ receiptId, onReceipt, onDone }: {
         <section className="step-panel scan-step">
           <p className="eyebrow">scan receipt</p>
           <h1>show us your receipt.</h1>
-          <ReceiptOptions onPick={pick} onDone={onDone} />
+          <ReceiptOptions onPick={pick} onManual={() => setManual(true)} />
         </section>
       )}
     </main>

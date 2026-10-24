@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  addDays,
   dateInputValue,
   daysAgoLabel,
   daysLeftLabel,
@@ -7,8 +8,10 @@ import {
   endOfLocalDay,
   expiredLabel,
   freshness,
+  localNoon,
   numberWord,
   sortByUrgency,
+  statusTiming,
   pickUseSoon,
 } from "./freshness";
 
@@ -116,5 +119,27 @@ describe("endOfLocalDay and dateInputValue", () => {
   it("round-trips through the date input value", () => {
     expect(dateInputValue(endOfLocalDay("2026-01-05"))).toBe("2026-01-05");
     expect(dateInputValue(at(23, 0))).toBe("2026-10-23");
+  });
+});
+
+describe("addDays", () => {
+  it("crosses month ends", () => {
+    expect(addDays("2026-10-30", 3)).toBe("2026-11-02");
+    expect(addDays("2026-10-01", -1)).toBe("2026-09-30");
+  });
+});
+
+describe("localNoon", () => {
+  it("lands on the given local day", () => {
+    expect(dateInputValue(localNoon("2026-10-20"))).toBe("2026-10-20");
+  });
+});
+
+describe("statusTiming", () => {
+  it("counts down before the date and up after it", () => {
+    expect(statusTiming(at(26), now)).toBe("3 days");
+    expect(statusTiming(at(23), now)).toBe("today");
+    expect(statusTiming(at(21), now)).toBe("2 days ago");
+    expect(statusTiming(undefined, now)).toBeNull();
   });
 });

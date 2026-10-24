@@ -1,8 +1,7 @@
-// TODO(release): delete this file once fridge fullness (no backend yet) and the friends leaderboard (P2) read from Convex.
+// TODO(release): delete this file once food groups (no backend yet) and the friends leaderboard (P2) read from Convex.
 
-// No backend tracks fridge fullness or food groups yet; derive both from items.
+// No backend tracks food groups yet; derive them from items.
 export const demoFullness = {
-  stage: 70,
   stocked: ["vegetables", "fruit", "protein", "dairy", "grains"],
   empty: ["frozen foods"],
 } as const;
