@@ -17,7 +17,7 @@ export async function askGemini(system: string, parts: Part[], schema: Record<st
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error("GEMINI_API_KEY is not set on this Convex deployment.");
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel()}:generateContent`;
-  const res = await fetch(url, {
+  const request = {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": key },
     body: JSON.stringify({
@@ -25,7 +25,13 @@ export async function askGemini(system: string, parts: Part[], schema: Record<st
       contents: [{ role: "user", parts: parts.map(toPart) }],
       generationConfig: { maxOutputTokens: 16000, responseMimeType: "application/json", responseJsonSchema: schema },
     }),
-  });
+  };
+  // Gemini answers 503 "high demand" in bursts; retry overload and rate-limit errors with backoff.
+  let res = await fetch(url, request);
+  for (let attempt = 1; attempt <= 3 && (res.status === 429 || res.status >= 500); attempt++) {
+    await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    res = await fetch(url, request);
+  }
   const body = (await res.json()) as GeminiResponse;
   if (!res.ok) throw new Error(`Gemini API error ${res.status}: ${body.error?.message ?? res.statusText}`);
   if (body.promptFeedback?.blockReason) throw new Error("The model declined to read this file.");

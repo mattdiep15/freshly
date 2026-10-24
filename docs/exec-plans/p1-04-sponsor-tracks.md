@@ -33,10 +33,12 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 ## Part A: Gemini as the model provider (about 3 hours)
 
-1. Add `@google/genai` and set `GEMINI_API_KEY` with `npx convex env set`. Add `LLM_PROVIDER` (`gemini` or `anthropic`, default `gemini`) and `GEMINI_MODEL` (default `gemini-3.8-flash`; confirm the ID on the Gemini models page before coding).
-2. Move the provider-neutral parts of `convex/model/claude.ts` (schemas, prompts) into `convex/model/llm.ts`. Keep `askJson` as the one entry point and have it dispatch on `LLM_PROVIDER`. The Gemini branch sends images and PDFs as inline data parts and the schema as `responseJsonSchema` with `responseMimeType: "application/json"`.
+1. Set `GEMINI_API_KEY` with `npx convex env set`. Add `LLM_PROVIDER` (`gemini` or `anthropic`, default `gemini`) and `GEMINI_MODEL` (default `gemini-3.8-flash`; confirm the ID on the Gemini models page before coding).
+2. Move the provider-neutral parts of `convex/model/claude.ts` (schemas, prompts) into `convex/model/llm.ts`. Keep `askJson` as the one entry point and have it dispatch on `LLM_PROVIDER`. The Gemini branch (`convex/model/gemini.ts`) calls the REST `generateContent` endpoint with `fetch`, sends images and PDFs as inline data parts, and passes the schema as `responseJsonSchema` with `responseMimeType: "application/json"`.
 3. Keep the Anthropic branch working, so the team can switch back with one env var if Gemini scores worse.
    Verify: re-run the p1-02 live checks (Surprises, steps 1 to 6) with `LLM_PROVIDER=gemini`. Record the score next to Claude's 36 of 36 names and prices and 33 of 36 food matches.
+
+Every deployment that parses receipts needs `GEMINI_API_KEY`, or `LLM_PROVIDER=anthropic` to keep using Claude. That includes the team's cloud dev deployment (`secret-opossum-432`), which only has the Anthropic key today.
 
 ## Part B: Web shelf-life lookup with Apify and Gemini (about 3 to 4 hours)
 
@@ -72,6 +74,13 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 3. Set `SITE_URL` on the production Convex deployment to the new domain, so auth redirects use it.
    Verify: the domain serves the app over HTTPS and sign-in works on it.
 
+## Progress
+
+- [x] Part A (2026-10-24: Gemini is the default provider; see Surprises for the live scores)
+- [ ] Part B
+- [ ] Part C
+- [ ] Part D
+
 ## Validation
 
 - `npm run lint`, `npm run typecheck`, and `npm test` pass. New pure logic (quote matching, basis rules) lives in `lib/` with tests.
@@ -84,6 +93,17 @@ This moves the recipe feature from p3 into P1 because it uses both sponsors. It 
 - 2026-10-24: Apify store-product scrapers (Costco, Trader Joe's, Safeway) are not used for expiry. Product pages carry no shelf life or printed date. A Costco item-number lookup could improve food matching, but p1-02 already matches 33 of 36 lines, and Costco runs on Apify succeed 84% of the time.
 - 2026-10-24: Web shelf-life comes from general shelf-life pages through `apify/rag-web-browser`, limited to an allowlist of sites, and only for foods with no FDA or FoodKeeper range.
 - 2026-10-24: Web numbers count from the purchase date only when the page gives a from-purchase or unopened figure for a food with no printed date. For packaged goods the web figure is usually "past the printed date" or "after opening", and counting it from purchase would overstate how long the food lasts.
+
+- 2026-10-24: Gemini is called through REST with `fetch` instead of `@google/genai`. No new dependency, and it runs in Convex's default runtime, which `foods.backfillTips` uses.
+- 2026-10-24: The Gemini branch retries 429 and 5xx responses three times with backoff (4, 8, and 16 seconds). Claude's branch already had server-side fallback, and Gemini has no equivalent.
+
+## Surprises
+
+- 2026-10-24: Live parse with `gemini-3.8-flash` on a local deployment, second run: 36 of 36 expected lines came back with the right display name and price, no extra lines, no voided, CRV, or alcohol lines, and Gold Kiwi at 1199 cents. Store, date, and total match on all three receipts. Food matches: 30 of 36, against Claude's 33. Gemini picked an existing row where the expected file creates a new food (Sugar-free Red Bull went to the soda row, Korean noodles to `pasta, dry, without eggs`), and it disagreed on near neighbors (snickerdoodles went to `cookies, soft`, keto granola to `granola`, lychee nectar to the nectar row, pumpkin bread mix to `muffin, mix, dry, commercially packaged`).
+- 2026-10-24: On the first run, Gemini read the Trader Joe's date as 2023-10-15 instead of 2026-10-15. Every item from that receipt would have been dated three years in the past. The second run read it correctly. `saveParsed` trusts the model's date as given.
+- 2026-10-24: Gemini returned 503 "high demand" on 2 of the first 3 parses and on 1 manual add even after three retries. Parses took 30 to 60 seconds each, a manual add that needs the model about 20 seconds, and a `backfillTips` batch of 25 about 90 seconds.
+- 2026-10-24: `gemini-3.5-flash-lite` answers a manual add in 1 to 2 seconds, but it created new foods for "sriracha mayo" and "ube cheesecake" instead of matching existing rows. The default stays `gemini-3.8-flash`.
+- 2026-10-24: `manualSystemPrompt` and `receiptSystemPrompt` worked on Gemini unchanged, and so did the JSON schemas (`anyOf` with `null`, `additionalProperties: false`, `format: "date"`).
 
 ## Open questions
 

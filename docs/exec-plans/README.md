@@ -10,7 +10,7 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p1-02-receipt-ingestion.md](p1-02-receipt-ingestion.md) | P1 | Receipt scan, manual entry (P1.5), item matching, expiry dates, storage tips for unfamiliar foods | Done; freezer-move bug open in `docs/bugs.md` | ~4-5 h |
 | [p1-03-expiry-lifecycle-and-waste.md](p1-03-expiry-lifecycle-and-waste.md) | P1 | Use-soon list, reminder digests, push, expiry swipe cards with the "looks spoiled?" second card, waste stats | Done; a real system notification still needs a human check (see Surprises) | ~5-6 h |
 | [p1-04-frontend-integration.md](p1-04-frontend-integration.md) | P1 | Home, fridge, swipe cards, scan, manual add, and stats pages wired to Convex | Done; package-date highlights and freshness hints need `foods:backfillTips` on the deployment | ~7-8 h |
-| [p1-04-sponsor-tracks.md](p1-04-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini as model provider, web shelf-life lookup (Apify + Gemini), recipes for use-soon items, GoDaddy domain | Draft; needs questions 8 and 9 | ~8-10 h |
+| [p1-04-sponsor-tracks.md](p1-04-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini as model provider, web shelf-life lookup (Apify + Gemini), recipes for use-soon items, GoDaddy domain | Part A done (Gemini default); B and C need questions 8 and 9 | ~8-10 h |
 | [p2-social-and-shopping.md](p2-social-and-shopping.md) | P2 | Community leaderboard, gamification, grocery list, location reminders, takeout leftovers | Draft | not estimated |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, recipes, speech, Wrapped Waste, image-based spoilage model | Draft | not estimated |
 
