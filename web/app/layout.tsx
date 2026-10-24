@@ -29,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SiteHeader />
             {children}
             <footer>
-              <p>keep it fresh. keep it simple.</p>
+              <p>spoil less eat fresh!</p>
               <span>freshly © 2026</span>
             </footer>
           </div>
