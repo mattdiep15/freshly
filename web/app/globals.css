@@ -34,7 +34,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
 }
 
 .brand,
@@ -44,29 +44,33 @@
   cursor: pointer;
 }
 
+.camera-tab,
+.nav-camera-spacer,
+.nav-me,
+.camera-tab-input {
+  display: none;
+}
+
+.mobile-page-title,
+.mobile-label {
+  display: none;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 12px;
   font-family: var(--font-display), sans-serif;
-  font-size: 27px;
+  font-size: 32px;
   font-weight: 400;
   letter-spacing: 0.12em;
 }
 
 .logo-mark {
-  width: 40px;
-  height: 46px;
-}
-
-.logo-mark svg {
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
+  width: auto;
+  height: 56px;
+  display: block;
+  object-fit: contain;
 }
 
 nav {
@@ -129,10 +133,33 @@ h1 {
 }
 
 .home-intro {
+  position: relative;
   min-height: 310px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.leek-point {
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.home-leek-point {
+  position: absolute;
+  right: 0;
+  height: 300px;
+}
+
+.home-intro > .add-button {
+  margin-right: 145px;
+}
+
+.home-mascot {
+  width: 360px;
+  height: 300px;
+  object-fit: contain;
 }
 
 .hero-subtitle {
@@ -172,7 +199,7 @@ h1 {
 .daily-task {
   min-height: 125px;
   display: grid;
-  grid-template-columns: 48px 70px 1fr;
+  grid-template-columns: 48px 70px 72px 1fr;
   gap: 22px;
   align-items: center;
   border-bottom: 2px solid var(--ink);
@@ -199,6 +226,13 @@ h1 {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.2em;
+}
+
+.task-icon {
+  width: 72px;
+  height: 72px;
+  display: block;
+  object-fit: contain;
 }
 
 .task-copy strong,
@@ -254,17 +288,29 @@ h1 {
 }
 
 .page-heading {
-  min-height: 250px;
-  display: flex;
+  position: relative;
+  min-height: 480px;
+  display: grid;
+  grid-template-columns: 480px minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
+  gap: 48px;
+  margin: 48px 0;
+}
+
+.fridge-title {
+  min-width: 0;
 }
 
 .page-heading h1 {
-  font-size: clamp(48px, 5vw, 76px);
+  max-width: 100%;
+  font-size: 64px;
+  overflow-wrap: anywhere;
 }
 
 .item-count {
+  position: absolute;
+  right: 0;
+  bottom: 0;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.25em;
@@ -272,6 +318,20 @@ h1 {
 
 .food-list {
   border-top: 2px solid var(--ink);
+}
+
+.fridge-list-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 28px;
+  align-items: start;
+}
+
+.fridge-leek-point {
+  position: sticky;
+  top: 120px;
+  height: 320px;
+  justify-self: end;
 }
 
 .food-card {
@@ -307,10 +367,10 @@ h1 {
 .card-summary {
   position: relative;
   width: 100%;
-  min-height: 48px;
+  min-height: 88px;
   display: grid;
-  grid-template-columns: 105px 1fr 90px 22px;
-  gap: 18px;
+  grid-template-columns: 135px 72px 1fr 130px 22px;
+  gap: 20px;
   align-items: center;
   border: 0;
   padding: 6px 18px 6px 38px;
@@ -320,18 +380,34 @@ h1 {
   text-align: left;
 }
 
+.card-info,
+.card-meta {
+  display: contents;
+}
+
+.food-icon {
+  grid-column: 2;
+  width: 72px;
+  height: 72px;
+  display: block;
+  object-fit: contain;
+  opacity: 1;
+}
+
 .food-card--expired .card-summary {
   padding-left: 18px;
   background: var(--ink);
 }
 
 .status-pill {
+  grid-column: 1;
+  grid-row: 1;
   width: max-content;
   border: 2px solid currentColor;
-  padding: 4px 7px 3px;
+  padding: 6px 10px 5px;
   background: var(--paper);
   color: var(--ink);
-  font-size: 8px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.2em;
 }
@@ -347,17 +423,20 @@ h1 {
 }
 
 .card-title {
-  font-size: 17px;
+  grid-column: 3;
+  font-size: 28px;
   letter-spacing: 0.06em;
 }
 
 .days-left {
-  font-size: 10px;
+  grid-column: 4;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.17em;
 }
 
 .expand-mark {
+  grid-column: 5;
   font-family: var(--font-display), sans-serif;
   font-size: 20px;
   text-align: right;
@@ -366,7 +445,7 @@ h1 {
 .card-details {
   max-height: 0;
   display: grid;
-  grid-template-columns: 120px 1fr 1fr 145px;
+  grid-template-columns: 254px 1fr 1fr 145px;
   gap: 18px;
   align-items: center;
   overflow: hidden;
@@ -383,45 +462,122 @@ h1 {
 }
 
 .food-card.is-expanded .card-details {
-  max-height: 130px;
+  max-height: 290px;
   border-top-width: 1px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding-top: 16px;
+  padding-bottom: 16px;
   opacity: 1;
 }
 
 .illustration-slot {
-  height: 64px;
+  position: relative;
+  height: 254px;
   display: grid;
   place-content: center;
+  overflow: hidden;
   border: 1px dashed var(--ink);
+  padding: 16px;
   text-align: center;
 }
 
-.illustration-slot span,
-.illustration-slot strong {
-  display: block;
-  font-size: 8px;
-  letter-spacing: 0.18em;
+.expanded-food-icon {
+  width: 220px;
+  height: 220px;
+  max-width: none;
+  object-fit: contain;
 }
 
-.illustration-slot strong {
-  margin-top: 8px;
-  font-family: var(--font-display), sans-serif;
-  font-size: 12px;
-  font-weight: 400;
+.fullness-preview {
+  position: relative;
+  width: 480px;
+  text-align: center;
+}
+
+.fullness-art {
+  position: relative;
+  width: 480px;
+  height: 480px;
+  overflow: hidden;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.fullness-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.fullness-stage.is-visible {
+  opacity: 1;
+}
+
+.stock-label {
+  margin-top: 20px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.stock-tooltip {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 230px;
+  border: 2px solid var(--ink);
+  padding: 12px;
+  background: var(--paper);
+  text-align: left;
+}
+
+.stock-tooltip p {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+.stock-tooltip strong {
+  margin-right: 7px;
+}
+
+.stage-toggle {
+  display: flex;
+  gap: 5px;
+  margin-top: 15px;
+}
+
+.stage-toggle button {
+  border: 1px solid var(--ink);
+  padding: 3px 6px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.stage-toggle button.active {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .detail-line span {
   display: block;
   margin-bottom: 9px;
-  font-size: 8px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.25em;
 }
 
 .detail-line p {
-  font-size: 11px;
+  font-size: 18px;
   letter-spacing: 0.08em;
   line-height: 1.55;
 }
@@ -481,6 +637,23 @@ h1 {
   cursor: pointer;
 }
 
+.receipt-choice:first-child {
+  min-height: 370px;
+  grid-template-columns: 180px 1fr;
+  gap: 26px;
+}
+
+.scan-mascot {
+  width: 160px;
+  height: 320px;
+  object-fit: contain;
+}
+
+.camera-choice-copy {
+  display: grid;
+  place-items: center;
+}
+
 .receipt-choice input {
   position: absolute;
   opacity: 0;
@@ -494,6 +667,10 @@ h1 {
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-width: 1.7;
+}
+
+.upload-file-icon {
+  display: none;
 }
 
 .receipt-choice span,
@@ -523,6 +700,7 @@ h1 {
 
 .receipt-preview {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
   place-items: center;
   gap: 22px;
 }
@@ -534,9 +712,35 @@ h1 {
   object-fit: contain;
 }
 
+.preview-photoleek {
+  width: 80px;
+  height: 160px;
+  object-fit: contain;
+}
+
 .receipt-preview > div {
+  grid-column: 1 / -1;
   display: flex;
   gap: 12px;
+}
+
+.receipt-loading {
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.loading-photoleek {
+  width: 100px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.receipt-loading p {
+  font-family: var(--font-display), sans-serif;
+  font-size: 17px;
+  letter-spacing: 0.1em;
 }
 
 .outline-button {
@@ -570,7 +774,7 @@ h1 {
 
 .parsed-row label {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto 1fr;
   gap: 10px;
   align-items: center;
   font-family: var(--font-body), sans-serif;
@@ -642,33 +846,115 @@ h1 {
 .stats-screen {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  min-height: 360px;
+  gap: clamp(30px, 5vw, 80px);
+  align-items: start;
+  justify-items: center;
+  min-height: 390px;
 }
 
-.stat-block {
+.stats-heading {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 38px;
+}
+
+.stats-mascot {
+  width: 60px;
+  height: 120px;
+  object-fit: contain;
+}
+
+.stat-circle {
+  position: relative;
+  width: 100%;
   display: flex;
-  flex-direction: column-reverse;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   border: 0;
-  border-right: 2px solid var(--ink);
   background: var(--paper);
-  text-align: center;
+  cursor: pointer;
 }
 
-.stat-block:first-child {
-  border-left: 2px solid var(--ink);
+.circle-art {
+  position: relative;
+  width: min(100%, 280px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
 }
 
-.stat-block span {
-  font-size: 10px;
+.circle-art svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+
+.circle-stroke {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 0;
+  animation: circle-draw 400ms ease-out;
+}
+
+.stat-circle:hover .circle-stroke,
+.stat-circle:focus-visible .circle-stroke {
+  animation: circle-draw 400ms ease-out;
+}
+
+@keyframes circle-draw {
+  from {
+    stroke-dashoffset: 900;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.circle-art strong {
+  position: relative;
+  font-family: var(--font-display), sans-serif;
+  font-size: 96px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.stat-label {
+  margin-top: 20px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.24em;
 }
 
-.stat-block strong {
-  font-size: clamp(78px, 9vw, 140px);
-  letter-spacing: 0.02em;
-  line-height: 1;
+.mobile-stat-break {
+  display: none;
+}
+
+.stat-circle.positive .circle-art strong {
+  color: var(--good);
+}
+
+.stat-tooltip {
+  position: absolute;
+  z-index: 3;
+  top: calc(100% + 12px);
+  width: 220px;
+  border: 1px solid var(--ink);
+  padding: 9px 11px;
+  background: var(--paper);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-align: center;
 }
 
 .thin-list {
@@ -686,7 +972,8 @@ h1 {
   border-bottom: 1px solid var(--ink);
   padding: 0 16px;
   background: var(--paper);
-  font-size: 10px;
+  cursor: pointer;
+  font-size: 16px;
   letter-spacing: 0.12em;
   text-align: left;
 }
@@ -696,13 +983,43 @@ h1 {
 }
 
 .list-labels {
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.18em;
 }
 
+.mobile-table-label {
+  display: none;
+}
+
 .friend-columns {
   grid-template-columns: 70px 1fr 160px 130px 55px;
+}
+
+.friends-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px;
+  gap: 28px;
+  align-items: start;
+}
+
+.friends-leek-point {
+  height: 240px;
+  justify-self: end;
+}
+
+.friends-stage .thin-list {
+  margin-top: 42px;
+}
+
+.friends-list .thin-row strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 19px;
+  font-weight: 400;
+}
+
+.heading-with-action .outline-button {
+  font-size: 14px;
 }
 
 .friends-list .thin-row.is-you {
@@ -717,10 +1034,6 @@ h1 {
   height: 24px;
   justify-self: end;
   border: 1px dashed currentColor;
-}
-
-.stat-block.positive strong {
-  color: var(--good);
 }
 
 .swipe-takeover {
@@ -739,7 +1052,7 @@ h1 {
 
 .swipe-card {
   width: min(90vw, 680px);
-  min-height: 440px;
+  min-height: 650px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -753,11 +1066,65 @@ h1 {
     border-color 180ms ease;
 }
 
+.swipe-mascot {
+  width: 120px;
+  height: 240px;
+  margin: -35px 0 -25px;
+  object-fit: contain;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  gap: 18px;
+  padding: 70px 20px;
+  text-align: center;
+}
+
+.empty-state-art {
+  width: 240px;
+  height: 190px;
+  object-fit: contain;
+}
+
+.empty-state p {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
 .swipe-card > p {
   margin: 35px 0 10px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.2em;
+}
+
+.swipe-food-art {
+  width: 260px;
+  height: 180px;
+  margin: -45px 0;
+  object-fit: contain;
+}
+
+.swipe-edge {
+  position: fixed;
+  top: 50%;
+  display: none;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  writing-mode: vertical-rl;
+}
+
+.swipe-edge--left {
+  left: 12px;
+  transform: rotate(180deg);
+}
+
+.swipe-edge--right {
+  right: 12px;
+  color: var(--good);
 }
 
 .swipe-card h1 {
@@ -807,39 +1174,6 @@ h1 {
   letter-spacing: 0.2em;
 }
 
-/* Additions for the Next.js port: source labels and honest empty states. */
-.source-note {
-  display: block;
-  margin-top: 6px;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  opacity: 0.6;
-}
-
-.detail-missing {
-  opacity: 0.6;
-}
-
-.receipt-file {
-  border: 2px solid var(--ink);
-  padding: 40px 30px;
-  font-family: var(--font-display), sans-serif;
-  font-size: 18px;
-  letter-spacing: 0.06em;
-}
-
-.outline-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.swipe-card {
-  cursor: grab;
-  touch-action: none;
-  user-select: none;
-}
-
 footer {
   display: flex;
   justify-content: space-between;
@@ -856,7 +1190,7 @@ footer {
   }
 
   .card-details {
-    grid-template-columns: 170px 1fr;
+    grid-template-columns: 254px 1fr;
   }
 
   .food-card.is-expanded .card-details {
@@ -867,11 +1201,8 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .stat-block {
-    min-height: 230px;
-    border-right: 2px solid var(--ink);
-    border-bottom: 2px solid var(--ink);
-    border-left: 2px solid var(--ink);
+  .stat-circle {
+    max-width: 280px;
   }
 
   .friend-columns {
@@ -906,11 +1237,17 @@ footer {
   }
 
   .daily-task {
-    grid-template-columns: 42px 1fr;
+    grid-template-columns: 42px 52px minmax(0, 1fr);
+    gap: 12px;
   }
 
   .task-number {
     display: none;
+  }
+
+  .task-icon {
+    width: 52px;
+    height: 52px;
   }
 
   .task-copy strong {
@@ -918,7 +1255,7 @@ footer {
   }
 
   .card-summary {
-    grid-template-columns: 90px 1fr 26px;
+    grid-template-columns: 82px 34px 1fr 26px;
     gap: 12px;
     padding: 18px 14px;
   }
@@ -957,4 +1294,1324 @@ footer {
   .friend-columns span:nth-child(4) + span {
     display: none;
   }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    width: 100%;
+    padding: 0 18px 82px;
+  }
+
+  .topbar {
+    height: 66px;
+    flex-wrap: nowrap;
+    border-bottom-width: 1px;
+    padding: 0;
+  }
+
+  .brand {
+    gap: 7px;
+    font-size: 19px;
+  }
+
+  .logo-mark {
+    width: 44px;
+    height: 62px;
+  }
+
+  .mobile-page-title {
+    display: block;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+  }
+
+  .desktop-label {
+    display: none;
+  }
+
+  .mobile-label {
+    display: inline;
+  }
+
+  nav {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 68px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--ink);
+    background: var(--paper);
+  }
+
+  .nav-link {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 9px;
+    letter-spacing: 0.13em;
+  }
+
+  .nav-link::after {
+    right: 24%;
+    bottom: 13px;
+    left: 24%;
+    height: 1px;
+  }
+
+  footer {
+    display: none;
+  }
+
+  .home-screen,
+  .fridge-screen,
+  .add-screen,
+  .stats-page,
+  .friends-page {
+    min-height: calc(100vh - 148px);
+  }
+
+  .home-intro {
+    min-height: 590px;
+  }
+
+  .home-mascot {
+    width: 220px;
+    height: 180px;
+  }
+
+  .home-intro > .add-button {
+    margin-right: 0;
+  }
+
+  .home-leek-point,
+  .fridge-leek-point,
+  .friends-leek-point {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 70px;
+    height: 140px;
+    margin: 8px 0 8px auto;
+    align-self: flex-end;
+    justify-self: end;
+  }
+
+  .fridge-list-stage,
+  .friends-stage {
+    display: block;
+  }
+
+  .friends-stage .thin-list {
+    margin-top: 32px;
+  }
+
+  .page-heading {
+    min-height: 610px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 18px;
+    padding: 30px 0 24px;
+  }
+
+  .fullness-preview {
+    width: 100%;
+    display: block;
+    flex-basis: auto;
+    text-align: center;
+  }
+
+  .fullness-art {
+    width: 280px;
+    height: 280px;
+    margin: 0 auto;
+  }
+
+  .fullness-stage {
+    width: 650px;
+    height: 650px;
+  }
+
+  .fridge-title {
+    width: 100%;
+  }
+
+  .stock-label {
+    margin-top: 8px;
+  }
+
+  .page-heading h1 {
+    max-width: 330px;
+    font-size: 42px;
+    line-height: 0.98;
+  }
+
+  .page-heading .item-count {
+    display: none;
+  }
+
+  .stage-toggle {
+    position: static;
+    margin-top: 12px;
+  }
+
+  .stage-toggle button {
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  .stock-tooltip {
+    position: fixed;
+    z-index: 30;
+    top: auto;
+    right: 12px;
+    bottom: 78px;
+    left: 12px;
+    width: auto;
+    padding: 18px;
+    border-width: 2px;
+  }
+
+  .stock-tooltip p {
+    font-size: 10px;
+  }
+
+  .food-list {
+    border-top-width: 1px;
+  }
+
+  .food-card--soon::before {
+    width: 16px;
+  }
+
+  .card-summary {
+    min-height: 88px;
+    grid-template-columns: 108px 72px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 6px 10px 6px 25px;
+  }
+
+  .food-card--expired .card-summary {
+    padding-left: 10px;
+  }
+
+  .food-icon {
+    width: 72px;
+    height: 72px;
+  }
+
+  .card-title {
+    overflow: hidden;
+    font-size: 28px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .days-left {
+    display: block;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .expand-mark {
+    display: none;
+  }
+
+  .card-details {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-right: 16px;
+    padding-left: 25px;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 700px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+
+  .illustration-slot {
+    width: 100%;
+    height: 254px;
+  }
+
+  .expanded-food-icon {
+    width: 220px;
+    height: 220px;
+  }
+
+  .detail-line p {
+    font-size: 18px;
+  }
+
+  .used-button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .add-screen {
+    display: block;
+    padding: 42px 0 95px;
+  }
+
+  .step-count {
+    top: 18px;
+  }
+
+  .step-panel h1 {
+    margin-bottom: 38px;
+    font-size: 43px;
+  }
+
+  .receipt-options {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .receipt-choice:first-child {
+    min-height: 310px;
+    grid-template-columns: 1fr;
+    gap: 5px;
+    border-width: 2px;
+  }
+
+  .scan-mascot {
+    width: 90px;
+    height: 180px;
+    margin: 0 auto;
+  }
+
+  .receipt-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-photoleek {
+    width: 80px;
+    height: 160px;
+  }
+
+  .loading-photoleek {
+    width: 90px;
+    height: 200px;
+  }
+
+  .receipt-choice:last-child {
+    min-height: 54px;
+    display: flex;
+    gap: 12px;
+    border-style: solid;
+  }
+
+  .receipt-choice:last-child .receipt-icon,
+  .receipt-choice:last-child small {
+    display: none;
+  }
+
+  .receipt-choice:last-child strong {
+    font-family: var(--font-body), sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .receipt-preview img {
+    height: 340px;
+  }
+
+  .receipt-preview > div {
+    width: 100%;
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
+
+  .receipt-preview .add-button {
+    width: 100%;
+  }
+
+  .parsed-row {
+    min-height: 52px;
+    grid-template-columns: 1fr 150px;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .parsed-row label {
+    grid-template-columns: auto 1fr;
+  }
+
+  .tip-card {
+    margin-bottom: 25px;
+  }
+
+  .mobile-pinned-action {
+    position: fixed;
+    z-index: 19;
+    right: 12px;
+    bottom: 78px;
+    left: 12px;
+    width: calc(100% - 24px);
+    min-height: 52px;
+  }
+
+  .compact-heading {
+    min-height: 190px;
+  }
+
+  .stats-heading {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .stats-mascot {
+    width: 50px;
+    height: 100px;
+  }
+
+  .compact-heading h1 {
+    font-size: 46px;
+  }
+
+  .stats-screen {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    gap: 72px;
+    padding-bottom: 38px;
+  }
+
+  .stat-circle {
+    max-width: 240px;
+  }
+
+  .circle-art {
+    width: 200px;
+  }
+
+  .circle-art strong {
+    font-size: 72px;
+  }
+
+  .stat-label {
+    margin-top: 15px;
+  }
+
+  .thin-list {
+    margin: 32px 0 20px;
+  }
+
+  .thin-row {
+    min-height: 52px;
+    grid-template-columns: 1fr 90px 85px;
+    padding: 0 8px;
+    font-size: 14px;
+  }
+
+  .week-list .thin-row {
+    min-height: 48px;
+  }
+
+  .list-labels {
+    font-size: 10px;
+  }
+
+  .friends-list .thin-row strong {
+    font-size: 17px;
+  }
+
+  .heading-with-action {
+    min-height: 190px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .heading-with-action .outline-button {
+    min-height: 44px;
+  }
+
+  .friend-columns {
+    grid-template-columns: 30px minmax(0, 1fr) 75px 60px;
+    gap: 5px;
+  }
+
+  .friend-columns span:nth-child(4) {
+    display: block;
+  }
+
+  .friend-columns span:nth-child(5) {
+    display: none;
+  }
+
+  .swipe-takeover {
+    padding: 30px 24px;
+  }
+
+  .swipe-takeover > .eyebrow {
+    position: absolute;
+    top: 28px;
+  }
+
+  .swipe-card {
+    width: 100%;
+    min-height: 650px;
+    padding: 28px 20px;
+  }
+
+  .swipe-card h1 {
+    font-size: 44px;
+  }
+
+  .swipe-food-art {
+    width: 330px;
+    height: 230px;
+    margin: -66px 0;
+  }
+
+  .swipe-actions {
+    gap: 10px;
+    margin-top: 42px;
+  }
+
+  .swipe-actions button {
+    min-height: 48px;
+    flex: 1;
+  }
+
+  .swipe-edge {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-shell {
+    padding-right: 16px;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    padding-left: 16px;
+  }
+
+  .topbar {
+    height: calc(68px + env(safe-area-inset-top));
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .brand {
+    gap: 9px;
+    min-height: 44px;
+    font-size: 24px;
+  }
+
+  .brand > span:last-child {
+    font-size: 24px;
+  }
+
+  .logo-mark {
+    width: 24px;
+    height: 40px;
+  }
+
+  .mobile-page-title {
+    display: none;
+  }
+
+  nav {
+    height: calc(56px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .nav-link {
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  .nav-link::after {
+    bottom: 7px;
+  }
+
+  .page-heading {
+    min-height: 0;
+    gap: 8px;
+    padding: 8px 0 24px;
+  }
+
+  .fullness-preview {
+    order: 1;
+    margin: 8px 0;
+  }
+
+  .fullness-art {
+    width: 260px;
+    height: 260px;
+  }
+
+  .fullness-stage {
+    width: 620px;
+    height: 620px;
+  }
+
+  .fridge-title {
+    display: contents;
+  }
+
+  .stock-label {
+    order: 2;
+    align-self: center;
+    margin: 0;
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .stage-toggle {
+    order: 3;
+    align-self: center;
+    margin: 0 0 16px;
+  }
+
+  .stage-toggle button {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 11px;
+  }
+
+  .page-heading .eyebrow {
+    order: 4;
+    margin: 0;
+    font-size: 11px;
+  }
+
+  .page-heading h1 {
+    order: 5;
+    max-width: 340px;
+    margin: 0;
+    font-size: 40px;
+    line-height: 0.98;
+  }
+
+  .food-card--soon::before {
+    width: 12px;
+  }
+
+  .card-summary {
+    min-height: 84px;
+    grid-template-columns: 64px minmax(0, 1fr) 44px;
+    gap: 10px;
+    padding: 0 4px 0 16px;
+    overflow: visible;
+  }
+
+  .food-card--expired .card-summary {
+    padding-left: 16px;
+  }
+
+  .food-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: 56px;
+    height: 56px;
+    justify-self: center;
+    opacity: 1;
+  }
+
+  .food-card--expired .food-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .card-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    grid-row: 1;
+    gap: 7px;
+    justify-content: center;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+  }
+
+  .card-title {
+    display: block;
+    overflow: visible;
+    font-size: 20px;
+    line-height: 1.02;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .status-pill {
+    flex: 0 0 auto;
+    padding: 3px 6px 2px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+  }
+
+  .days-left {
+    display: block;
+    overflow: visible;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .expand-mark {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    grid-column: 3;
+    grid-row: 1;
+    font-size: 24px;
+  }
+
+  .card-details {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 720px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  .illustration-slot {
+    height: 194px;
+    padding: 16px;
+  }
+
+  .expanded-food-icon {
+    width: 160px;
+    height: 160px;
+  }
+
+  .food-card--expired .card-details {
+    border-color: var(--paper);
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .food-card--expired .expanded-food-icon {
+    filter: brightness(0) invert(1);
+  }
+
+  .food-card--expired .illustration-slot {
+    border-color: var(--paper);
+  }
+
+  .used-button,
+  .food-card--expired .used-button {
+    min-height: 44px;
+    border-color: var(--good);
+    color: var(--good);
+  }
+
+  .detail-line span,
+  .detail-line p,
+  .eyebrow,
+  .task-copy small,
+  .receipt-choice small,
+  .parsed-row label,
+  .list-labels,
+  .stock-tooltip p {
+    font-size: max(11px, 1em);
+  }
+
+  .stock-tooltip {
+    bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 767px) {
+  .page-heading {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 8px 0 48px;
+    padding: 0;
+  }
+
+  .fullness-preview {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    order: 1;
+    margin: 0;
+  }
+
+  .fullness-art {
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .fullness-stage {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .stock-label {
+    margin-top: 8px;
+  }
+
+  .stage-toggle {
+    gap: 7px;
+    margin-top: 12px;
+    margin-bottom: 24px;
+    padding: 0 16px;
+  }
+
+  .page-heading h1 {
+    max-width: 100%;
+    font-size: 40px;
+    overflow-wrap: normal;
+  }
+
+  .stage-toggle button {
+    min-width: 44px;
+  }
+
+  .card-summary {
+    min-height: 60px;
+    grid-template-columns: 48px minmax(0, 1fr) 44px;
+    gap: 8px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .food-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .card-info {
+    gap: 3px;
+  }
+
+  .card-title {
+    overflow: visible;
+    font-size: clamp(15px, 4.6vw, 18px);
+    line-height: 1;
+    text-overflow: clip;
+    white-space: nowrap;
+  }
+
+  .card-meta {
+    gap: 7px;
+  }
+
+  .status-pill {
+    padding: 2px 6px;
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .days-left {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .card-details {
+    gap: 8px;
+  }
+
+  .food-card.is-expanded .card-details {
+    max-height: 520px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
+  .illustration-slot {
+    height: 152px;
+    padding: 16px;
+  }
+
+  .expanded-food-icon {
+    width: 120px;
+    height: 120px;
+  }
+
+  .detail-line {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+
+  .detail-line span {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .detail-line p {
+    line-height: 1.35;
+  }
+
+  .used-button {
+    height: 44px;
+    padding: 0 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .receipt-options {
+    width: 100%;
+    gap: 16px;
+  }
+
+  .receipt-choice:first-child {
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    justify-content: flex-start;
+    border: 2px dashed var(--ink);
+    padding: 24px 16px;
+  }
+
+  .scan-mascot {
+    width: 100%;
+    height: 220px;
+    margin: 0;
+    object-fit: contain;
+  }
+
+  .camera-choice-copy {
+    display: block;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  .camera-choice-copy svg,
+  .camera-choice-copy small {
+    display: none;
+  }
+
+  .camera-choice-copy strong {
+    font-family: var(--font-display), sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    line-height: 1;
+  }
+
+  .receipt-choice:last-child {
+    width: 100%;
+    min-height: 52px;
+    height: 52px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--ink);
+    padding: 0 16px;
+    background: var(--paper);
+  }
+
+  .receipt-choice:last-child .upload-file-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex: 0 0 20px;
+    margin: 0;
+    fill: none;
+    stroke: var(--ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .receipt-choice:last-child strong {
+    font-size: 16px;
+    letter-spacing: 0.14em;
+    line-height: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .stats-heading {
+    min-height: 118px;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stats-heading h1 {
+    font-size: 36px;
+  }
+
+  .stats-mascot {
+    width: 42px;
+    height: 88px;
+  }
+
+  .stats-screen {
+    width: min(100%, 340px);
+    min-height: 0;
+    grid-template-columns: repeat(3, minmax(0, 108px));
+    gap: 8px;
+    align-items: start;
+    justify-content: center;
+    padding-bottom: 0;
+    margin: 0 auto;
+  }
+
+  .stat-circle {
+    width: 108px;
+    max-width: none;
+  }
+
+  .circle-art {
+    width: 108px;
+    height: 108px;
+    aspect-ratio: 1;
+  }
+
+  .circle-stroke {
+    vector-effect: non-scaling-stroke;
+  }
+
+  .circle-art strong {
+    font-size: 40px;
+  }
+
+  .stat-label {
+    width: 100%;
+    min-height: 34px;
+    margin-top: 12px;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    line-height: 1.45;
+    text-align: center;
+  }
+
+  .mobile-stat-break {
+    display: initial;
+  }
+
+  .desktop-stat-space {
+    display: none;
+  }
+
+  .week-list {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-table-label {
+    display: inline;
+  }
+
+  .desktop-table-label,
+  .desktop-unit {
+    display: none;
+  }
+
+  .week-list .thin-row,
+  .friends-list .thin-row {
+    min-height: 48px;
+    column-gap: 16px;
+    align-items: center;
+    padding-right: 16px;
+    padding-left: 16px;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .week-list .thin-row {
+    grid-template-columns: minmax(0, 1fr) 64px 64px;
+  }
+
+  .friends-list .thin-row {
+    grid-template-columns: 32px minmax(0, 1fr) 56px 56px;
+  }
+
+  .week-list .list-labels,
+  .friends-list .list-labels {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  .week-list .thin-row > :first-child,
+  .friends-list .thin-row > :nth-child(1),
+  .friends-list .thin-row > :nth-child(2) {
+    text-align: left;
+  }
+
+  .week-list .thin-row > :nth-child(2),
+  .week-list .thin-row > :nth-child(3),
+  .friends-list .thin-row > :nth-child(3),
+  .friends-list .thin-row > :nth-child(4) {
+    text-align: right;
+  }
+
+  .friends-list .thin-row > :nth-child(5) {
+    display: none;
+  }
+
+  .friends-list .thin-row strong {
+    overflow: hidden;
+    color: inherit;
+    font-size: 16px;
+    line-height: 1;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .friends-list .thin-row.is-you {
+    width: calc(100% + 4px);
+    min-height: 48px;
+    margin-left: -2px;
+    border: 2px solid var(--good);
+    padding: 12px 16px;
+    color: var(--ink);
+  }
+
+  .friends-list .thin-row.is-you strong {
+    color: var(--good);
+  }
+}
+
+@media (max-width: 767px) {
+  .topbar {
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    padding-top: max(calc(env(safe-area-inset-top) + 12px), 56px);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .brand {
+    min-height: 44px;
+    gap: 10px;
+    align-items: center;
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .brand > span:last-child {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .logo-mark {
+    width: auto;
+    height: 44px;
+    display: block;
+    object-fit: contain;
+  }
+}
+
+/* Authoritative mobile bottom bar: four tabs, one empty center slot, floating camera. */
+@media (max-width: 767px) {
+  .app-shell {
+    padding-bottom: calc(104px + max(env(safe-area-inset-bottom), 24px));
+  }
+
+  nav {
+    position: fixed;
+    z-index: 20;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(64px + max(env(safe-area-inset-bottom), 24px));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: start;
+    gap: 0;
+    overflow: visible;
+    border-top: 1px solid var(--ink);
+    padding: 0 12px max(env(safe-area-inset-bottom), 24px);
+    background: var(--paper);
+  }
+
+  .nav-scan {
+    display: none;
+  }
+
+  .nav-fridge,
+  .nav-stats,
+  .nav-friends,
+  .nav-me {
+    width: 100%;
+    min-width: 0;
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: var(--ink);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0.45;
+  }
+
+  .nav-fridge {
+    grid-column: 1;
+  }
+
+  .nav-stats {
+    grid-column: 2;
+  }
+
+  .nav-camera-spacer {
+    width: 100%;
+    height: 64px;
+    display: block;
+    grid-column: 3;
+    pointer-events: none;
+  }
+
+  .nav-friends {
+    grid-column: 4;
+  }
+
+  .nav-me {
+    grid-column: 5;
+  }
+
+  .nav-fridge.active,
+  .nav-stats.active,
+  .nav-friends.active,
+  .nav-me.active {
+    opacity: 1;
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  .camera-tab {
+    position: absolute;
+    z-index: 3;
+    top: -40px;
+    left: 50%;
+    width: 80px;
+    height: 80px;
+    display: grid;
+    place-items: center;
+    border: 6px solid var(--paper);
+    border-radius: 50%;
+    padding: 0;
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+    transform: translateX(-50%);
+    transition: transform 100ms ease;
+  }
+
+  .camera-tab::after {
+    position: absolute;
+    inset: -7px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    content: '';
+  }
+
+  .camera-tab:active {
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .camera-tab svg {
+    width: 28px;
+    height: 28px;
+    fill: none;
+    stroke: var(--paper);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+  }
+
+  .camera-tab-input {
+    display: none;
+  }
+
+  .stock-tooltip,
+  .mobile-pinned-action {
+    bottom: calc(80px + max(env(safe-area-inset-bottom), 24px));
+  }
+}
+
+/* Additions for the Next.js port: source labels and honest empty states. */
+.source-note {
+  display: block;
+  margin-top: 6px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  opacity: 0.6;
+}
+
+.detail-missing {
+  opacity: 0.6;
+}
+
+.receipt-file {
+  border: 2px solid var(--ink);
+  padding: 40px 30px;
+  font-family: var(--font-display), sans-serif;
+  font-size: 18px;
+  letter-spacing: 0.06em;
+}
+
+.outline-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.swipe-card {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+/* The receipt img rule above would otherwise frame the mascot like a photo. */
+.receipt-preview .preview-photoleek {
+  width: 80px;
+  height: 160px;
+  border: 0;
+}
+
+/* Line art is black; flip it so it shows on the black expired row. */
+.food-card--expired .food-icon {
+  filter: invert(1);
+}
+
+/* Decorative art would start a native image drag and swallow the swipe. */
+.swipe-card img {
+  pointer-events: none;
+}
+
+/* The port adds a "days" unit after the input, so the label needs a third column. */
+.parsed-row label {
+  grid-template-columns: auto 1fr auto;
 }

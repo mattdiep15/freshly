@@ -1,5 +1,6 @@
 import { daysLeftLabel, freshness } from "@/lib/freshness";
 import type { FridgeItem, SourcedText } from "@/lib/types";
+import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 import { StatusPill } from "@/app/_components/ui/StatusPill";
 
@@ -45,16 +46,19 @@ export function FoodCard({
       onMouseEnter={onHover}
     >
       <button className="card-summary" onClick={onToggle} aria-expanded={expanded}>
-        <StatusPill status={status} />
-        <span className="card-title">{item.name}</span>
-        <span className="days-left">{daysLeftLabel(item.expiresAt, now)}</span>
+        <FoodArt name={item.name} className="food-icon" />
+        <span className="card-info">
+          <span className="card-title">{item.name}</span>
+          <span className="card-meta">
+            <StatusPill status={status} />
+            <span className="days-left">{daysLeftLabel(item.expiresAt, now)}</span>
+          </span>
+        </span>
         <span className="expand-mark">{expanded ? "−" : "+"}</span>
       </button>
       <div className="card-details">
-        {/* TODO(release): swap the placeholder for the designer's per-food illustration. */}
         <div className="illustration-slot">
-          <span>custom illustration</span>
-          <strong>[{item.name}]</strong>
+          <FoodArt name={item.name} className="expanded-food-icon" />
         </div>
         <DetailLine label="store" value={item.storageTip} missing="no sourced storage tip yet." />
         <DetailLine label="check" value={item.freshnessHint} missing="no sourced freshness hint yet." />

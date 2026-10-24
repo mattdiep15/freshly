@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { daysLeftLabel } from "@/lib/freshness";
 import type { FridgeItem } from "@/lib/types";
+import { FoodArt } from "@/app/_components/ui/FoodArt";
 
 export function UseSoonList({ items, now }: { items: FridgeItem[]; now: number }) {
   // TODO(release): checking a task should mark the item used through Convex.
@@ -24,6 +25,7 @@ export function UseSoonList({ items, now }: { items: FridgeItem[]; now: number }
               {isChecked ? "✓" : ""}
             </span>
             <span className="task-number">0{index + 1}</span>
+            <FoodArt name={item.name} className="task-icon" />
             <span className="task-copy">
               <strong>use up {item.name}</strong>
               <small>{label === "today" ? "goes off today" : `good for ${label}`}</small>

@@ -1,5 +1,6 @@
 import { demoLeaderboard } from "@/app/_demo/fixtures";
 import { Leaderboard } from "@/app/_components/Leaderboard";
+import { Leekly } from "@/app/_components/ui/Leekly";
 
 export default function FriendsPage() {
   // TODO(release): leaderboard is P2 (p2-social-and-shopping); this is demo data only.
@@ -14,7 +15,10 @@ export default function FriendsPage() {
           + add a friend
         </button>
       </section>
-      <Leaderboard entries={demoLeaderboard} />
+      <div className="friends-stage">
+        <Leaderboard entries={demoLeaderboard} />
+        <Leekly pose="point" className="leek-point friends-leek-point" />
+      </div>
     </main>
   );
 }
