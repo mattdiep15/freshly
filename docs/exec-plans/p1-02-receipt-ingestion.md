@@ -97,11 +97,11 @@ These override the module names in the steps below (2026-10-23). p1-03 owns `con
 - [x] 1. Expected results for the test receipts (2026-10-23: 22, 7, and 7 lines; each line also carries the `foodName` or `newFood` a correct parse should return, so the file doubles as the mock payload)
 - [x] 2. `lib/expiry.ts` and its tests (2026-10-23: 5 tests)
 - [x] 3. Upload and receipt mutations
-- [x] 4. Parse action with Claude (2026-10-23: built and deployed; never run against the API, see Surprises)
-- [x] 5. Save parsed lines as drafts (2026-10-23: verified through the mock path)
-- [x] 6. Confirm, edit, set date, and manual add (2026-10-23: `addManual` verified for exact name and alias matches only)
+- [x] 4. Parse action with Claude (2026-10-24: live parse of all three receipts, see Validation)
+- [x] 5. Save parsed lines as drafts
+- [x] 6. Confirm, edit, set date, and manual add (2026-10-24: `addManual` takes an optional `expiresAt`)
 - [x] 7. Storage tips and familiarity (2026-10-23: `foods.ackTip` only; `showTip` in `items.get` and `items.list` belongs to p1-03)
-- [ ] 8. Backfill tips and hints for reference foods (2026-10-23: `foods.backfillTips` built and deployed, not run; needs the key)
+- [x] 8. Backfill tips and hints for reference foods (2026-10-24: all 675 foods have a tip and a hint)
 - [x] 9. `/api` test routes
 
 ## Steps
@@ -168,16 +168,18 @@ These override the module names in the steps below (2026-10-23). p1-03 owns `con
 - An upload that is not a receipt ends in status `failed` with a readable error, and no items are created.
 - Parsing the same receipt twice creates no duplicate `foods` rows.
 
-Result on 2026-10-23, with no `ANTHROPIC_API_KEY`, against a local deployment on `localhost:3004`:
+Result on 2026-10-24, against a local deployment on `localhost:3004`, with `claude-sonnet-5-5`:
 
-- Lint, typecheck, and `npm test` (11 tests) pass.
-- 80% accuracy: not measured. It needs a live parse (see Surprises).
-- Voided lines, CRV, and alcohol: the expected files leave them out and the prompt states the rules. Only a live parse can show the model follows them.
-- Expiry sources: passes on the mock path. Matched foods get `fda_chart` or `foodkeeper`, unmatched and unsourced foods get no date, and a date set through `itemEdits.update` gets `user`. The output schema has no shelf-life field, so the model cannot supply days.
-- Not a receipt: `saveParsed` with `isReceipt: false` sets `failed` with "This file doesn't look like a grocery receipt." and creates no items. A live parse without the key also ends in `failed` with "ANTHROPIC_API_KEY is not set on this Convex deployment.", and a 3.8 MB photo fails with the size message before any model call.
+- Lint, typecheck, and `npm test` (20 tests, after the rebase onto the `web/` layout) pass.
+- Accuracy: 36 of 36 expected lines came back with the right display name and price, with no extra lines. 33 of 36 matched the same `foods` row as the expected file. The other 3 picked a defensible neighbor: organic spinach went to `bagged greens, leaf, spinach, lettuce, etc.`, lychee nectar to `nectar, papaya, mango, guava, or guavabana`, and pumpkin bread and muffin mix to `muffin, mix, dry, commercially packaged`. Store, date, and total match on all three receipts; `costco_test_1` has no store or date, so its items use the upload time.
+- Voided lines, CRV, and alcohol: none came back. No Rice Krispies, pepperoni pizza, vodka, hard seltzer, soju, `BUZZ VAMP`, or `CA REDEMP VA` lines, and Gold Kiwi is 1199 cents.
+- Expiry sources: passes. Matched foods get `fda_chart` or `foodkeeper`, unmatched and unsourced foods get no date, and a date set through `itemEdits.update` gets `user`. The output schema has no shelf-life field, so the model cannot supply days.
+- Not a receipt: uploading `docs/food_storage_chart.pdf` through `/api/dev/parse-test` ends in `failed` with "This file doesn't look like a grocery receipt." and no items. A parse without the key ends in `failed` with "ANTHROPIC_API_KEY is not set on this Convex deployment.", and a 3.8 MB photo fails with the size message before any model call.
 - No duplicate foods: four mock parses (both Costco receipts, the TJ PDF, then `costco_test_2` again) leave 675 rows: 673 reference foods plus `energy drink` and `instant noodles`, no duplicate names. Both Costco receipts point at the one `ground beef` row, and its items have `expirySource: "fda_chart"`.
 - Step 6: moving ground beef bought 2026-10-24 from fridge to freezer moved `expiresAt` from 2026-10-25 to 2027-01-22. The `useSoon` half of that check waits for p1-03.
+- Step 6 manual add: "greek yogurt" matched `yogurt` (FoodKeeper, 7 days), "dragon fruit" matched `pitaya/dragon fruit`, and "trader joes orange chicken" matched `frozen entrees, prepared meals` in the freezer. "spinach" got `expirySource: "foodkeeper"` without a model call.
 - Step 7: three `foods.ackTip` calls return `showTip` true, true, false. `items.get` returning `showTip: false` waits for p1-03.
+- Step 8: after `foods:backfillTips`, 0 of 675 rows lack a tip or hint, 0 shelf-life ranges changed, and no model-written tip or hint states a duration.
 
 ## Decision log
 
@@ -198,14 +200,17 @@ Result on 2026-10-23, with no `ANTHROPIC_API_KEY`, against a local deployment on
 
 ## Surprises
 
-- 2026-10-23: No `ANTHROPIC_API_KEY` was available, so no live parse has run. `parse`, `addManual` with an unknown name, and `backfillTips` are deployed and fail with "ANTHROPIC_API_KEY is not set on this Convex deployment." Still unverified: the 80% accuracy check, the VOID, CRV, and alcohol rules, whether the API accepts `RECEIPT_SCHEMA` as written (it uses `anyOf` with `null` for optional fields), and step 8. To run them:
-  1. `npx convex env set ANTHROPIC_API_KEY <key>` on the dev deployment. Optionally set `RECEIPT_MODEL`; the default is `claude-sonnet-5-5`.
+- 2026-10-24: The API accepts `RECEIPT_SCHEMA` as written (`anyOf` with `null` for optional fields).
+- 2026-10-24: `backfillTips` filled 0 foods on its second batch: the foods were sent as `name (category)` and the model returned names that no longer matched exactly. Foods are now numbered in the prompt and matched back by number. The action also does one batch of 25 per run and schedules the next, because 27 calls in one action could pass Convex's 10-minute action limit. It stops when a batch fills nothing.
+- 2026-10-24: The key lives on each deployment. Setting it on the team's cloud dev deployment (`secret-opossum-432`) does not reach a worktree's local anonymous deployment.
+- To re-run the live checks on another deployment:
+  1. `npx convex env set ANTHROPIC_API_KEY <key>` from `web/`. Optionally set `RECEIPT_MODEL`; the default is `claude-sonnet-5-5`.
   2. Copy the test receipts into `web/data/` (never commit them). With `npm run dev` running from `web/`, open `/api/dev/parse-test?name=<file>` for `costco_test_1.jpeg`, `costco_test_2.jpeg`, and `tj_test_1.pdf`. Each returns a `receiptId`.
   3. Refresh `/api/receipts/get?id=<receiptId>` until `status` is `parsed` or `failed`. The Convex log prints each line's name and price.
   4. Compare `drafts` (`name`, `priceCents`) with `convex/data/receipt-fixtures/<file>.expected.json` and record the share of the 36 expected lines that match under this section.
   5. Run `npx convex run foods:backfillTips`, then check that no `foods` row lacks a `freshnessHint` and that no range changed.
   6. Open `/api/receipts/add-manual?name=greek%20yogurt` to check the model path of `addManual`.
-- 2026-10-23: The prices on `costco_test_1.jpeg` sit about one row above their item names, because the photo is tilted. Read row by row, the prices in the top third land on the wrong items. Pairing them by order (Gold Kiwi 14.99, then the `/ 6995` 3.00 discount) matches the plan's 1199 cents. The prompt tells the model to pair prices by order and check them against the totals. Watch this line in the accuracy check.
+- 2026-10-23: The prices on `costco_test_1.jpeg` sit about one row above their item names, because the photo is tilted. Read row by row, the prices in the top third land on the wrong items. Pairing them by order (Gold Kiwi 14.99, then the `/ 6995` 3.00 discount) matches the plan's 1199 cents. The prompt tells the model to pair prices by order and check them against the totals; the live parse got every price on this receipt right.
 - 2026-10-23: `tj_test_1.pdf` carries a text layer with the receipt's text, so the model gets the text as well as the photo.
 - 2026-10-23: On `costco_test_1.jpeg`, `BUZZ VAMP` (15.99, CRV, no `E` flag) is left out of the expected file as alcohol. On these Costco receipts the `E` flag marks the exempt food lines, and every line without it is alcohol or a deposit.
 - 2026-10-23: The Anthropic SDK runs in Convex's default runtime, so `foods.backfillTips` lives in `convex/foods.ts` without `"use node"`.
