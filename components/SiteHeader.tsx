@@ -24,11 +24,11 @@ export function SiteHeader() {
 
   return (
     <header className="topbar">
-      <Link className="brand" href="/" aria-label="freshy home">
+      <Link className="brand" href="/" aria-label="freshly home">
         <span className="logo-mark">
           <FridgeDoodle />
         </span>
-        <span>freshy</span>
+        <span>freshly</span>
       </Link>
       <nav aria-label="Primary navigation">
         {links.map(({ href, label }) => (

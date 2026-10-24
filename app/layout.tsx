@@ -16,7 +16,7 @@ const displayFont = Sniglet({
 });
 
 export const metadata: Metadata = {
-  title: "freshy",
+  title: "freshly",
   description: "Know what's in your fridge and use it before it goes bad.",
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             {children}
             <footer>
               <p>keep it fresh. keep it simple.</p>
-              <span>freshy © 2026</span>
+              <span>freshly © 2026</span>
             </footer>
           </div>
         </ConvexClientProvider>
