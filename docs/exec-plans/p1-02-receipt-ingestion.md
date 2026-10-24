@@ -147,7 +147,7 @@ These override the module names in the steps below (2026-10-23). p1-03 owns `con
 | --- | --- | --- |
 | `receipts.generateUploadUrl` | mutation | used by `/api/dev/parse-test` |
 | `receipts.create({ fileId, fileType })` | mutation | `GET /api/dev/parse-test?name=costco_test_2.jpeg` |
-| `receipts.get({ receiptId })` | query, returns the receipt plus `drafts` | `GET /api/receipts/get?id=` |
+| `receipts.get({ receiptId })` | query, returns the receipt plus `drafts`, each with `checkLabel` | `GET /api/receipts/get?id=` |
 | `receipts.confirmDrafts({ receiptId, removeItemIds? })` | mutation | `GET /api/receipts/confirm-drafts?receiptId=&remove=id1,id2` |
 | `itemEdits.update({ itemId, name?, quantity?, location?, expiresAt? })` | mutation | `GET /api/item-edits/update?id=&expiresAt=2026-11-01&location=freezer` |
 | `receiptsNode.addManual({ name, quantity?, location?, priceCents?, expiresAt? })` | action | `GET /api/receipts/add-manual?name=eggs&expiresAt=2026-11-01` |
@@ -157,7 +157,7 @@ These override the module names in the steps below (2026-10-23). p1-03 owns `con
 | `foods.backfillTips` | internal action | `npx convex run foods:backfillTips` |
 | `items.get`, `items.list` | query | p1-03 |
 
-`foods.TIP_VIEWS_TO_LEARN` (3) is exported for p1-03's `showTip`.
+`foods.TIP_VIEWS_TO_LEARN` (3) is exported for p1-03's `showTip`. `needsLabelDate(food, expirySource)` in `lib/expiry.ts` gives `checkLabel`; `items.get` and `items.list` should return it too.
 
 ## Validation
 
@@ -180,6 +180,7 @@ Result on 2026-10-24, against a local deployment on `localhost:3004`, with `clau
 - Step 6 manual add: "greek yogurt" matched `yogurt` (FoodKeeper, 7 days), "dragon fruit" matched `pitaya/dragon fruit`, and "trader joes orange chicken" matched `frozen entrees, prepared meals` in the freezer. "spinach" got `expirySource: "foodkeeper"` without a model call.
 - Step 7: three `foods.ackTip` calls return `showTip` true, true, false. `items.get` returning `showTip: false` waits for p1-03.
 - Step 8: after `foods:backfillTips`, 0 of 675 rows lack a tip or hint, 0 shelf-life ranges changed, and no model-written tip or hint states a duration.
+- Printed-date flag: the backfill flagged 419 of 675 foods (produce 5 of 101, dairy 42 of 43, pantry 100 of 104). On the mock `costco_test_1`, the 11 processed lines are flagged and the 11 fresh ones (produce, ground beef, salmon) are not. Setting a date on Clif bars clears its flag, and ground beef still accepts a typed date. A live parse of `costco_test_2` with the new schema flags everything except ground beef.
 
 ## Decision log
 
@@ -196,11 +197,14 @@ Result on 2026-10-24, against a local deployment on `localhost:3004`, with `clau
 - 2026-10-23: `itemEdits.update` moves an `expired` item back to `active` when it gets a future `expiresAt`, so a corrected date takes the swipe card away.
 - 2026-10-23: Image limit is 3.75 MB of raw bytes, because the API's 5 MB per-image cap applies after base64 encoding. `costco_test_2.jpeg` (2.9 MB) fits. PDFs are capped at 20 MB, under the 32 MB request limit.
 - 2026-10-23: Unmatched foods get `location` from the model's `newFood.defaultLocation`, else `fridge`. A line with neither a match nor a `newFood` becomes an item with no `foodId` and no date.
+- 2026-10-24: Packaged goods ask for their printed date, approved by Leo. `foods.hasPrintedDate` (a new optional schema field) is true for processed products normally sold with a best-by or use-by date (snacks, drinks, sauces, cereal, baking mixes, packaged bread, cheese, yogurt, butter, frozen meals) and false for raw produce, raw meat, poultry, and fish, and eggs. Claude sets it on new foods during a parse or manual add, and `foods.backfillTips` sets it on reference foods. Such an item still gets the FoodKeeper or FDA estimate, and `receipts.get` marks it `checkLabel: true` until the user sets a date, so the UI can highlight it and ask for the date on the package. Every item, flagged or not, accepts a typed date through `itemEdits.update`; unflagged items are simply not highlighted. `foods.importReference` keeps the flag when it rewrites a row.
 - 2026-10-24: Design v2 marks manual entry high priority (P1.5). `addManual` stays in this plan and gains an optional `expiresAt`, so a user adding an undated food can set its date in the same step.
 
 ## Surprises
 
 - 2026-10-24: The API accepts `RECEIPT_SCHEMA` as written (`anyOf` with `null` for optional fields).
+- 2026-10-24: The printed-date backfill flagged a few fresh foods, for example `yuca/cassava`. A wrong flag only adds a prompt to enter a date; it never changes a date.
+- 2026-10-24: A known food-safety bug in `itemEdits.update` (moving an expired item to the freezer gives it a new date) is recorded in `docs/bugs.md` and not fixed yet.
 - 2026-10-24: `backfillTips` filled 0 foods on its second batch: the foods were sent as `name (category)` and the model returned names that no longer matched exactly. Foods are now numbered in the prompt and matched back by number. The action also does one batch of 25 per run and schedules the next, because 27 calls in one action could pass Convex's 10-minute action limit. It stops when a batch fills nothing.
 - 2026-10-24: The key lives on each deployment. Setting it on the team's cloud dev deployment (`secret-opossum-432`) does not reach a worktree's local anonymous deployment.
 - To re-run the live checks on another deployment:
