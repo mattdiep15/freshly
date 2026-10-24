@@ -36,21 +36,26 @@ export const missingTips = internalQuery({
   args: {},
   handler: async (ctx) =>
     (await ctx.db.query("foods").collect())
-      .filter((f) => !f.storageTip || !f.freshnessHint)
+      .filter((f) => !f.storageTip || !f.freshnessHint || f.hasPrintedDate === undefined)
       .map((f) => ({ foodId: f._id, name: f.name, category: f.category })),
 });
 
-// Fills only the missing tip or hint, never a shelf-life range.
+// Fills only a missing tip, hint, or printed-date flag, never a shelf-life range.
 export const saveTips = internalMutation({
-  args: { tips: v.array(v.object({ foodId: v.id("foods"), storageTip: v.string(), freshnessHint: v.string() })) },
+  args: {
+    tips: v.array(
+      v.object({ foodId: v.id("foods"), storageTip: v.string(), freshnessHint: v.string(), hasPrintedDate: v.boolean() }),
+    ),
+  },
   handler: async (ctx, { tips }) => {
     let updated = 0;
     for (const tip of tips) {
       const food = await ctx.db.get(tip.foodId);
       if (!food) continue;
-      const patch: { storageTip?: { text: string; source: "llm" }; freshnessHint?: { text: string; source: "llm" } } = {};
+      const patch: Partial<typeof food> = {};
       if (!food.storageTip) patch.storageTip = { text: tip.storageTip, source: "llm" };
       if (!food.freshnessHint) patch.freshnessHint = { text: tip.freshnessHint, source: "llm" };
+      if (food.hasPrintedDate === undefined) patch.hasPrintedDate = tip.hasPrintedDate;
       if (Object.keys(patch).length === 0) continue;
       await ctx.db.patch(food._id, patch);
       updated++;
@@ -72,11 +77,11 @@ export const backfillTips = internalAction({
     // Numbered so the model never has to copy food names back exactly.
     const list = batch.map((f, i) => `${i + 1}. ${f.name} (${f.category})`).join("\n");
     const { tips } = (await askJson(anthropicClient(), TIPS_SYSTEM_PROMPT, [{ type: "text", text: list }], TIPS_SCHEMA)) as {
-      tips: { number: number; storageTip: string; freshnessHint: string }[];
+      tips: { number: number; storageTip: string; freshnessHint: string; hasPrintedDate: boolean }[];
     };
-    const matched = tips.flatMap(({ number, storageTip, freshnessHint }) => {
+    const matched = tips.flatMap(({ number, ...tip }) => {
       const food = batch[number - 1];
-      return food ? [{ foodId: food.foodId, storageTip, freshnessHint }] : [];
+      return food ? [{ foodId: food.foodId, ...tip }] : [];
     });
     const updated: number = await ctx.runMutation(internal.foods.saveTips, { tips: matched });
     console.log(`backfillTips: filled ${updated}, ${missing.length - updated} left`);

@@ -19,8 +19,9 @@ const NEW_FOOD_SCHEMA = {
     defaultWeightGrams: nullable({ type: "number" }),
     storageTip: { type: "string" },
     freshnessHint: { type: "string" },
+    hasPrintedDate: { type: "boolean" },
   },
-  required: ["name", "category", "defaultLocation", "defaultWeightGrams", "storageTip", "freshnessHint"],
+  required: ["name", "category", "defaultLocation", "defaultWeightGrams", "storageTip", "freshnessHint", "hasPrintedDate"],
   additionalProperties: false,
 };
 
@@ -68,8 +69,13 @@ export const TIPS_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { number: { type: "integer" }, storageTip: { type: "string" }, freshnessHint: { type: "string" } },
-        required: ["number", "storageTip", "freshnessHint"],
+        properties: {
+          number: { type: "integer" },
+          storageTip: { type: "string" },
+          freshnessHint: { type: "string" },
+          hasPrintedDate: { type: "boolean" },
+        },
+        required: ["number", "storageTip", "freshnessHint", "hasPrintedDate"],
         additionalProperties: false,
       },
     },
@@ -78,10 +84,13 @@ export const TIPS_SCHEMA = {
   additionalProperties: false,
 };
 
+const PRINTED_DATE_RULE = `hasPrintedDate is true for processed or manufactured products normally sold with a printed best-by or use-by date: snacks, drinks, sauces, cereal, baking mixes, packaged bread, cheese, yogurt, butter, frozen meals. It is false for raw produce, raw meat, poultry, and fish, and eggs.`;
+
 const MATCHING_RULES = `Matching each food to the foods list:
 - foodName must be copied exactly from the foods list below, or be null. Pick the closest storage category, e.g. "47355 GROUND BEEF" -> "ground beef", "KS SOCKEYE" -> "fatty fish", "BIMBO BUNS" -> "commercial bread products, including pan breads, flat breads, rolls, and buns".
 - When nothing in the list fits, set foodName to null and fill newFood: a short lowercase generic name, a category, where it is normally stored, a rough package weight in grams, a one-sentence storage tip, and a one-sentence sign that it has gone bad.
 - When foodName is set, newFood is null.
+- ${PRINTED_DATE_RULE}
 - Never state how many days a food lasts. Shelf life comes from a separate sourced table.`;
 
 export function receiptSystemPrompt(foodNames: string[]): string {
@@ -118,6 +127,7 @@ ${foodNames.join("\n")}`;
 export const TIPS_SYSTEM_PROMPT = `You write short storage guidance for Freshly, an app that tracks what is in a student's fridge. For each food given, return:
 - storageTip: one sentence on how to store it to keep it fresh.
 - freshnessHint: one sentence on how to tell it has gone bad (look, smell, texture).
+- ${PRINTED_DATE_RULE}
 Never state how many days, weeks, or months a food lasts; shelf life comes from a separate sourced table. Return one entry per food, with the number it was given.`;
 
 // Structured output instead of a forced tool call: Sonnet 5.5 rejects forced tool_choice.

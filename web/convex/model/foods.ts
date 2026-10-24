@@ -21,7 +21,9 @@ export async function importReferenceFoods(ctx: MutationCtx) {
         inserted++;
         continue;
       }
-      await ctx.db.replace(existing._id, mergeReferenceFood(existing, row));
+      const merged = mergeReferenceFood(existing, row);
+      // The reference files carry no hasPrintedDate, so keep the one backfillTips set.
+      await ctx.db.replace(existing._id, { ...merged, hasPrintedDate: existing.hasPrintedDate });
       updated++;
     }
   }

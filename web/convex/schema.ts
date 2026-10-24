@@ -30,6 +30,7 @@ export const foodFields = {
   storageTip: v.optional(storageTip),
   freshnessHint: v.optional(freshnessHint),
   defaultWeightGrams: v.optional(v.number()), // rough estimate for lbs wasted, not a safety claim
+  hasPrintedDate: v.optional(v.boolean()), // processed product sold with a best-by date; the UI asks for it
 };
 
 export default defineSchema({

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { expiryFor } from "./expiry";
+import { expiryFor, needsLabelDate } from "./expiry";
 
 const DAY = 24 * 60 * 60 * 1000;
 const bought = Date.UTC(2026, 9, 6);
@@ -34,5 +34,19 @@ describe("expiryFor", () => {
   test("uses the low end of the range", () => {
     const wide = { fridgeDays: { min: 3, max: 5, source: "fda_chart" as const, ref: "x" } };
     expect(expiryFor(wide, "fridge", bought)?.expiresAt).toBe(bought + 3 * DAY);
+  });
+});
+
+describe("needsLabelDate", () => {
+  test("flags a processed food until the user sets a date", () => {
+    expect(needsLabelDate({ hasPrintedDate: true }, "foodkeeper")).toBe(true);
+    expect(needsLabelDate({ hasPrintedDate: true }, undefined)).toBe(true);
+    expect(needsLabelDate({ hasPrintedDate: true }, "user")).toBe(false);
+  });
+
+  test("does not flag fresh, unclassified, or unknown foods", () => {
+    expect(needsLabelDate({ hasPrintedDate: false }, "fda_chart")).toBe(false);
+    expect(needsLabelDate({}, "foodkeeper")).toBe(false);
+    expect(needsLabelDate(null, undefined)).toBe(false);
   });
 });

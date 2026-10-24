@@ -17,3 +17,11 @@ export function expiryFor(
   if (!range) return null;
   return { expiresAt: purchasedAt + range.min * DAY, expirySource: range.source };
 }
+
+// Processed foods carry a printed date that beats our estimate; ask for it until the user has set one.
+export function needsLabelDate(
+  food: { hasPrintedDate?: boolean } | null,
+  expirySource: ShelfLifeSource | "user" | undefined,
+): boolean {
+  return food?.hasPrintedDate === true && expirySource !== "user";
+}

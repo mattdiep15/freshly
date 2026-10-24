@@ -1,5 +1,5 @@
 import { v, type Infer } from "convex/values";
-import { expiryFor } from "../lib/expiry";
+import { expiryFor, needsLabelDate } from "../lib/expiry";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
@@ -13,6 +13,7 @@ export const newFood = v.object({
   defaultWeightGrams: v.union(v.number(), v.null()),
   storageTip: v.string(),
   freshnessHint: v.string(),
+  hasPrintedDate: v.boolean(),
 });
 
 const receiptLine = v.object({
@@ -70,7 +71,15 @@ export const get = query({
       .query("items")
       .withIndex("by_receipt", (q) => q.eq("receiptId", receiptId))
       .collect();
-    return { ...receipt, drafts: items.filter((i) => i.status === "draft") };
+    const drafts = await Promise.all(
+      items
+        .filter((i) => i.status === "draft")
+        .map(async (i) => {
+          const food = i.foodId ? await ctx.db.get(i.foodId) : null;
+          return { ...i, checkLabel: needsLabelDate(food, i.expirySource) };
+        }),
+    );
+    return { ...receipt, drafts };
   },
 });
 
@@ -217,6 +226,7 @@ export async function resolveFood(
     defaultWeightGrams: fresh.defaultWeightGrams ?? undefined,
     storageTip: { text: fresh.storageTip, source: "llm" },
     freshnessHint: { text: fresh.freshnessHint, source: "llm" },
+    hasPrintedDate: fresh.hasPrintedDate,
   });
   return await ctx.db.get(foodId);
 }

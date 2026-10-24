@@ -26,7 +26,8 @@
         "defaultLocation": "pantry",
         "defaultWeightGrams": 600,
         "storageTip": "Keep sealed in a cool, dry cupboard.",
-        "freshnessHint": "Toss if the seasoning packet smells rancid."
+        "freshnessHint": "Toss if the seasoning packet smells rancid.",
+        "hasPrintedDate": true
       }
     },
     {"rawText":"38175 CARA ORANGES","displayName":"Cara cara oranges","quantity":1,"unit":null,"priceCents":849,"weightGrams":null,"foodName":"citrus fruit, lemon, lime, orange, grapefruit, tangerines, clementines","newFood":null},

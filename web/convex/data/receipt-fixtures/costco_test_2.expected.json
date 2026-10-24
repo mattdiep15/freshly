@@ -21,7 +21,8 @@
         "defaultLocation": "pantry",
         "defaultWeightGrams": 6000,
         "storageTip": "Store unopened cans at room temperature; chill before drinking.",
-        "freshnessHint": "Drink opened cans the same day."
+        "freshnessHint": "Drink opened cans the same day.",
+        "hasPrintedDate": true
       }
     },
     {"rawText":"689917 KING HAWAII","displayName":"King's Hawaiian rolls","quantity":1,"unit":null,"priceCents":699,"weightGrams":null,"foodName":"commercial bread products, including pan breads, flat breads, rolls, and buns","newFood":null},
