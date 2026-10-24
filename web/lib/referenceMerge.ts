@@ -1,5 +1,5 @@
-export type ShelfLifeSource = "fda_chart" | "foodkeeper";
-export type TipSource = ShelfLifeSource | "llm";
+export type ShelfLifeSource = "fda_chart" | "foodkeeper" | "web";
+export type TipSource = "fda_chart" | "foodkeeper" | "llm";
 export type Location = "fridge" | "freezer" | "pantry";
 
 export type ShelfLife = { min: number; max: number; source: ShelfLifeSource; ref: string };
@@ -18,11 +18,11 @@ export type ReferenceFood = {
   defaultWeightGrams?: number;
 };
 
-const RANK: Record<TipSource, number> = { llm: 0, foodkeeper: 1, fda_chart: 2 };
+const RANK: Record<ShelfLifeSource | TipSource, number> = { llm: 0, web: 1, foodkeeper: 2, fda_chart: 3 };
 const RANGE_KEYS = ["fridgeDays", "freezerDays", "pantryDays"] as const;
 
-// The FDA chart outranks FoodKeeper, which outranks model-written text; ties go to the newer value.
-function better<T extends { source: TipSource }>(current?: T, next?: T): T | undefined {
+// The FDA chart outranks FoodKeeper, which outranks web pages and model-written text; ties go to the newer value.
+function better<T extends { source: ShelfLifeSource | TipSource }>(current?: T, next?: T): T | undefined {
   if (!next) return current;
   if (!current) return next;
   return RANK[next.source] >= RANK[current.source] ? next : current;

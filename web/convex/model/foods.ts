@@ -22,8 +22,8 @@ export async function importReferenceFoods(ctx: MutationCtx) {
         continue;
       }
       const merged = mergeReferenceFood(existing, row);
-      // The reference files carry no hasPrintedDate, so keep the one backfillTips set.
-      await ctx.db.replace(existing._id, { ...merged, hasPrintedDate: existing.hasPrintedDate });
+      // The reference files carry no hasPrintedDate or webLookupAt, so keep the ones already set.
+      await ctx.db.replace(existing._id, { ...merged, hasPrintedDate: existing.hasPrintedDate, webLookupAt: existing.webLookupAt });
       updated++;
     }
   }

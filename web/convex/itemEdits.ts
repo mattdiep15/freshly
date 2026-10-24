@@ -4,6 +4,7 @@ import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { getUserId } from "./model/auth";
 import { bumpTimesAdded, newFood, resolveFood } from "./receipts";
 import { location } from "./schema";
+import { scheduleWebLookup } from "./shelfLifeWeb";
 
 // A user-set expiresAt wins; a location change without one recomputes from the sourced range.
 export const update = mutation({
@@ -88,6 +89,7 @@ export const insertManual = internalMutation({
       status: "active",
     });
     if (food) await bumpTimesAdded(ctx, userId, food._id);
+    await scheduleWebLookup(ctx, [food?._id]);
     return itemId;
   },
 });
