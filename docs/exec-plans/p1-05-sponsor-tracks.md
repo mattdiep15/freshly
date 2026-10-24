@@ -1,4 +1,4 @@
-# P1-04: Sponsor tracks (Apify, Gemini, GoDaddy)
+# P1-05: Sponsor tracks (Apify, Gemini, GoDaddy)
 
 Tier: P1 (the hackathon judges these tracks). Estimate: 8 to 10 hours for one engineer, split into four parts that can ship one at a time. Depends on p1-02. Status: draft. Open questions 8 and 9 in the README must be answered before part B or C starts.
 

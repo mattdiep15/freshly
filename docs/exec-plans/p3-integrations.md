@@ -18,7 +18,7 @@ Possible data source: USDA AMS publishes local food directories, including farme
 
 ### Recipe recommendations
 
-Moved to p1-04 part C (2026-10-24), which finds real recipes with Apify and ranks them with Gemini for the sponsor tracks. The notes below are the earlier options.
+Moved to p1-05 part C (2026-10-24), which finds real recipes with Apify and ranks them with Gemini for the sponsor tracks. The notes below are the earlier options.
 
 Recommend recipes that use items close to expiry. The product spec mentions "MISE" and recipe databases. Confirm with the team which product or dataset "MISE" refers to.
 

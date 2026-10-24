@@ -86,7 +86,7 @@ Planet-First Hack, and Figma Best Design. Apify fetches web data (shelf-life pag
 foods with no FDA or FoodKeeper entry, and recipes), Gemini reads receipts and interprets
 what Apify fetches, Convex runs the backend, and GoDaddy holds the domain. The design team
 owns the Figma track, including a mascot. Where each one lands in the plans:
-`docs/exec-plans/p1-04-sponsor-tracks.md`.
+`docs/exec-plans/p1-05-sponsor-tracks.md`.
 
 ## Reference data
 
