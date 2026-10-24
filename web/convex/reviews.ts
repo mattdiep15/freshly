@@ -1,5 +1,5 @@
 import { query } from "./_generated/server";
-import { toItemViews } from "./items";
+import { extendedExpiry, toItemViews } from "./items";
 import { getUserId } from "./model/auth";
 
 // Expired items waiting for a used/wasted swipe, oldest expiry first.
@@ -11,6 +11,14 @@ export const pending = query({
       .query("items")
       .withIndex("by_user_status", (q) => q.eq("userId", userId).eq("status", "expired"))
       .collect();
-    return await toItemViews(ctx, userId, rows);
+    const now = Date.now();
+    const views = await toItemViews(ctx, userId, rows);
+    return await Promise.all(
+      views.map(async (view) => {
+        const food = view.foodId ? await ctx.db.get(view.foodId) : null;
+        // Tells the UI whether the second card offers "1-2 more days" or only "toss".
+        return { ...view, canExtend: extendedExpiry(view, food, now) !== null };
+      }),
+    );
   },
 });

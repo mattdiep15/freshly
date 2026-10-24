@@ -2,6 +2,9 @@ const DAY = 24 * 60 * 60 * 1000;
 const GRAMS_PER_LB = 453.6;
 
 export type WasteRange = "week" | "month" | "all";
+// TODO(release): hardcoded guess; a binary "wasted" swipe does not say how much was thrown out
+export const DEFAULT_WASTED_FRACTION = 0.5;
+
 const RANGE_DAYS: Record<WasteRange, number | null> = { week: 7, month: 30, all: null };
 
 export type ResolvedItem = {
@@ -34,7 +37,7 @@ export function summarizeWaste(items: ResolvedItem[], range: WasteRange, now: nu
   let itemsMissingPrice = 0;
   let itemsMissingWeight = 0;
   for (const i of inRange) {
-    const fraction = i.fractionWasted ?? (i.status === "wasted" ? 1 : 0);
+    const fraction = i.fractionWasted ?? (i.status === "wasted" ? DEFAULT_WASTED_FRACTION : 0);
     if (fraction === 0) continue;
     if (i.priceCents === undefined) itemsMissingPrice++;
     else wastedCents += i.priceCents * fraction;

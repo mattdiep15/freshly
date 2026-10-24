@@ -31,13 +31,13 @@ describe("summarizeWaste", () => {
     expect(summarizeWaste(half, "week", NOW)).toMatchObject({ itemsWasted: 1, wastedCents: 300, wastedGrams: 454 });
   });
 
-  test("a missing fractionWasted follows the status", () => {
+  test("a missing fractionWasted follows the status, with wasted counting as half", () => {
     const summary = summarizeWaste(
       [resolved(1, { status: "wasted", priceCents: 100 }), resolved(1, { status: "used", priceCents: 900 })],
       "week",
       NOW,
     );
-    expect(summary.wastedCents).toBe(100);
+    expect(summary.wastedCents).toBe(50);
   });
 
   test("items missing price or weight count toward totals but not sums", () => {

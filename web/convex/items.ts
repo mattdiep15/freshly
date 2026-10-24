@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { daysLeft } from "../lib/digest";
+import { extendExpiry, sourcedRange } from "../lib/extension";
+import { DEFAULT_WASTED_FRACTION } from "../lib/wasteStats";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import { getUserId } from "./model/auth";
@@ -14,6 +16,13 @@ export type ItemView = Doc<"items"> & {
   freshnessHint: Doc<"foods">["freshnessHint"] | null;
   showTip: boolean;
 };
+
+// New expiresAt for "1-2 more days", or null when the item has no sourced high end left.
+export function extendedExpiry(item: Doc<"items">, food: Doc<"foods"> | null, now: number): number | null {
+  if (item.status !== "expired" || item.expirySource === "user" || !item.foodId) return null;
+  const range = sourcedRange(food, item.location);
+  return range ? extendExpiry({ purchasedAt: item.purchasedAt, range, now }) : null;
+}
 
 async function utcOffsetFor(ctx: QueryCtx, userId: Id<"users">): Promise<number> {
   const profile = await ctx.db
@@ -109,10 +118,26 @@ export const resolve = mutation({
     }
     const patch = {
       status: outcome,
-      fractionWasted: fractionWasted ?? (outcome === "used" ? 0 : 1),
+      fractionWasted: fractionWasted ?? (outcome === "used" ? 0 : DEFAULT_WASTED_FRACTION),
       resolvedAt: Date.now(),
     };
     await ctx.db.patch(itemId, patch);
     return { itemId, ...patch };
+  },
+});
+
+// Second swipe card, "no, 1-2 more days": back to active with a later, still-sourced date.
+export const extend = mutation({
+  args: { itemId: v.id("items") },
+  handler: async (ctx, { itemId }) => {
+    const userId = await getUserId(ctx);
+    const item = await ctx.db.get(itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+    if (item.status !== "expired") throw new Error(`Item is ${item.status}; only expired items can be extended`);
+    const food = item.foodId ? await ctx.db.get(item.foodId) : null;
+    const expiresAt = extendedExpiry(item, food, Date.now());
+    if (expiresAt === null) throw new Error("No sourced shelf life left to extend into");
+    await ctx.db.patch(itemId, { status: "active", expiresAt });
+    return { itemId, status: "active" as const, expiresAt };
   },
 });
