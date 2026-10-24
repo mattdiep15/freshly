@@ -4,12 +4,13 @@ Tier: P2. Estimate: 4 to 5 hours for one engineer. Depends on p2-01. Can run in 
 
 ## Purpose
 
-Give users a reason to keep swiping their cards: a streak on the stats tab, and a weekly leaderboard with friends on the friends tab. This covers "Community tab" and "Gamified tracking" in `docs/PRODUCT.md`. Dollars and pounds wasted already exist from p1-03.
+Give users a reason to keep swiping their cards: a streak in the "my numbers" view and a weekly leaderboard in the "friends" view of `/community`. This covers "Community tab" and "Gamified tracking" in `docs/PRODUCT.md`. Dollars and pounds wasted already exist from p1-03.
 
 ## Context
 
 - Code paths are relative to `web/`. `stats.summary` and `summarizeWaste` are in p1-03.
-- v5 (`claude/frontend-prototype-v5-19a533`) dropped the "me" tab. The nav is fridge, recipes, camera, stats, friends. The streak goes on the stats tab, in the third circle that p1-04 filled with "% used" until streaks existed. The leaderboard stays on the friends tab.
+- v6 (#23) merged the stats and friends tabs into one page, `app/community/page.tsx`, with a "my numbers / friends" switch. `/stats` and `/friends` redirect there with `?view=numbers` or `?view=friends`; the page reads `view` once, stores it through `setCommunityView` in `app/_components/useCommunityView.ts`, and replaces the URL with plain `/community`.
+- The streak goes in `NumbersView`, in the third circle of `StatCircles` that p1-04 filled with "% used" until streaks existed. The leaderboard and the add-friend button go in `FriendsView`, which renders a disabled "+ add a friend" button and `demoLeaderboard`.
 - `app/_components/Leaderboard.tsx` already renders `{ name, lbsWasted, streakDays, isYou }[]` from `demoLeaderboard` in `app/_demo/fixtures.ts`. This plan feeds it real data and keeps the component as is.
 - The design counts the streak in days. A streak that needs activity every day would punish students who shop once a week, so this plan counts days without waste instead (see Behavior).
 - `friendships` (two rows per pair) and `profiles.inviteCode` are in p2-01.
@@ -48,7 +49,7 @@ Adding friends:
 - `friends.inviteCode()` is a mutation that returns the caller's code, creating a 6-character code on first call. Use letters and digits without look-alikes (no 0, O, 1, I) and retry on a collision through the `by_invite_code` index.
 - `friends.add({ code })` looks up the code, rejects the caller's own code, an unknown code, and an existing friendship, then inserts both `friendships` rows. Entering a code is the consent, so there is no pending state.
 - `friends.remove({ friendId })` deletes both rows.
-- An invite link is `/friends?invite=<code>`. The friends page reads the param and asks "add <name> as a friend?" before calling `add`.
+- An invite link is `/community?view=friends&invite=<code>`. `view=friends` reuses the existing switch, and the page keeps the code after it clears the URL, then the friends view asks "add <name> as a friend?" before calling `add`.
 
 ## Steps
 
@@ -71,15 +72,15 @@ Adding friends:
 5. In `convex/seed.ts`, add four friend users (maya, theo, dev, nina) with profiles, invite codes, friendships with the demo user, and used and wasted items resolved over the last two weeks. Pick the items so the leaderboard order and streaks resemble `demoLeaderboard`. Fake data stays in the seed, per `CLAUDE.md`.
    Verify: after `/api/dev/seed`, `/api/friends/leaderboard` returns five rows with the demo user marked `isYou`.
 
-6. Stats tab: the third circle in `StatCircles` shows `stats.streak` as "N days" instead of "% used". Keep `usedRate` in the period table.
+6. My numbers view: in `app/community/page.tsx`, `NumbersView` passes `stats.streak` to `StatCircles`, and its third circle shows "N days" instead of "% used". Keep `usedRate` in the period table.
    Verify: in the running app, tossing an item from a swipe card drops the streak to 0.
 
-7. Friends tab: `app/friends/page.tsx` reads `friends.leaderboard` and passes it to `Leaderboard`. Enable "+ add a friend": it shows the user's invite link with a copy button and a field to paste a friend's code. Use the designer's dialog if it has landed. Handle `?invite=`. Remove `demoLeaderboard` from `app/_demo/fixtures.ts` and the `TODO(release)` line in the friends page.
-   Verify: as the demo user, the friends tab shows the seeded leaderboard and pasting a seeded friend's code after removing them adds them back. Once sign-in exists, in two browsers signed in as different users, user A opens user B's invite link, confirms, and each sees the other on the leaderboard.
+7. Friends view: `FriendsView` in `app/community/page.tsx` reads `friends.leaderboard` and passes it to `Leaderboard`. Enable "+ add a friend": it shows the user's invite link with a copy button and a field to paste a friend's code. Use the designer's dialog if it has landed. Handle `/community?view=friends&invite=<code>`. Remove `demoLeaderboard` from `app/_demo/fixtures.ts` and the `TODO(release)` line in `FriendsView`.
+   Verify: as the demo user, the friends view shows the seeded leaderboard and pasting a seeded friend's code after removing them adds them back. Once sign-in exists, in two browsers signed in as different users, user A opens user B's invite link, confirms, and each sees the other on the leaderboard.
 
 ## File ownership
 
-This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, `lib/streak.ts` and its test, `app/api/friends/`, `app/api/stats/streak/`, `app/friends/page.tsx`, `app/_components/Leaderboard.tsx`, `app/_components/WasteStats.tsx`, and `demoLeaderboard` in `app/_demo/fixtures.ts`. p2-02 also edits `convex/seed.ts`; keep this plan's seed code in its own helper function.
+This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, `lib/streak.ts` and its test, `app/api/friends/`, `app/api/stats/streak/`, `NumbersView` and `FriendsView` in `app/community/page.tsx`, `app/_components/Leaderboard.tsx`, `app/_components/WasteStats.tsx`, and `demoLeaderboard` in `app/_demo/fixtures.ts`. p2-02 also edits `convex/seed.ts`; keep this plan's seed code in its own helper function.
 
 ## Interfaces delivered
 
@@ -121,6 +122,7 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: Streaks count days without waste, so a weekly shopper keeps a streak. An unswiped expired item counts as waste, so ignoring cards does not protect a streak.
 - 2026-10-24: Leaderboard and streaks compute on read, with no `userStats` table (p2-01).
 - 2026-10-24: Friends join by invite code or link, not by searching names, so users cannot browse other accounts.
+- 2026-10-24: Re-pointed at the v6 `/community` page (#23). `app/stats/page.tsx` and `app/friends/page.tsx` are gone, so the streak goes in `NumbersView` and the leaderboard in `FriendsView`, and the invite link is `/community?view=friends&invite=<code>` to reuse the page's `?view=` handling.
 
 ## Surprises
 

@@ -13,7 +13,7 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p1-05-sponsor-tracks.md](p1-05-sponsor-tracks.md) | P1 | Hackathon sponsor tracks: Gemini receipt check, web shelf-life lookup (Apify + Gemini), GoDaddy domain | A and B done (Claude parses, Gemini verifies; web shelf life); D not started; recipes (C) moved to p3 | ~8-10 h |
 | [p2-01-schema.md](p2-01-schema.md) | P2 | Tables for the grocery list, friends, and cached recipes; invite codes on profiles | Not started | ~30 min |
 | [p2-02-grocery-list.md](p2-02-grocery-list.md) | P2 | Grocery list, checked off by hand or by a scanned receipt | Not started | ~2-3 h |
-| [p2-03-community-and-streaks.md](p2-03-community-and-streaks.md) | P2 | Friends by invite code, weekly leaderboard on the friends tab, streak on the stats tab | Not started | ~4-5 h |
+| [p2-03-community-and-streaks.md](p2-03-community-and-streaks.md) | P2 | Friends by invite code, weekly leaderboard and streak on the `/community` page (friends and my numbers views) | Not started | ~4-5 h |
 | [p2-04-recipe-suggestions.md](p2-04-recipe-suggestions.md) | P2 | Recipes for use-soon items from web pages (Apify + Gemini), fixed recipes as fallback | Not started | ~3-4 h |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, food recall alerts, speech, Wrapped Waste, image-based spoilage model; grocery hints, estimated prices, location reminders, and takeout leftovers moved from P2 | Draft | not estimated |
 
