@@ -92,8 +92,10 @@ export const addManual = action({
   args: {
     name: v.string(),
     quantity: v.optional(v.number()),
+    unit: v.optional(v.string()),
     location: v.optional(location),
     priceCents: v.optional(v.number()),
+    purchasedAt: v.optional(v.number()),
     expiresAt: v.optional(v.number()),
   },
   handler: async (ctx, args): Promise<Id<"items">> => {

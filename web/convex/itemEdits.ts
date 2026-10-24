@@ -6,6 +6,8 @@ import { bumpTimesAdded, newFood, resolveFood } from "./receipts";
 import { location } from "./schema";
 import { scheduleWebLookup } from "./shelfLifeWeb";
 
+const DAY = 24 * 60 * 60 * 1000;
+
 // A user-set expiresAt wins; a location change without one recomputes from the sourced range.
 export const update = mutation({
   args: {
@@ -60,8 +62,10 @@ export const insertManual = internalMutation({
   args: {
     name: v.string(),
     quantity: v.optional(v.number()),
+    unit: v.optional(v.string()),
     location: v.optional(location),
     priceCents: v.optional(v.number()),
+    purchasedAt: v.optional(v.number()),
     expiresAt: v.optional(v.number()),
     foodName: v.union(v.string(), v.null()),
     newFood: v.union(newFood, v.null()),
@@ -70,7 +74,9 @@ export const insertManual = internalMutation({
     const userId = await getUserId(ctx);
     const food = await resolveFood(ctx, args.foodName, args.newFood);
     const loc = args.location ?? food?.defaultLocation ?? "fridge";
-    const purchasedAt = Date.now();
+    if (args.quantity !== undefined && !(args.quantity > 0)) throw new Error("Quantity must be positive");
+    if (args.purchasedAt !== undefined && args.purchasedAt > Date.now() + DAY) throw new Error("Purchase date is in the future");
+    const purchasedAt = args.purchasedAt ?? Date.now();
     const expiry =
       args.expiresAt !== undefined
         ? { expiresAt: args.expiresAt, expirySource: "user" as const }
@@ -80,6 +86,7 @@ export const insertManual = internalMutation({
       foodId: food?._id,
       name: args.name,
       quantity: args.quantity ?? 1,
+      unit: args.unit,
       priceCents: args.priceCents,
       weightGrams: food?.defaultWeightGrams,
       location: loc,
@@ -91,5 +98,17 @@ export const insertManual = internalMutation({
     if (food) await bumpTimesAdded(ctx, userId, food._id);
     await scheduleWebLookup(ctx, [food?._id]);
     return itemId;
+  },
+});
+
+// Undo for a manual add; only an item that is still active can be taken back.
+export const remove = mutation({
+  args: { itemId: v.id("items") },
+  handler: async (ctx, { itemId }) => {
+    const userId = await getUserId(ctx);
+    const item = await ctx.db.get(itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+    if (item.status !== "active") throw new Error(`Item is ${item.status}; only active items can be removed`);
+    await ctx.db.delete(itemId);
   },
 });
