@@ -1,0 +1,1222 @@
+[
+  {
+    "name": "eggs",
+    "aliases": [
+      "egg",
+      "eggs in shell",
+      "large eggs",
+      "dozen eggs"
+    ],
+    "category": "eggs",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 21,
+      "max": 35,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Fresh, in shell > Refrigerator: 3 - 5 weeks"
+    }
+  },
+  {
+    "name": "raw egg yolks and whites",
+    "aliases": [
+      "egg whites",
+      "egg yolks"
+    ],
+    "category": "eggs",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 2,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Raw yolks, whites > Refrigerator: 2 - 4 days"
+    },
+    "freezerDays": {
+      "min": 365,
+      "max": 365,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Raw yolks, whites > Freezer: 1 year"
+    }
+  },
+  {
+    "name": "hard cooked eggs",
+    "aliases": [
+      "hard boiled eggs",
+      "boiled eggs"
+    ],
+    "category": "eggs",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 7,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Hard cooked > Refrigerator: 1 week"
+    }
+  },
+  {
+    "name": "liquid eggs, opened",
+    "aliases": [
+      "egg substitute, opened"
+    ],
+    "category": "eggs",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 3,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Liquid pasteurized eggs or egg substitutes, opened > Refrigerator: 3 days"
+    }
+  },
+  {
+    "name": "liquid eggs",
+    "aliases": [
+      "liquid egg whites",
+      "egg substitute",
+      "liquid pasteurized eggs"
+    ],
+    "category": "eggs",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 10,
+      "max": 10,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Liquid pasteurized eggs or egg substitutes, unopened > Refrigerator: 10 days"
+    },
+    "freezerDays": {
+      "min": 365,
+      "max": 365,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Eggs > Liquid pasteurized eggs or egg substitutes, unopened > Freezer: 1 year"
+    }
+  },
+  {
+    "name": "frozen dinners",
+    "aliases": [
+      "tv dinners",
+      "frozen casseroles",
+      "frozen meals"
+    ],
+    "category": "frozen",
+    "defaultLocation": "freezer",
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > TV Dinners, Frozen Casseroles > Keep frozen until ready to heat > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep frozen until ready to heat.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "deli salads",
+    "aliases": [
+      "egg salad",
+      "chicken salad",
+      "tuna salad",
+      "ham salad",
+      "macaroni salad"
+    ],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Deli & Vacuum-Packed Products > Store-prepared (or homemade) egg, chicken, tuna, ham, macaroni salads > Refrigerator: 3 - 5 days"
+    }
+  },
+  {
+    "name": "pre-stuffed chops and chicken breasts",
+    "aliases": [
+      "stuffed pork chops",
+      "stuffed lamb chops",
+      "stuffed chicken breasts"
+    ],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 1,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Deli & Vacuum-Packed Products > Pre-stuffed pork & lamb chops, chicken breasts stuffed w/dressing > Refrigerator: 1 day"
+    }
+  },
+  {
+    "name": "store-cooked convenience meals",
+    "aliases": [
+      "prepared meals",
+      "deli meals"
+    ],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Deli & Vacuum-Packed Products > Store-cooked convenience meals > Refrigerator: 3 - 4 days"
+    }
+  },
+  {
+    "name": "vacuum-packed dinners",
+    "aliases": [
+      "commercial brand vacuum-packed dinners"
+    ],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 14,
+      "max": 14,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Deli & Vacuum-Packed Products > Commercial brand vacuum-packed dinners with USDA seal, unopened > Refrigerator: 2 weeks"
+    }
+  },
+  {
+    "name": "ground beef",
+    "aliases": [
+      "hamburger",
+      "stew meat",
+      "beef stew meat",
+      "ground chuck",
+      "lean ground beef",
+      "beef, ground"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Hamburger & stew meats > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Hamburger & stew meats > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "ground turkey",
+    "aliases": [
+      "turkey, ground"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "ground veal",
+    "aliases": [
+      "veal, ground"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "ground pork",
+    "aliases": [
+      "pork, ground"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "ground lamb",
+    "aliases": [
+      "lamb, ground"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Raw Hamburger, Ground & Stew Meat > Ground turkey, veal, pork, lamb > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "corned beef",
+    "aliases": [
+      "corned beef in pouch"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 5,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Corned beef in pouch with pickling juices > Refrigerator: 5 - 7 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 30,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Corned beef in pouch with pickling juices > Freezer: Drained, 1 month"
+    },
+    "storageTip": {
+      "text": "Drain the pickling juices before freezing.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "canned ham, unopened",
+    "aliases": [
+      "canned ham"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 180,
+      "max": 270,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, canned, labeled \"Keep Refrigerated,\" unopened > Refrigerator: 6 - 9 months"
+    }
+  },
+  {
+    "name": "canned ham, opened",
+    "aliases": [],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, canned, labeled \"Keep Refrigerated,\" opened > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, canned, labeled \"Keep Refrigerated,\" opened > Freezer: 1 - 2 months"
+    }
+  },
+  {
+    "name": "ham, whole",
+    "aliases": [
+      "whole ham",
+      "fully cooked ham"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 7,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, whole > Refrigerator: 7 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, whole > Freezer: 1 - 2 months"
+    }
+  },
+  {
+    "name": "ham, half",
+    "aliases": [
+      "half ham"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, half > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, half > Freezer: 1 - 2 months"
+    }
+  },
+  {
+    "name": "ham slices",
+    "aliases": [
+      "sliced ham",
+      "ham steak"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, slices > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Ham, Corned Beef > Ham, fully cooked, slices > Freezer: 1 - 2 months"
+    }
+  },
+  {
+    "name": "hot dogs, opened",
+    "aliases": [],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 7,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Hot dogs, opened package > Refrigerator: 1 week"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Hot dogs, opened package > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Freezer times assume freezer wrap.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "hot dogs",
+    "aliases": [
+      "franks",
+      "frankfurters",
+      "wieners"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 14,
+      "max": 14,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Hot dogs, unopened package > Refrigerator: 2 weeks"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Hot dogs, unopened package > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Freezer times assume freezer wrap.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "lunch meat, opened",
+    "aliases": [],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Lunch meats, opened package > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Lunch meats, opened package > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Freezer times assume freezer wrap.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "lunch meat",
+    "aliases": [
+      "deli meat",
+      "cold cuts",
+      "lunchmeat",
+      "sliced turkey"
+    ],
+    "category": "deli",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 14,
+      "max": 14,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Lunch meats, unopened package > Refrigerator: 2 weeks"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Hot Dogs & Lunch Meats (in freezer wrap) > Lunch meats, unopened package > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Freezer times assume freezer wrap.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "soups and stews",
+    "aliases": [
+      "soup",
+      "stew",
+      "homemade soup"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Soups & Stews > Vegetable or meat-added & mixtures of them > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 90,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Soups & Stews > Vegetable or meat-added & mixtures of them > Freezer: 2 - 3 months"
+    }
+  },
+  {
+    "name": "bacon",
+    "aliases": [
+      "sliced bacon",
+      "thick cut bacon"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 7,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Bacon > Refrigerator: 7 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 30,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Bacon > Freezer: 1 month"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "raw sausage",
+    "aliases": [
+      "sausage",
+      "fresh sausage",
+      "italian sausage",
+      "pork sausage"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Sausage, raw from pork, beef, chicken or turkey > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Sausage, raw from pork, beef, chicken or turkey > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "smoked breakfast links and patties",
+    "aliases": [
+      "breakfast links",
+      "smoked sausage links",
+      "breakfast sausage patties"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 7,
+      "max": 7,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Smoked breakfast links, patties > Refrigerator: 7 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Bacon & Sausage > Smoked breakfast links, patties > Freezer: 1 - 2 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "steak",
+    "aliases": [
+      "steaks",
+      "beef steak",
+      "ribeye",
+      "sirloin steak",
+      "beef, steaks"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Steaks > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 180,
+      "max": 360,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Steaks > Freezer: 6 - 12 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "pork chops",
+    "aliases": [
+      "pork chop",
+      "lamb chops",
+      "veal chops",
+      "chops"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Chops > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Chops > Freezer: 4 - 6 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "roast",
+    "aliases": [
+      "pot roast",
+      "beef roast",
+      "pork roast",
+      "chuck roast"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 5,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Roasts > Refrigerator: 3 - 5 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 360,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Roasts > Freezer: 4 - 12 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "variety meats",
+    "aliases": [
+      "liver",
+      "beef liver",
+      "tongue",
+      "kidneys",
+      "heart",
+      "chitterlings"
+    ],
+    "category": "meat",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Variety meats (tongue, kidneys, liver, heart, chitterlings) > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Meat (Beef, Veal, Lamb, & Pork) > Variety meats (tongue, kidneys, liver, heart, chitterlings) > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "cooked meat leftovers",
+    "aliases": [
+      "leftover meat",
+      "cooked meat",
+      "meat dishes"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Meat Leftovers > Cooked meat & meat dishes > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 90,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Meat Leftovers > Cooked meat & meat dishes > Freezer: 2 - 3 months"
+    }
+  },
+  {
+    "name": "gravy and meat broth",
+    "aliases": [
+      "gravy",
+      "meat broth"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Meat Leftovers > Gravy & meat broth > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 90,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Meat Leftovers > Gravy & meat broth > Freezer: 2 - 3 months"
+    }
+  },
+  {
+    "name": "whole chicken",
+    "aliases": [
+      "whole turkey",
+      "chicken, whole",
+      "turkey, whole"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, whole > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 365,
+      "max": 365,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, whole > Freezer: 1 year"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "chicken breast",
+    "aliases": [
+      "boneless skinless chicken breast",
+      "bnls chkn brst",
+      "chicken breasts",
+      "chicken tenders"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 270,
+      "max": 270,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Freezer: 9 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "chicken thighs",
+    "aliases": [
+      "chicken thigh",
+      "chicken legs",
+      "chicken drumsticks"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 270,
+      "max": 270,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Freezer: 9 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "chicken wings",
+    "aliases": [
+      "wings"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 270,
+      "max": 270,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Freezer: 9 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "turkey parts",
+    "aliases": [
+      "turkey breast",
+      "turkey legs",
+      "turkey thighs"
+    ],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 270,
+      "max": 270,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > Freezer: 9 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "giblets",
+    "aliases": [],
+    "category": "poultry",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Giblets > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fresh Poultry > Giblets > Freezer: 3 - 4 months"
+    },
+    "storageTip": {
+      "text": "Keep meat and poultry in its package until just before using. If freezing it in the original package longer than 2 months, overwrap the package with airtight heavy-duty foil, plastic wrap, or freezer paper, or place it inside a plastic bag.",
+      "source": "fda_chart"
+    }
+  },
+  {
+    "name": "fried chicken",
+    "aliases": [],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Fried chicken > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Fried chicken > Freezer: 4 months"
+    }
+  },
+  {
+    "name": "cooked poultry dishes",
+    "aliases": [
+      "chicken casserole",
+      "leftover chicken dish"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Cooked poultry dishes > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Cooked poultry dishes > Freezer: 4 - 6 months"
+    }
+  },
+  {
+    "name": "cooked chicken pieces",
+    "aliases": [
+      "cooked chicken",
+      "leftover chicken",
+      "cooked turkey"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Pieces, plain > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 120,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Pieces, plain > Freezer: 4 months"
+    }
+  },
+  {
+    "name": "cooked poultry in broth or gravy",
+    "aliases": [],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Pieces covered with broth, gravy > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 180,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Pieces covered with broth, gravy > Freezer: 6 months"
+    }
+  },
+  {
+    "name": "cooked chicken nuggets and patties",
+    "aliases": [
+      "leftover chicken nuggets"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Chicken nuggets, patties > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 30,
+      "max": 90,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Cooked Poultry, Leftover > Chicken nuggets, patties > Freezer: 1 - 3 months"
+    }
+  },
+  {
+    "name": "lean fish",
+    "aliases": [
+      "cod",
+      "tilapia",
+      "flounder",
+      "haddock",
+      "halibut",
+      "sole",
+      "pollock"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Lean fish > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 180,
+      "max": 240,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Lean fish > Freezer: 6 - 8 months"
+    }
+  },
+  {
+    "name": "fatty fish",
+    "aliases": [
+      "salmon",
+      "salmon fillet",
+      "mackerel",
+      "trout",
+      "bluefish",
+      "catfish"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fatty fish > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 90,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fatty fish > Freezer: 2 - 3 months"
+    }
+  },
+  {
+    "name": "cooked fish",
+    "aliases": [
+      "leftover fish"
+    ],
+    "category": "leftovers",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Cooked fish > Refrigerator: 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 120,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Cooked fish > Freezer: 4 - 6 months"
+    }
+  },
+  {
+    "name": "smoked fish",
+    "aliases": [
+      "smoked salmon",
+      "lox"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 14,
+      "max": 14,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Smoked fish > Refrigerator: 14 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Smoked fish > Freezer: 2 months"
+    }
+  },
+  {
+    "name": "shrimp",
+    "aliases": [
+      "fresh shrimp",
+      "raw shrimp"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Freezer: 3 - 6 months"
+    }
+  },
+  {
+    "name": "scallops",
+    "aliases": [],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Freezer: 3 - 6 months"
+    }
+  },
+  {
+    "name": "crawfish",
+    "aliases": [
+      "crayfish"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Freezer: 3 - 6 months"
+    }
+  },
+  {
+    "name": "squid",
+    "aliases": [
+      "calamari"
+    ],
+    "category": "seafood",
+    "defaultLocation": "fridge",
+    "fridgeDays": {
+      "min": 1,
+      "max": 2,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Refrigerator: 1 - 2 days"
+    },
+    "freezerDays": {
+      "min": 90,
+      "max": 180,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Fresh shrimp, scallops, crawfish, squid > Freezer: 3 - 6 months"
+    }
+  },
+  {
+    "name": "canned seafood",
+    "aliases": [
+      "canned tuna",
+      "canned salmon",
+      "canned sardines",
+      "canned crab"
+    ],
+    "category": "seafood",
+    "defaultLocation": "pantry",
+    "fridgeDays": {
+      "min": 3,
+      "max": 4,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Canned seafood (Pantry, 5 years) > Refrigerator: after opening 3 - 4 days"
+    },
+    "freezerDays": {
+      "min": 60,
+      "max": 60,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Canned seafood (Pantry, 5 years) > Freezer: out of can 2 months"
+    },
+    "pantryDays": {
+      "min": 1825,
+      "max": 1825,
+      "source": "fda_chart",
+      "ref": "FDA chart 2018-03 > Fish & Shellfish > Canned seafood (Pantry, 5 years) > Pantry: Pantry, 5 years"
+    },
+    "storageTip": {
+      "text": "After opening, refrigerate and use within 3 - 4 days, or freeze out of the can for up to 2 months.",
+      "source": "fda_chart"
+    }
+  }
+]
