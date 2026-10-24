@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { api } from "@/convex/_generated/api";
 import { numberWord, pickUseSoon, USE_SOON_DAYS } from "@/lib/freshness";
+import { SettingsCard } from "@/app/_components/SettingsCard";
 import { UseSoonList } from "@/app/_components/UseSoonList";
 import { Leekly } from "@/app/_components/ui/Leekly";
 import { useNow } from "@/app/_components/useNow";
@@ -52,6 +53,8 @@ export default function HomePage() {
       <Link className="quiet-link" href="/fridge">
         everything in my fridge <span>→</span>
       </Link>
+
+      <SettingsCard />
     </main>
   );
 }

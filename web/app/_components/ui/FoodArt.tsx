@@ -18,14 +18,18 @@ const artByKeyword: [RegExp, Art][] = [
   [/pasta|noodle|spaghetti|macaroni/, { file: "pasta", width: 518, height: 317 }],
 ];
 
-function artFor(name: string): Art | undefined {
+// Catch-all for packaged foods no keyword matches; swap the file for the designer's drawing when it lands.
+const packagedArt: Art = { file: "box", width: 433, height: 350 };
+
+function artFor(name: string, packaged: boolean): Art | undefined {
   const lower = name.toLowerCase();
-  return artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
+  const match = artByKeyword.find(([pattern]) => pattern.test(lower))?.[1];
+  return match ?? (packaged ? packagedArt : undefined);
 }
 
-// Renders an empty box of the same size when no illustration exists yet.
-export function FoodArt({ name, className }: { name: string; className?: string }) {
-  const art = artFor(name);
+// Renders an empty span of the same size when no illustration exists yet.
+export function FoodArt({ name, packaged = false, className }: { name: string; packaged?: boolean; className?: string }) {
+  const art = artFor(name, packaged);
   if (!art) return <span className={className} aria-hidden="true" />;
   return (
     <Image

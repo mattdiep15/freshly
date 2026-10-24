@@ -63,7 +63,8 @@ export async function seedDemo(ctx: MutationCtx) {
     .withIndex("by_user", (q) => q.eq("userId", userId))
     .unique();
   const profileFields = { userId, displayName: "Demo Student", utcOffsetMinutes: -420, digestHour: 9 };
-  if (profile) await ctx.db.replace(profile._id, profileFields);
+  // Patch, not replace, so the demo settings survive a reset.
+  if (profile) await ctx.db.patch(profile._id, profileFields);
   else await ctx.db.insert("profiles", profileFields);
 
   const stale = [
@@ -72,6 +73,10 @@ export async function seedDemo(ctx: MutationCtx) {
     ...(await ctx.db.query("foodFamiliarity").withIndex("by_user_food", (q) => q.eq("userId", userId)).collect()),
   ];
   for (const row of stale) await ctx.db.delete(row._id);
+  for (const receipt of await ctx.db.query("receipts").withIndex("by_user", (q) => q.eq("userId", userId)).collect()) {
+    await ctx.storage.delete(receipt.fileId);
+    await ctx.db.delete(receipt._id);
+  }
 
   const now = Date.now();
   for (const seed of ITEMS) {

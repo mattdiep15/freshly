@@ -1308,3 +1308,11 @@ footer {
   font-weight: 600;
   letter-spacing: 0.08em;
 }
+
+/* Card 2 with no days left to give has only "toss"; it fills the bar. */
+@media (max-width: 767px) {
+  .swipe-card--step-2 .spoil-question-column .swipe-actions button:only-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+}
