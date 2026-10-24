@@ -36,7 +36,7 @@ Example digest: title "3 things to use soon", body "Spinach and ground beef expi
 Resolving an item (`items.resolve`):
 
 - `outcome: "used"` sets status `used` and `fractionWasted` to 0 unless given.
-- `outcome: "wasted"` sets status `wasted` and `fractionWasted` to 1 unless given.
+- `outcome: "wasted"` sets status `wasted` and `fractionWasted` to 0.5 unless given (`DEFAULT_WASTED_FRACTION` in `lib/wasteStats.ts`, a hardcoded guess; see the Decision log).
 - Works on `active` items (marked from the use-soon list before expiry) and `expired` items (the swipe card). Sets `resolvedAt`.
 
 Extending an item (`items.extend`, the "no, 1-2 more days" answer on the second card):
@@ -65,7 +65,7 @@ Computing on read is fine at hackathon scale. P2's leaderboard will need these n
 - [x] 6. In-app notification feed
 - [x] 7. `lib/wasteStats.ts`, its tests, and `stats.summary`
 - [x] 8. `/api` test routes
-- [ ] 9. `lib/extension.ts`, its tests, and `items.extend`
+- [x] 9. `lib/extension.ts`, its tests, and `items.extend` (2026-10-24, from design v2)
 
 ## File ownership while p1-02 runs in parallel
 
@@ -106,10 +106,35 @@ This plan owns `convex/items.ts` (`list`, `get`, `useSoon`, `resolve`, and the i
    - `GET /api/dev/push-test` sends a test push to the demo user's subscriptions.
    Verify: from a fresh seed, swipe all three review items through `/api/items/resolve` and watch `/api/stats/summary` change.
 
-9. Write `lib/extension.ts` and `lib/extension.test.ts`. Cover: the 2-day extension when the range allows it; the cap at `purchasedAt + range.max` (the ground beef example); `null` once the range is used up; `null` when the card is swiped late and `purchasedAt + range.max` has already passed. Then add `items.extend({ itemId })` with the rules above and a dev-only `GET /api/items/extend?id=<itemId>`.
+9. Write `lib/extension.ts` and `lib/extension.test.ts`. Cover: the 2-day extension when the range allows it; the cap at `purchasedAt + range.max` (the ground beef example); `null` once the range is used up; `null` when the card is swiped late and `purchasedAt + range.max` has already passed. Then add `items.extend({ itemId })` with the rules above and a dev-only `GET /api/items/extend?id=<itemId>`. `reviews.pending` returns each item with a `canExtend` flag (whether `extendExpiry` returns a date), so the UI knows whether the second card offers "1-2 more days".
    Verify: `npm test` passes. After `/api/dev/seed`, `reviews.pending` shows `canExtend: true` for the baby spinach (FoodKeeper 3 to 7 days, expired 1 day ago) and `false` for the ground beef (expired 2 days ago, past its 2-day high end). Extending the spinach moves it from `reviews.pending` to `useSoon` with 2 days left.
 
-Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today. "Wasted" on that card should open the second card when `canExtend` is true, and resolve as wasted when it is false.
+## Swipe card interactions (for frontend integration)
+
+Frontend integration waits until every P1 backend function exists, which means p1-02 (receipts, `items.update`, `foods.ackTip`) has to land as well. This section specifies the interactions so the frontend can wire them up then. `web/app/_components/SwipeTakeover.tsx` on `main` already has the first card with drag, "← wasted" and "used →" buttons, and the ArrowLeft and ArrowRight keys. It takes only `itemName` and has no second card.
+
+Queue. The takeover reads `reviews.pending` with `useQuery` and shows one card per item, oldest expiry first. It opens while the list is non-empty. Because the query is live, a card resolved in another tab drops out by itself.
+
+Input. Every choice can be made three ways: drag past the threshold, click the button, or press the arrow key. Left always means the negative answer and right the positive one, on both cards. The buttons are real `<button>` elements, so Tab and Enter also work. Keys are ignored while a card's exit animation runs, so a held key cannot answer two cards.
+
+Card 1, "did you use it?":
+
+| Input | Call | Next |
+| --- | --- | --- |
+| Right: drag, "used →", ArrowRight | `items.resolve({ itemId, outcome: "used" })` | next card |
+| Left: drag, "← not used", ArrowLeft, item has `canExtend: true` | none yet | card 2 for the same item |
+| Left, item has `canExtend: false` | `items.resolve({ itemId, outcome: "wasted" })` | next card |
+
+Card 2, "does your food look spoiled?", shows the item's `freshnessHint.text`. When `freshnessHint.source` is `"llm"`, the card labels it as general guidance (README open question 3). When `freshnessHint` is null, the card says the food has no freshness hint yet.
+
+| Input | Call | Next |
+| --- | --- | --- |
+| Left: drag, "← yes, toss :(", ArrowLeft | `items.resolve({ itemId, outcome: "wasted" })` | next card |
+| Right: drag, "no, 1-2 more days →", ArrowRight | `items.extend({ itemId })` | next card; the item returns to the use-soon list |
+
+A "wasted" result without `fractionWasted` is stored as 0.5 for now. When the frontend adds a "how much?" choice, it passes `fractionWasted` and the default stops mattering. If a mutation throws (for example, the item was already resolved elsewhere), the card moves on and the live query catches up. P1 has no undo.
+
+What `SwipeTakeover` needs to change: take the whole pending item (`_id`, `name`, `canExtend`, `freshnessHint`) instead of `itemName`, keep a `stage: 1 | 2` state, and call `onResolve` with `"used" | "wasted" | "extended"` so the page can make the matching mutation.
 
 ## Interfaces delivered
 
@@ -120,7 +145,7 @@ Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today
 | `items.useSoon({ days? })` | query | `GET /api/items/use-soon?days=7` |
 | `reviews.pending()` | query | `GET /api/reviews/pending` |
 | `items.resolve({ itemId, outcome, fractionWasted? })` | mutation | `GET /api/items/resolve?id=&outcome=used` |
-| `items.extend` | mutation | `GET /api/items/extend` |
+| `items.extend({ itemId })` | mutation | `GET /api/items/extend?id=` |
 | `stats.summary({ range? })` | query | `GET /api/stats/summary?range=week` |
 | `notifications.list()` | query | `GET /api/notifications/list` |
 | `notifications.markRead({ notificationId })` | mutation | `GET /api/notifications/mark-read?id=` |
@@ -130,8 +155,9 @@ Frontend note: `app/_components/SwipeTakeover.tsx` has only the first card today
 
 Return shapes for the frontend:
 
-- `items.list`, `items.useSoon`, and `reviews.pending` return `ItemView[]`; `items.get` returns `ItemView | null` (null when missing or not the caller's). `ItemView` is the `items` document plus `daysLeft: number | null` (local calendar days: 0 is today, negative is past, null when undated), `storageTip: { text, source: "fda_chart" | "foodkeeper" | "llm" } | null`, `freshnessHint: { text, source: "foodkeeper" | "llm" } | null`, and `showTip: boolean`. `list` sorts by `expiresAt` with undated items last, `useSoon` returns active dated items with `daysLeft <= days` soonest first, and `pending` returns `expired` items oldest expiry first.
-- `items.resolve` returns `{ itemId, status, fractionWasted, resolvedAt }`. It throws on items that are not `active` or `expired`, and on a `fractionWasted` outside 0 to 1.
+- `items.list`, `items.useSoon`, and `reviews.pending` return `ItemView[]`; `items.get` returns `ItemView | null` (null when missing or not the caller's). `ItemView` is the `items` document plus `daysLeft: number | null` (local calendar days: 0 is today, negative is past, null when undated), `storageTip: { text, source: "fda_chart" | "foodkeeper" | "llm" } | null`, `freshnessHint: { text, source: "foodkeeper" | "llm" } | null`, and `showTip: boolean`. `list` sorts by `expiresAt` with undated items last, `useSoon` returns active dated items with `daysLeft <= days` soonest first, and `pending` returns `expired` items oldest expiry first, each with an extra `canExtend: boolean`.
+- `items.resolve` returns `{ itemId, status, fractionWasted, resolvedAt }`. It throws on items that are not `active` or `expired`, and on a `fractionWasted` outside 0 to 1. `fractionWasted` defaults to 0 for `used` and 0.5 for `wasted`.
+- `items.extend` returns `{ itemId, status: "active", expiresAt }`. It throws on items that are not `expired` or have no sourced shelf life left.
 - `stats.summary` returns `{ range, itemsUsed, itemsWasted, usedRate: number | null, wastedCents, wastedGrams, wastedLbs, itemsMissingPrice, itemsMissingWeight }`. `range` defaults to `week`.
 - `notifications.list` returns `notifications` documents (`{ _id, dateKey, kind: "digest", title, body, itemIds, undatedCount?, readAt? }`), newest first, from the last 30 days.
 - `dev.runTick` returns `{ expired: number, digests: Id<"notifications">[] }`. `dev.pushTest` returns `{ subscriptions, payload: { title, body, url }, sent, gone: string[], failed: string[] }`.
@@ -145,7 +171,7 @@ Return shapes for the frontend:
 - A user with 5 items hitting reminder days on the same day gets one push, not five.
 - On a browser that granted notification permission, `/api/dev/tick?force=1` produces a system notification.
 
-Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck, and 24 tests pass. `/api/items/use-soon` returns Chicken breast (1), Cremini mushrooms (3), Eggs (7) in that order. `/api/reviews/pending` returns 3. `/api/stats/summary?range=week` returned 1 used, 3 wasted, 878 cents, 1304 g, 2.87 lb, which matches a hand count of the seed (yogurt half of 599, cottage cheese 429, a quarter of the 599 bread). Resolving the three review items (beef wasted, spinach used, strawberries half wasted) moved it to 2 used, 5 wasted, 2227 cents. `/api/dev/tick?now=2026-10-24T16:00:00Z&force=1` made one notification and a second run without `force` made none. A tick at now + 400 days expired every dated item and left the undated milk `active`. For the cron check, an active item with `expiresAt` an hour in the past was appended with `npx convex import --append` at 06:33 UTC; the 07:00 UTC cron run moved it to `expired` with no endpoint call, and sent no digest because it was midnight for the demo user. The system notification needs a human (see Surprises).
+Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck, and 24 tests pass. `/api/items/use-soon` returns Chicken breast (1), Cremini mushrooms (3), Eggs (7) in that order. `/api/reviews/pending` returns 3. `/api/stats/summary?range=week` returned 1 used, 3 wasted, 878 cents, 1304 g, 2.87 lb, which matches a hand count of the seed (yogurt half of 599, cottage cheese 429, a quarter of the 599 bread). Resolving the three review items (beef wasted, spinach used, strawberries half wasted) moved it to 2 used, 5 wasted, 2227 cents. After the 0.5 default (2026-10-24) the same run gives 1677 cents, because the beef now counts half of its 1099. `/api/dev/tick?now=2026-10-24T16:00:00Z&force=1` made one notification and a second run without `force` made none. A tick at now + 400 days expired every dated item and left the undated milk `active`. For the cron check, an active item with `expiresAt` an hour in the past was appended with `npx convex import --append` at 06:33 UTC; the 07:00 UTC cron run moved it to `expired` with no endpoint call, and sent no digest because it was midnight for the demo user. The system notification needs a human (see Surprises). On 2026-10-24, step 9 passed its verify: spinach `canExtend: true`, beef `false`, extending the spinach moved it to `useSoon` with 2 days left, extending the beef or an active item was rejected, and tossing the beef without a fraction stored 0.5.
 
 ## Decision log
 
@@ -154,7 +180,6 @@ Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck,
 - 2026-10-23: Store `utcOffsetMinutes` rather than an IANA time zone. Daylight saving shifts the digest by an hour until the client reports the new offset on next sign-in, which is acceptable for P1.
 - 2026-10-23: Keep an optional `fractionWasted` on the backend even though the P1 swipe is binary.
 - 2026-10-23: Digest and stats math live in `lib/` as pure functions so they can be unit tested, per `CLAUDE.md`.
-- 2026-10-24: Design v2's "extend by 2 days" is capped at the high end of the sourced range. A flat 2 days would be an unsourced shelf-life number, which `CLAUDE.md` forbids. The cap is computed from the food row at swipe time, so the schema does not change.
 
 - 2026-10-23: `daysLeft` counts local calendar days from the user's `profiles.utcOffsetMinutes`, so "tomorrow" means the next local date and not the next 24 hours. The item queries compute it with `Date.now()`, and Convex reruns a query only when its data changes, so an open page can show yesterday's `daysLeft` after midnight until something refreshes it. The frontend can recompute from `expiresAt` if that matters.
 - 2026-10-23: `showTip` is true while `foodFamiliarity.tipViews` is below 3 and the food has a `storageTip` or `freshnessHint`. Items with no `foodId`, or whose food has neither, return `false`, since there is nothing to show.
@@ -166,6 +191,11 @@ Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck,
 - 2026-10-23: `dev.pushTest` is a public action rather than a mutation, so `/api/dev/push-test` can return the delivery result. Added `GET /api/items/get` and `GET /api/notifications/mark-read`, which the step 8 list did not have.
 - 2026-10-23: `VAPID_SUBJECT` is `mailto:dev@freshly.test`. Push services see this address on every push, so a real team address should replace it before launch.
 
+- 2026-10-24: Design v2's "extend by 2 days" is capped at the high end of the sourced range. A flat 2 days would be an unsourced shelf-life number, which `CLAUDE.md` forbids. The cap is computed from the food row at swipe time, so the schema does not change.
+- 2026-10-24: A "wasted" swipe with no `fractionWasted` counts as half wasted (`DEFAULT_WASTED_FRACTION = 0.5`), at Leo's request. The binary card cannot say how much was thrown out, and counting the whole item would overstate dollars and pounds wasted. This is a hardcoded guess, tagged `TODO(release)`. `summarizeWaste` uses the same default for any wasted row stored without a fraction. Seeded items keep their explicit fractions.
+- 2026-10-24: `lib/extension.ts` has its own `sourcedRange`, which repeats the range fallback in p1-02's `lib/expiry.ts`, because p1-02 had not landed on this branch. When the branches combine, `expiryFor` and `extendExpiry` can share one helper.
+- 2026-10-24: `canExtend` is added only by `reviews.pending`, the one query that returns swipe cards, so `ItemView` stays the same for every other query.
+
 ## Surprises
 
 - 2026-10-23: Two other sessions had local Convex backends on ports 3210 and 3230. `npx convex dev --local-cloud-port 3250 --local-site-port 3251` runs this worktree's backend beside them. The state lives in the worktree's own `.convex/local/default`, so no data is shared. Next.js ran on 3005.
@@ -173,4 +203,4 @@ Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck,
 - 2026-10-23: The browser pane denies notification permission, so no real system notification was seen. Verified instead: `push.saveSubscription` stores a subscription (made with a generated P-256 key), `/api/dev/push-test` builds the payload `{ title, body, url }`, `web-push` encrypts and sends it, and a network failure is reported as `failed` without deleting the row. A forced tick schedules `pushNode.send`, which completed successfully. `web-push` only speaks HTTPS, so the 404 and 410 path was checked by unit test (`lib/pushDelivery.test.ts`) plus a direct run of `push.deleteByEndpoints`. To check in a real browser: run the app, open `http://localhost:3005/dev/push`, click Subscribe and allow notifications, then open `http://localhost:3005/api/dev/push-test`. The JSON should say `"sent": 1` and a system notification should appear. `/api/dev/tick?force=1` should then show the digest as a notification.
 - 2026-10-23: Seeded `expiresAt` values are relative to the moment of seeding, while `/api/dev/tick?now=...` uses the given time. A tick at a fixed `now` far from the seed time sees different `daysLeft` values than the seed intends, so the 1, 3, and 7 day items may not appear in that digest. `/api/dev/tick?force=1` without `now` uses the real time and shows them.
 - 2026-10-23: A forced tick with a future `now` writes a notification with a future `dateKey`. Later real-time ticks ignore it for the weekly undated check, which only looks at dates up to today. This only happens in dev, and `/api/dev/seed` clears it.
-
+- 2026-10-24: Foods on this branch have no `freshnessHint` yet; p1-02's `foods.backfillTips` writes them. Until the branches combine, the second card's hint is null for every seeded item.
