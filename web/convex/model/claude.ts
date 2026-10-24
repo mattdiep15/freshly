@@ -68,8 +68,8 @@ export const TIPS_SCHEMA = {
       type: "array",
       items: {
         type: "object",
-        properties: { name: { type: "string" }, storageTip: { type: "string" }, freshnessHint: { type: "string" } },
-        required: ["name", "storageTip", "freshnessHint"],
+        properties: { number: { type: "integer" }, storageTip: { type: "string" }, freshnessHint: { type: "string" } },
+        required: ["number", "storageTip", "freshnessHint"],
         additionalProperties: false,
       },
     },
@@ -118,7 +118,7 @@ ${foodNames.join("\n")}`;
 export const TIPS_SYSTEM_PROMPT = `You write short storage guidance for Freshly, an app that tracks what is in a student's fridge. For each food given, return:
 - storageTip: one sentence on how to store it to keep it fresh.
 - freshnessHint: one sentence on how to tell it has gone bad (look, smell, texture).
-Never state how many days, weeks, or months a food lasts; shelf life comes from a separate sourced table. Copy each name exactly as given.`;
+Never state how many days, weeks, or months a food lasts; shelf life comes from a separate sourced table. Return one entry per food, with the number it was given.`;
 
 // Structured output instead of a forced tool call: Sonnet 5.5 rejects forced tool_choice.
 export async function askJson(
