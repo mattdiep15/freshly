@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { StatusPill } from "@/app/_components/ui/StatusPill";
 
 export type SwipeResult = "used" | "wasted";
 

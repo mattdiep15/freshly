@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { numberWord, pickUseSoon } from "@/lib/freshness";
 import { demoFridge } from "@/app/_demo/fixtures";
-import { UseSoonList } from "@/components/UseSoonList";
-import { useNow } from "@/components/useNow";
+import { UseSoonList } from "@/app/_components/UseSoonList";
+import { useNow } from "@/app/_components/useNow";
 
 export default function HomePage() {
   const now = useNow();

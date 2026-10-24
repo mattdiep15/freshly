@@ -29,11 +29,16 @@ Run lint and typecheck before every commit. Backend functions are testable in th
 - `convex/*.ts`: every read and write. Validate args with `v.*` and check the signed-in
   user in every public function. Outside services (receipt OCR, product lookup, push) go
   in Convex actions.
-- `lib/`: pure domain logic (expiry math, reminder schedule, waste stats). No React or
-  Convex imports, so it can be unit tested.
-- `components/ui/`: shared primitives. Search here before creating a component.
-  Components fill their slot; the page owns layout.
-- `app/`: routes compose components and call Convex hooks. No business logic in pages.
+- `lib/`: pure domain logic shared by the frontend and Convex (expiry math, reminder
+  schedule, waste stats). No React or Convex imports, so it can be unit tested.
+- `app/`: all frontend code. Routes compose components and call Convex hooks. No business
+  logic in pages.
+- `app/_components/`: React components; `app/_components/ui/` holds shared primitives.
+  Search there before creating a component. Components fill their slot; the page owns
+  layout. Folders starting with `_` are not routed.
+
+The root holds only `app/`, `convex/`, `lib/`, `docs/`, `public/` (Next.js requires it at
+the root), and config files. There is no `infra/`: Vercel and Convex are managed.
 
 Secrets live in Convex or Vercel env vars. Never put a key in a `NEXT_PUBLIC_` var.
 

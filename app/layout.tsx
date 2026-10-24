@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Sniglet } from "next/font/google";
-import { SiteHeader } from "@/components/SiteHeader";
+import { SiteHeader } from "@/app/_components/SiteHeader";
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 

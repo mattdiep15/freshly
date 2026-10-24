@@ -4,9 +4,9 @@ import { useState } from "react";
 import { sortByUrgency } from "@/lib/freshness";
 import type { FridgeItem } from "@/lib/types";
 import { demoFridge } from "@/app/_demo/fixtures";
-import { FoodList } from "@/components/FoodList";
-import { SwipeTakeover } from "@/components/SwipeTakeover";
-import { useNow } from "@/components/useNow";
+import { FoodList } from "@/app/_components/FoodList";
+import { SwipeTakeover } from "@/app/_components/SwipeTakeover";
+import { useNow } from "@/app/_components/useNow";
 
 export default function FridgePage() {
   const now = useNow();

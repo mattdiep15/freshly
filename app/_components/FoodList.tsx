@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { FridgeItem } from "@/lib/types";
-import { FoodCard } from "@/components/FoodCard";
+import { FoodCard } from "@/app/_components/FoodCard";
 
 const COLLAPSED_COUNT = 4;
 

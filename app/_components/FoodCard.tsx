@@ -1,7 +1,7 @@
 import { daysLeftLabel, freshness } from "@/lib/freshness";
 import type { FridgeItem, SourcedText } from "@/lib/types";
-import { SourceNote } from "@/components/ui/SourceNote";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { SourceNote } from "@/app/_components/ui/SourceNote";
+import { StatusPill } from "@/app/_components/ui/StatusPill";
 
 function DetailLine({ label, value, missing }: { label: string; value?: SourcedText; missing: string }) {
   return (

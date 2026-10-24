@@ -1,5 +1,5 @@
 import { demoStats } from "@/app/_demo/fixtures";
-import { StatBlocks, WeekTable } from "@/components/WasteStats";
+import { StatBlocks, WeekTable } from "@/app/_components/WasteStats";
 
 export default function StatsPage() {
   // TODO(release): read from the p1-03 waste stats query instead of demo fixtures.

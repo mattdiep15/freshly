@@ -1,5 +1,5 @@
 import { demoLeaderboard } from "@/app/_demo/fixtures";
-import { Leaderboard } from "@/components/Leaderboard";
+import { Leaderboard } from "@/app/_components/Leaderboard";
 
 export default function FriendsPage() {
   // TODO(release): leaderboard is P2 (p2-social-and-shopping); this is demo data only.

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { demoParsedReceipt } from "@/app/_demo/fixtures";
-import { ScanFlow } from "@/components/ScanFlow";
+import { ScanFlow } from "@/app/_components/ScanFlow";
 
 export default function ScanPage() {
   const router = useRouter();

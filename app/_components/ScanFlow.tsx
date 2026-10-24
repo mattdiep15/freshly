@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { numberWord } from "@/lib/freshness";
 import type { ParsedReceiptLine } from "@/app/_demo/fixtures";
-import { SourceNote } from "@/components/ui/SourceNote";
+import { SourceNote } from "@/app/_components/ui/SourceNote";
 
 type Receipt = { file: File; previewUrl: string };
 
