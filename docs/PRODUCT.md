@@ -1,7 +1,10 @@
 # Freshly product spec
 
-Converted from the team's original design doc (`design_raw.pdf`). Working names: Fridge,
-Freshie, Freshy, Freshly, HeyFridge.
+Converted from the team's design doc, version 2 (`design_raw_v2.pdf`). Working names:
+Fridge, Freshie, Freshy, Freshly, HeyFridge.
+
+Version 2 added manual entry (P1.5), the second swipe card for freshness hints (P1), and an
+image-based spoilage model (P3).
 
 ## Problem
 
@@ -21,6 +24,8 @@ Categories: edtech, sustainability, food waste, food safety.
 ### Food spoilage tracker
 
 - Receipt scan as the input method.
+- Manual entry (P1.5): the user can also type an item in by hand. Ships right after the
+  P1 must-haves.
 - Expiry lookup: look up receipt SKUs in known databases and estimate how long each item
   lasts.
 - Storage recommendations for unknown or unlearned foods, taught Anki/Duolingo style.
@@ -35,6 +40,11 @@ Categories: edtech, sustainability, food waste, food safety.
 - Before expiry, show a todo-style list of ingredients to use up, so the user isn't
   flooded with prompts.
 - General hints for how fresh food should look, smell, taste, and feel.
+- Hints appear in a second swipe card (decided in v2). Expiry dates use the low end of the
+  sourced shelf-life range, so food is often still good on its expiry date. After the user
+  swipes "no" on "your item expired, did you use it?", a second card shows the hint and
+  asks "does your food look spoiled?" "Yes, toss" marks it wasted. "No, 1-2 more days to
+  eat it!" extends the date by up to 2 days, never past the high end of the sourced range.
 
 ### Food waste measurement
 
@@ -59,6 +69,9 @@ Categories: edtech, sustainability, food waste, food safety.
 - Recipe recommendations (MISE, recipe databases), ranked by which items expire soonest.
 - Speech accessibility (TTS/STT).
 - Wrapped Waste.
+- Image-based spoilage prediction for produce. Produce lasts longer or shorter depending on
+  its color and condition, so a self-trained neural net that reads a photo could become the
+  backbone for expiry prediction.
 
 ## Stack
 
