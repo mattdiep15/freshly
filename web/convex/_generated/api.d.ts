@@ -12,9 +12,13 @@ import type * as auth from "../auth.js";
 import type * as dev from "../dev.js";
 import type * as foods from "../foods.js";
 import type * as http from "../http.js";
+import type * as itemEdits from "../itemEdits.js";
 import type * as model_auth from "../model/auth.js";
+import type * as model_claude from "../model/claude.js";
 import type * as model_foods from "../model/foods.js";
 import type * as profiles from "../profiles.js";
+import type * as receipts from "../receipts.js";
+import type * as receiptsNode from "../receiptsNode.js";
 import type * as seed from "../seed.js";
 
 import type {
@@ -28,9 +32,13 @@ declare const fullApi: ApiFromModules<{
   dev: typeof dev;
   foods: typeof foods;
   http: typeof http;
+  itemEdits: typeof itemEdits;
   "model/auth": typeof model_auth;
+  "model/claude": typeof model_claude;
   "model/foods": typeof model_foods;
   profiles: typeof profiles;
+  receipts: typeof receipts;
+  receiptsNode: typeof receiptsNode;
   seed: typeof seed;
 }>;
 
