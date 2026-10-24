@@ -14,14 +14,14 @@ Next.js (App Router) + TypeScript on Vercel. Convex for the database, server fun
 and scheduled jobs.
 
 ```bash
-npm run dev        # Next.js + Convex dev
+npm run dev        # Next.js dev server; Convex joins it in p1-01 step 2
 npm run lint
-npm run typecheck
-npm test
+npm run typecheck  # next typegen && tsc --noEmit
 ```
 
-Run lint and typecheck before every commit. These commands are placeholders until the
-project is scaffolded; update them to match `package.json`.
+Run lint and typecheck before every commit. `npm test` does not exist yet; p1-01 adds
+vitest. Backend functions are testable in the browser through JSON routes under
+`app/api/` (see `docs/exec-plans/p1-01-backend-foundation.md`).
 
 ### Where code goes
 
