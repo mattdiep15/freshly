@@ -28,7 +28,7 @@ const receiptLine = v.object({
   newFood: v.union(newFood, v.null()),
 });
 
-// Mirrors RECEIPT_SCHEMA in convex/model/claude.ts.
+// Mirrors RECEIPT_SCHEMA in convex/model/llm.ts.
 export const receiptResult = v.object({
   isReceipt: v.boolean(),
   storeName: v.union(v.string(), v.null()),

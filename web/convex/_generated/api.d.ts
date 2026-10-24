@@ -19,6 +19,8 @@ import type * as lifecycle from "../lifecycle.js";
 import type * as model_auth from "../model/auth.js";
 import type * as model_claude from "../model/claude.js";
 import type * as model_foods from "../model/foods.js";
+import type * as model_gemini from "../model/gemini.js";
+import type * as model_llm from "../model/llm.js";
 import type * as notifications from "../notifications.js";
 import type * as profiles from "../profiles.js";
 import type * as push from "../push.js";
@@ -47,6 +49,8 @@ declare const fullApi: ApiFromModules<{
   "model/auth": typeof model_auth;
   "model/claude": typeof model_claude;
   "model/foods": typeof model_foods;
+  "model/gemini": typeof model_gemini;
+  "model/llm": typeof model_llm;
   notifications: typeof notifications;
   profiles: typeof profiles;
   push: typeof push;

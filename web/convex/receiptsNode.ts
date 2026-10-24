@@ -1,18 +1,10 @@
 "use node";
 
-import type Anthropic from "@anthropic-ai/sdk";
 import { v, type Infer } from "convex/values";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { action, internalAction } from "./_generated/server";
-import {
-  anthropicClient,
-  askJson,
-  MANUAL_SCHEMA,
-  manualSystemPrompt,
-  RECEIPT_SCHEMA,
-  receiptSystemPrompt,
-} from "./model/claude";
+import { askJson, MANUAL_SCHEMA, manualSystemPrompt, type Part, RECEIPT_SCHEMA, receiptSystemPrompt } from "./model/llm";
 import type { newFood, receiptResult } from "./receipts";
 import { location } from "./schema";
 
@@ -22,12 +14,12 @@ const MAX_IMAGE_BYTES = 3.75 * MB;
 const MAX_PDF_BYTES = 20 * MB;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
 
-async function fileBlock(blob: Blob, fileType: "image" | "pdf"): Promise<Anthropic.Beta.BetaContentBlockParam> {
+async function fileBlock(blob: Blob, fileType: "image" | "pdf"): Promise<Part> {
   const mb = (blob.size / MB).toFixed(1);
   if (fileType === "pdf") {
     if (blob.size > MAX_PDF_BYTES) throw new Error(`PDF is ${mb} MB; the limit is ${MAX_PDF_BYTES / MB} MB.`);
     const data = Buffer.from(await blob.arrayBuffer()).toString("base64");
-    return { type: "document", source: { type: "base64", media_type: "application/pdf", data } };
+    return { type: "file", mimeType: "application/pdf", data };
   }
   const mediaType = IMAGE_TYPES.find((t) => t === blob.type);
   if (!mediaType) throw new Error(`Unsupported image type "${blob.type}". Upload a JPEG, PNG, GIF, or WebP.`);
@@ -35,7 +27,7 @@ async function fileBlock(blob: Blob, fileType: "image" | "pdf"): Promise<Anthrop
     throw new Error(`Photo is ${mb} MB; the limit is 3.75 MB. Downscale it to about 1600 px on the long edge.`);
   }
   const data = Buffer.from(await blob.arrayBuffer()).toString("base64");
-  return { type: "image", source: { type: "base64", media_type: mediaType, data } };
+  return { type: "file", mimeType: mediaType, data };
 }
 
 export const parse = internalAction({
@@ -49,7 +41,6 @@ export const parse = internalAction({
       if (!blob) throw new Error("The uploaded file is missing from storage.");
       const block = await fileBlock(blob, input.fileType);
       const result = (await askJson(
-        anthropicClient(),
         receiptSystemPrompt(input.foodNames),
         [block, { type: "text", text: "Read this receipt." }],
         RECEIPT_SCHEMA,
@@ -82,7 +73,6 @@ export const addManual = action({
     };
     if (!input.exactMatch) {
       match = (await askJson(
-        anthropicClient(),
         manualSystemPrompt(input.foodNames),
         [{ type: "text", text: name }],
         MANUAL_SCHEMA,
