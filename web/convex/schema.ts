@@ -19,6 +19,25 @@ export const reviewFlag = v.union(
   v.literal("date_mismatch"),
   v.literal("total_mismatch"),
 );
+// Mirrors Recipe in lib/recipes.ts, plus a source link.
+export const recipeStep = v.object({
+  phase: v.union(v.literal("prep"), v.literal("cook"), v.literal("serve")),
+  text: v.string(),
+  timedMinutes: v.optional(v.number()),
+  whisk: v.optional(v.boolean()),
+});
+export const recipe = v.object({
+  id: v.string(),
+  name: v.string(),
+  ingredients: v.array(v.string()),
+  minutes: v.number(),
+  dish: v.union(v.literal("pot"), v.literal("pan"), v.literal("bowl")),
+  cookTool: v.union(v.literal("pot"), v.literal("pan")),
+  heat: v.string(),
+  servings: v.number(),
+  steps: v.array(recipeStep),
+  sourceUrl: v.optional(v.string()), // absent for the static fallback recipes
+});
 export const itemStatus = v.union(
   v.literal("draft"),
   v.literal("active"),
@@ -145,5 +164,14 @@ export default defineSchema({
     itemIds: v.array(v.id("items")),
     undatedCount: v.optional(v.number()), // set when the digest nudged about undated items, for the weekly limit
     readAt: v.optional(v.number()),
+  }).index("by_user_date", ["userId", "dateKey"]),
+
+  recipeSuggestions: defineTable({
+    userId: v.id("users"),
+    dateKey: v.string(), // local date, like notifications.dateKey
+    ingredients: v.array(v.string()), // the use-soon names the search used
+    status: v.union(v.literal("pending"), v.literal("ready"), v.literal("failed")),
+    recipes: v.array(recipe),
+    error: v.optional(v.string()),
   }).index("by_user_date", ["userId", "dateKey"]),
 });

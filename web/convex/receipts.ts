@@ -8,6 +8,7 @@ import { internalMutation, internalQuery, mutation, query, type MutationCtx, typ
 import { toItemViews, utcOffsetFor } from "./items";
 import { getUserId } from "./model/auth";
 import { checkOffGroceries } from "./model/grocery";
+import { requestSuggestion } from "./recipes";
 import { location } from "./schema";
 import { scheduleWebLookup } from "./shelfLifeWeb";
 
@@ -107,6 +108,7 @@ export const confirmDrafts = mutation({
       if (item.foodId) await bumpTimesAdded(ctx, receipt.userId, item.foodId);
     }
     await checkOffGroceries(ctx, receipt.userId, kept);
+    await requestSuggestion(ctx, receipt.userId, { preload: true });
     return { confirmed: kept.length, removed: drafts.length - kept.length };
   },
 });

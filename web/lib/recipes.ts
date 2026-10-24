@@ -16,9 +16,10 @@ export type Recipe = {
   heat: string;
   servings: number;
   steps: RecipeStep[];
+  sourceUrl?: string; // set on recipes read from a web page
 };
 
-// TODO(release): replace the static catalog with a recipe source (P3 recipe recommendations).
+// TODO(release): replace the static fallback with a larger catalog; web recipes from recipes.today rank first.
 export const RECIPES: Recipe[] = [
   {
     id: "chicken-spinach-pasta",
