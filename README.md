@@ -2,7 +2,10 @@
 
 ## Run locally
 
+All app code and its config live in `web/`. Run commands from there:
+
 ```bash
+cd web
 npm install
 npm run dev
 ```
