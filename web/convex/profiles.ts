@@ -24,6 +24,7 @@ export async function settingsFor(ctx: QueryCtx, userId: Id<"users">) {
   return {
     wastedFraction: profile?.wastedFraction ?? DEFAULT_WASTED_FRACTION,
     alwaysAskSpoiled: profile?.alwaysAskSpoiled ?? false,
+    hideDollarsFromFriends: profile?.hideDollarsFromFriends ?? false,
   };
 }
 
@@ -33,8 +34,12 @@ export const settings = query({
 });
 
 export const updateSettings = mutation({
-  args: { wastedFraction: v.optional(v.number()), alwaysAskSpoiled: v.optional(v.boolean()) },
-  handler: async (ctx, { wastedFraction, alwaysAskSpoiled }) => {
+  args: {
+    wastedFraction: v.optional(v.number()),
+    alwaysAskSpoiled: v.optional(v.boolean()),
+    hideDollarsFromFriends: v.optional(v.boolean()),
+  },
+  handler: async (ctx, { wastedFraction, alwaysAskSpoiled, hideDollarsFromFriends }) => {
     const userId = await getUserId(ctx);
     if (wastedFraction !== undefined && !(wastedFraction >= 0 && wastedFraction <= 1)) {
       throw new Error("wastedFraction must be between 0 and 1");
@@ -44,6 +49,7 @@ export const updateSettings = mutation({
     await ctx.db.patch(profile._id, {
       ...(wastedFraction !== undefined && { wastedFraction }),
       ...(alwaysAskSpoiled !== undefined && { alwaysAskSpoiled }),
+      ...(hideDollarsFromFriends !== undefined && { hideDollarsFromFriends }),
     });
     return await settingsFor(ctx, userId);
   },

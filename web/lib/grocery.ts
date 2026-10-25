@@ -31,11 +31,12 @@ const PAIRINGS: Record<string, string[]> = {
 };
 
 export type GroceryHint =
+  | { kind: "recipe"; text: string }
   | { kind: "wasted"; text: string }
   | { kind: "in-fridge"; text: string; count: number }
   | { kind: "pairs"; text: string; with: string };
 
-// One hint per row, in priority order: past waste, then what's already in the fridge, then a use-soon pairing.
+// One hint per row, in priority order: the recipe it was added for, past waste, what's already in the fridge, then a use-soon pairing.
 export function groceryHint(
   name: string,
   { wastedNames, fridge, soonNames }: {
@@ -43,7 +44,9 @@ export function groceryHint(
     fridge: readonly { name: string; quantity: number }[];
     soonNames: readonly string[];
   },
+  recipeName?: string,
 ): GroceryHint | null {
+  if (recipeName) return { kind: "recipe", text: `for ${recipeName.toLowerCase()}.` };
   const key = groceryKey(name);
   if (wastedNames.some((wasted) => usesItem(key, wasted))) {
     return { kind: "wasted", text: "you wasted some last time. buy less." };

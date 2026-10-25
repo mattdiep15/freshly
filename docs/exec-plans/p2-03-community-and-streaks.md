@@ -134,6 +134,8 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: The leaderboard shows a "% used" column, since it sorts on that number. The plan said to keep `Leaderboard.tsx` as is, but without the column the order looked arbitrary. Phones show rank, name, % used, and streak, and drop lbs.
 - 2026-10-24: An expired item still waiting for a swipe counts as wasted at its expiry in every stat, not only the streak: % used, lbs and $ wasted, and the leaderboard. It uses the user's toss fraction. Without this, a user could swipe only the items they used and skip the rest to show 100%. Swiping the card later moves it to used or wasted as usual.
 - 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
+- 2026-10-24: Design v7 replaces the earlier call that friends never see dollars. The leaderboard returns each person's weekly `centsWasted` and drops the lbs column; `profiles.hideDollarsFromFriends` (a "share $ wasted with friends" switch in settings, on by default) makes it `null` for everyone but the owner, and the row shows "private". The seeded nina has it on.
+- 2026-10-24: Design v7's my-numbers view covers the last four calendar weeks: the circles show $ wasted with $ saved under it (the price of items marked used), the streak, and use rate over those weeks, and the table has one row per week. This adds `stats.weeks()` (`GET /api/stats/weeks`), `weeklySummaries` and `summarizeBetween` in `lib/wasteStats.ts`, and `savedCents` on every summary. The v7 "1 freeze left" line is left out because streak freezes are not built.
 
 ## Surprises
 

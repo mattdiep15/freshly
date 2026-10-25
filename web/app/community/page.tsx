@@ -13,36 +13,34 @@ import { Leekly } from "@/app/_components/ui/Leekly";
 
 const VIEW_LABELS: Record<CommunityView, string> = { numbers: "my numbers", friends: "friends" };
 
-function NumbersView() {
-  const week = useQuery(api.stats.summary, { range: "week" });
-  const month = useQuery(api.stats.summary, { range: "month" });
-  const all = useQuery(api.stats.summary, { range: "all" });
-  const streak = useQuery(api.stats.streak);
-  if (!week || !month || !all || !streak) return <div className="numbers-view" aria-busy="true" />;
+const ZERO_WASTE_RATE = 0.9;
 
-  const periods = [
-    { label: "this week", summary: week },
-    { label: "this month", summary: month },
-    { label: "all time", summary: all },
-  ].map(({ label, summary }) => ({ label, rescued: summary.itemsUsed, lbsWasted: summary.wastedLbs, centsWasted: summary.wastedCents, usedRate: summary.usedRate }));
+function NumbersView() {
+  const recent = useQuery(api.stats.weeks);
+  const streak = useQuery(api.stats.streak);
+  if (!recent || !streak) return <div className="numbers-view" aria-busy="true" />;
+  const { total, weeks } = recent;
 
   return (
     <div className="numbers-view">
       <div className="numbers-hero">
         <section className="community-section-heading stats-heading">
-          <StatsMascot />
+          <StatsMascot zeroWaste={total.usedRate !== null && total.usedRate >= ZERO_WASTE_RATE} />
           <h2>your numbers.</h2>
         </section>
         <StatCircles
           totals={{
-            rescued: month.itemsUsed,
-            lbsWasted: month.wastedLbs,
+            centsWasted: total.wastedCents,
+            centsSaved: total.savedCents,
+            missingPrice: total.itemsMissingPrice > 0,
             streakDays: streak.streakDays,
-            approximate: month.itemsMissingWeight > 0,
+            usedRate: total.usedRate,
           }}
         />
       </div>
-      <PeriodTable periods={periods} />
+      <PeriodTable
+        weeks={weeks.map((week) => ({ start: week.start, centsWasted: week.wastedCents, usedRate: week.usedRate }))}
+      />
       <SettingsCard />
     </div>
   );
@@ -58,6 +56,7 @@ function FriendsView({ invite, onInviteDone }: { invite: string | null; onInvite
         <div>
           <p className="eyebrow">this week</p>
           <h2>you + friends.</h2>
+          <p className="leaderboard-rule">ranked by use rate</p>
         </div>
         <button className="outline-button" aria-expanded={adding} onClick={() => setAdding((open) => !open)}>
           {adding ? "close" : "+ add a friend"}

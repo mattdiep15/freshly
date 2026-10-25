@@ -57,6 +57,19 @@ export function SettingsCard() {
           onChange={(event) => update({ alwaysAskSpoiled: event.target.checked }).catch(ignoreFailure)}
         />
       </label>
+      <label className="setting-row">
+        <span>
+          <strong>share $ wasted with friends</strong>
+          <small>friends see your weekly dollars on the leaderboard. off shows them &ldquo;private&rdquo;.</small>
+        </span>
+        <input
+          type="checkbox"
+          role="switch"
+          className="pill-toggle"
+          checked={!settings.hideDollarsFromFriends}
+          onChange={(event) => update({ hideDollarsFromFriends: !event.target.checked }).catch(ignoreFailure)}
+        />
+      </label>
     </section>
   );
 }

@@ -35,7 +35,7 @@ function GroceryRow({
   onRemove: () => void;
 }) {
   const checked = row.checkedAt !== undefined;
-  const hint = checked ? null : groceryHint(row.name, hints);
+  const hint = checked ? null : groceryHint(row.name, hints, row.recipeName);
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
   // A ref, so a move that lands before the next render still sees the drag.

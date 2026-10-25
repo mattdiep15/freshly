@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { usesItem, type RankedRecipe, type Recipe } from "@/lib/recipes";
+import type { RankedRecipe, Recipe } from "@/lib/recipes";
 import { siteName } from "@/lib/recipeWeb";
 import { CookingTakeover, phaseDrawing } from "@/app/_components/CookingTakeover";
+import { GroceryButton, type Shopping } from "@/app/_components/RecipeGrocery";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { RecipeDrawing } from "@/app/_components/ui/RecipeDrawing";
 import { FixedTag } from "@/app/_components/ui/StatusTag";
@@ -17,16 +18,18 @@ function UsedIngredients({ recipe }: { recipe: Recipe }) {
   ));
 }
 
-function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
+function RecipeRow({ ranked, expanded, shopping, onToggle, onCook }: {
   ranked: RankedRecipe<unknown>;
   expanded: boolean;
-  fridgeNames: readonly string[];
+  shopping: Shopping;
   onToggle: () => void;
   onCook: () => void;
 }) {
   const { recipe, uses } = ranked;
   const [showIngredients, setShowIngredients] = useState(false);
   const expiringTag = `uses ${uses.length} expiring`;
+  const missing = recipe.ingredients.filter((ingredient) => !shopping.inFridge(ingredient));
+  const notListed = missing.filter((ingredient) => !shopping.onList(ingredient));
 
   return (
     <article className={`recipe-row ${expanded ? "is-expanded" : ""}`}>
@@ -95,6 +98,11 @@ function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
             <span>ingredients {recipe.ingredients.length}</span>
             <span>{showIngredients ? "−" : "+"}</span>
           </button>
+          {missing.length === 0 && (
+            <p className="ingredients-complete">
+              <span>✓</span> you have everything.
+            </p>
+          )}
           <ul className={showIngredients ? "is-expanded" : ""}>
             {recipe.ingredients.map((ingredient) => (
               <li key={ingredient}>
@@ -102,12 +110,16 @@ function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
                   <FoodArt name={ingredient} />
                 </span>
                 <span>{ingredient}</span>
-                {fridgeNames.some((name) => usesItem(ingredient, name)) ? (
+                {shopping.inFridge(ingredient) ? (
                   <span className="ingredient-check" aria-label="In your fridge">
                     ✓
                   </span>
                 ) : (
-                  <span className="need-tag">need</span>
+                  <GroceryButton
+                    className="ingredient-grocery-button"
+                    listed={shopping.onList(ingredient)}
+                    onAdd={() => shopping.onAdd(recipe, [ingredient])}
+                  />
                 )}
               </li>
             ))}
@@ -133,16 +145,28 @@ function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
             ))}
           </ol>
         </div>
-        <button type="button" className="start-cooking" onClick={onCook}>
-          start cooking
-        </button>
+        <div className="recipe-primary-actions">
+          {missing.length >= 2 && (
+            <button
+              type="button"
+              className={`add-missing-groceries ${notListed.length === 0 ? "is-complete" : ""}`}
+              disabled={notListed.length === 0}
+              onClick={() => shopping.onAdd(recipe, notListed)}
+            >
+              {notListed.length === 0 ? "all on your list ✓" : `add ${notListed.length} missing to grocery list`}
+            </button>
+          )}
+          <button type="button" className="start-cooking" onClick={onCook}>
+            start cooking
+          </button>
+        </div>
       </div>
     </article>
   );
 }
 
 // One recipe open at a time; opening another closes the last.
-export function RecipeList({ recipes, fridgeNames }: { recipes: RankedRecipe<unknown>[]; fridgeNames: readonly string[] }) {
+export function RecipeList({ recipes, shopping }: { recipes: RankedRecipe<unknown>[]; shopping: Shopping }) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cooking, setCooking] = useState<Recipe | null>(null);
 
@@ -153,7 +177,7 @@ export function RecipeList({ recipes, fridgeNames }: { recipes: RankedRecipe<unk
           key={ranked.recipe.id}
           ranked={ranked}
           expanded={expandedId === ranked.recipe.id}
-          fridgeNames={fridgeNames}
+          shopping={shopping}
           onToggle={() => setExpandedId(expandedId === ranked.recipe.id ? null : ranked.recipe.id)}
           onCook={() => setCooking(ranked.recipe)}
         />
@@ -165,7 +189,7 @@ export function RecipeList({ recipes, fridgeNames }: { recipes: RankedRecipe<unk
           <p>try fewer ingredients.</p>
         </div>
       )}
-      {cooking && <CookingTakeover recipe={cooking} onClose={() => setCooking(null)} />}
+      {cooking && <CookingTakeover recipe={cooking} shopping={shopping} onClose={() => setCooking(null)} />}
     </section>
   );
 }
