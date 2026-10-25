@@ -70,6 +70,7 @@
   position: relative;
   z-index: 5;
   display: flex;
+  flex-wrap: wrap;
   width: min(100%, 760px);
   margin-bottom: 28px;
 }

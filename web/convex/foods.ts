@@ -17,6 +17,93 @@ export const importReference = internalMutation({
   handler: async (ctx) => importReferenceFoods(ctx),
 });
 
+const MERGED_FIELDS = [
+  "fridgeDays",
+  "freezerDays",
+  "pantryDays",
+  "storageTip",
+  "freshnessHint",
+  "defaultWeightGrams",
+  "hasPrintedDate",
+  "webLookupAt",
+] as const;
+
+// One-off cleanup for prod's duplicate names. Dry run unless apply is true: keeps the most complete row per name,
+// fills its missing fields from the others, repoints items, grocery rows, and familiarity, then deletes the rest.
+export const dedupeByName = internalMutation({
+  args: { apply: v.optional(v.boolean()) },
+  handler: async (ctx, { apply = false }) => {
+    const byName = new Map<string, Doc<"foods">[]>();
+    for await (const food of ctx.db.query("foods")) {
+      byName.set(food.name, [...(byName.get(food.name) ?? []), food]);
+    }
+    const filled = (food: Doc<"foods">) => MERGED_FIELDS.filter((key) => food[key] !== undefined).length;
+    const groups = [...byName.values()]
+      .filter((rows) => rows.length > 1)
+      .map((rows) => {
+        // Most filled fields first, then the oldest row.
+        const [keep, ...drop] = [...rows].sort((a, b) => filled(b) - filled(a) || a._creationTime - b._creationTime);
+        return { keep, drop };
+      });
+    const counts = { items: 0, groceryItems: 0, familiarity: 0, deleted: 0 };
+    const keeperOf = new Map<Id<"foods">, Id<"foods">>();
+    for (const { keep, drop } of groups) for (const food of drop) keeperOf.set(food._id, keep._id);
+
+    if (apply) {
+      for (const { keep, drop } of groups) {
+        const patch: Partial<Doc<"foods">> = { aliases: [...new Set([keep.aliases, ...drop.map((f) => f.aliases)].flat())] };
+        for (const key of MERGED_FIELDS) {
+          const value = keep[key] ?? drop.find((f) => f[key] !== undefined)?.[key];
+          if (value !== undefined && keep[key] === undefined) Object.assign(patch, { [key]: value });
+        }
+        await ctx.db.patch(keep._id, patch);
+      }
+    }
+    for await (const item of ctx.db.query("items")) {
+      const keep = item.foodId && keeperOf.get(item.foodId);
+      if (!keep) continue;
+      counts.items++;
+      if (apply) await ctx.db.patch(item._id, { foodId: keep });
+    }
+    for await (const entry of ctx.db.query("groceryItems")) {
+      const keep = entry.foodId && keeperOf.get(entry.foodId);
+      if (!keep) continue;
+      counts.groceryItems++;
+      if (apply) await ctx.db.patch(entry._id, { foodId: keep });
+    }
+    for await (const row of ctx.db.query("foodFamiliarity")) {
+      const keep = keeperOf.get(row.foodId);
+      if (!keep) continue;
+      counts.familiarity++;
+      if (!apply) continue;
+      // A user can already have a row for the kept food; fold this one into it.
+      const existing = await ctx.db
+        .query("foodFamiliarity")
+        .withIndex("by_user_food", (q) => q.eq("userId", row.userId).eq("foodId", keep))
+        .unique();
+      if (existing) {
+        await ctx.db.patch(existing._id, {
+          timesAdded: existing.timesAdded + row.timesAdded,
+          tipViews: Math.max(existing.tipViews, row.tipViews),
+        });
+        await ctx.db.delete(row._id);
+      } else {
+        await ctx.db.patch(row._id, { foodId: keep });
+      }
+    }
+    if (apply) {
+      for (const id of keeperOf.keys()) await ctx.db.delete(id);
+      counts.deleted = keeperOf.size;
+    }
+    return {
+      applied: apply,
+      duplicateNames: groups.length,
+      groups: groups.map(({ keep, drop }) => ({ name: keep.name, keep: keep._id, drop: drop.map((f) => f._id) })),
+      repointed: counts,
+    };
+  },
+});
+
 // Manual-entry autocomplete; ranges drop their ref to keep the payload small.
 export const catalog = query({
   args: {},

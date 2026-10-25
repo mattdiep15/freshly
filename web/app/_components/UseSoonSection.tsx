@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { ItemView } from "@/convex/items";
 import { splitFoodName } from "@/lib/foodName";
 import { daysLeftLabel, numberWord } from "@/lib/freshness";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { Leekly } from "@/app/_components/ui/Leekly";
 
-// Long enough to see the check, and to uncheck a misclick before it is saved; P1 has no undo.
-const SAVE_DELAY_MS = 900;
+// Matches the row's fade below; the fridge page's undo toast takes over once it is gone.
+const FADE_MS = 250;
 
 function UseSoonList({
   items,
@@ -19,46 +19,38 @@ function UseSoonList({
   now: number;
   onUse: (item: ItemView) => void;
 }) {
-  const [checked, setChecked] = useState<string[]>([]);
-  const pending = useRef(new Map<string, { timer: number; save: () => void }>());
+  const [leaving, setLeaving] = useState<string[]>([]);
 
-  // Leaving the page saves pending checks instead of dropping them.
-  useEffect(() => {
-    const saves = pending.current;
-    return () =>
-      saves.forEach(({ timer, save }) => {
-        window.clearTimeout(timer);
-        save();
-      });
-  }, []);
-
-  const toggle = (item: ItemView) => {
-    const entry = pending.current.get(item._id);
-    if (entry) {
-      window.clearTimeout(entry.timer);
-      pending.current.delete(item._id);
-      setChecked((current) => current.filter((id) => id !== item._id));
-      return;
+  // Fades and collapses the row, then saves; undo lives in the fridge page's toast.
+  const use = (item: ItemView, row: HTMLElement | null) => {
+    if (leaving.includes(item._id)) return;
+    setLeaving((current) => [...current, item._id]);
+    if (row && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      row.style.height = `${row.offsetHeight}px`;
+      row.getBoundingClientRect();
+      row.style.height = "0px";
+      row.style.opacity = "0";
     }
-    setChecked((current) => [...current, item._id]);
-    const save = () => {
-      pending.current.delete(item._id);
-      // Clear the check so an undo brings the item back unchecked.
-      setChecked((current) => current.filter((id) => id !== item._id));
+    window.setTimeout(() => {
+      if (row) {
+        row.style.height = "";
+        row.style.opacity = "";
+      }
+      // Cleared with the save, so an undo brings the item back unchecked.
+      setLeaving((current) => current.filter((id) => id !== item._id));
       onUse(item);
-    };
-    pending.current.set(item._id, { timer: window.setTimeout(save, SAVE_DELAY_MS), save });
+    }, FADE_MS);
   };
 
   return (
     <div className="daily-list suggestions-list" aria-label="Use soon list">
       {items.map((item, index) => {
-        const isChecked = checked.includes(item._id);
+        const isChecked = leaving.includes(item._id);
         const label = daysLeftLabel(item.expiresAt, now);
         const note = label === "today" ? "goes off today" : `good for ${label}`;
         return (
           <label className={`daily-task ${isChecked ? "is-checked" : ""}`} key={item._id}>
-            <input type="checkbox" checked={isChecked} onChange={() => toggle(item)} />
+            <input type="checkbox" checked={isChecked} onChange={(event) => use(item, event.currentTarget.closest("label"))} />
             <span className="check-hit" aria-hidden="true">
               <span className="large-check">{isChecked ? "✓" : ""}</span>
             </span>

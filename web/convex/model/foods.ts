@@ -18,7 +18,7 @@ export async function importReferenceFoods(ctx: MutationCtx) {
       const existing = await ctx.db
         .query("foods")
         .withIndex("by_name", (q) => q.eq("name", row.name))
-        .unique();
+        .first();
       if (!existing) {
         await ctx.db.insert("foods", mergeReferenceFood(null, row));
         inserted++;

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
 import { clearNewGroceries, useNewGroceryCount } from "@/app/_components/useNewGroceryCount";
+import { useSwipeTabs } from "@/app/_components/useSwipeTabs";
 
 const pageTitles: Record<string, string> = {
   "/fridge": "my fridge",
@@ -38,6 +39,7 @@ export function SiteHeader() {
   const router = useRouter();
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const newGroceries = useNewGroceryCount();
+  useSwipeTabs(pathname);
   // Opening the list counts as seeing what recipes added.
   useEffect(() => {
     if (pathname === "/grocery" && newGroceries > 0) clearNewGroceries();

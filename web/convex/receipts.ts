@@ -332,5 +332,6 @@ function foodByName(ctx: QueryCtx, name: string) {
   return ctx.db
     .query("foods")
     .withIndex("by_name", (q) => q.eq("name", name.toLowerCase().trim()))
-    .unique();
+    // first(), not unique(): prod has duplicate food names, and unique() throws on them.
+    .first();
 }
