@@ -12,6 +12,7 @@ import "./_styles/stats.css";
 import "./_styles/swipe.css";
 import "./_styles/design-v5.css";
 import "./_styles/design-v6.css";
+import "./_styles/design-v7.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 
 const bodyFont = DM_Sans({

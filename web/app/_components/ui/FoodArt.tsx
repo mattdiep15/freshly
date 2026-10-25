@@ -82,7 +82,7 @@ export function FoodArt({ name, group, className = "" }: { name: string; group?:
   const art = drawn ?? bagFor(name);
   return (
     <Image
-      className={drawn ? className : `${className} food-bag-icon`}
+      className={`${className} food-art ${drawn ? "" : "food-bag-icon"}`}
       src={`/illustrations/food/${art.file}.png`}
       width={art.width}
       height={art.height}

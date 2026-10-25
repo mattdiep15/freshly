@@ -94,6 +94,7 @@ This plan owns `convex/grocery.ts`, `convex/model/grocery.ts`, `lib/grocery.ts` 
 - 2026-10-24: Name matching is exact after lowercasing. Fuzzy matching ("baby spinach" against "spinach") goes through `foodId`, which the receipt parser and manual add already resolve.
 - 2026-10-24: Built with the design v6 port, which also adds `groceryItems` from p2-01; the other p2-01 tables are not added. The v6 screen lists newest entries first, so the page sorts by `_creationTime` and `add` deletes an entry with the same name before inserting, which moves it to the top unchecked. Its "clear" link needed `grocery.clearChecked`, which deletes the caller's checked entries.
 - 2026-10-24: Design v6 shows one hint per row, so the hints came back from p3 as client-side code: `groceryHint` in `lib/grocery.ts` reads the existing `items.list` queries (wasted, then active, then use-soon pairings from a static map) and needs no schema. The richer hints in p3 ("half your spinach") still need waste amounts per food.
+- 2026-10-24: Design v7 adds recipe ingredients to the list. `grocery.addFromRecipe({ recipeName, names })` inserts the names not already unchecked on the list, stores `recipeName` on each new entry, and returns the inserted ids so the toast's undo removes only those. A row with `recipeName` shows "for <recipe>." ahead of the other hints. The nav badge counts entries added this way since the grocery page was last opened; it lives in memory, so a reload clears it. Test route: `GET /api/grocery/add-from-recipe?recipe=&names=a,b`.
 
 ## Surprises
 

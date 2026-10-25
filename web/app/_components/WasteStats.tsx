@@ -2,24 +2,56 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Leekly } from "@/app/_components/ui/Leekly";
+import { FixedTag } from "@/app/_components/ui/StatusTag";
 
-// approximate is true when some wasted items have no weight, so lbs wasted is a floor.
-type Totals = { rescued: number; lbsWasted: number; streakDays: number; approximate: boolean };
-type Period = { label: string; rescued: number; lbsWasted: number; centsWasted: number; usedRate: number | null };
+type Totals = {
+  centsWasted: number;
+  centsSaved: number;
+  missingPrice: boolean; // some wasted items have no price, so $ wasted is a floor
+  streakDays: number;
+  usedRate: number | null; // null when nothing was used or tossed
+};
+type Week = { start: number; centsWasted: number; usedRate: number | null };
 
 const FIRST_DRAW_MS = 1400;
 const REPLAY_DRAW_MS = 1000;
 const STAGGER_MS = 200;
+const DAY = 24 * 60 * 60 * 1000;
 
-function StatCircle({ value, decimals = 0, suffix = "", delay, label, tooltip, positive = false }: {
-  value: number;
+const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+const percent = (rate: number | null) => (rate === null ? "-" : `${Math.round(rate * 100)}%`);
+
+// A null value shows a dash, for a rate with nothing to divide.
+function StatCircle({
+  value: shownValue,
+  decimals = 0,
+  prefix = "",
+  suffix = "",
+  innerUnit,
+  delay,
+  label,
+  mobileLabel,
+  secondary,
+  positiveNote,
+  progress = 1,
+  tooltip,
+  positive = false,
+}: {
+  value: number | null;
   decimals?: number;
+  prefix?: string;
   suffix?: string;
+  innerUnit?: string;
   delay: number;
   label: string;
+  mobileLabel?: string;
+  secondary?: string;
+  positiveNote?: string;
+  progress?: number; // share of the ring drawn, for a rate
   tooltip: string;
   positive?: boolean;
 }) {
+  const value = shownValue ?? 0;
   const zero = (0).toFixed(decimals);
   const [display, setDisplay] = useState(zero);
   const [draw, setDraw] = useState({ key: 0, duration: 0, delay: 0, active: false });
@@ -70,28 +102,29 @@ function StatCircle({ value, decimals = 0, suffix = "", delay, label, tooltip, p
       onClick={replay}
     >
       <span className="circle-art">
-        <svg viewBox="0 0 300 300" aria-hidden="true">
+        <svg className={progress < 1 ? "is-partial" : ""} viewBox="0 0 300 300" aria-hidden="true">
           <path
             key={draw.key}
             className={`circle-stroke ${draw.active ? "is-animating" : ""}`}
-            style={{ animationDuration: `${draw.duration}ms`, animationDelay: `${draw.delay}ms` }}
+            style={{
+              animationDuration: `${draw.duration}ms`,
+              animationDelay: `${draw.delay}ms`,
+              strokeDasharray: progress < 1 ? `${900 * progress} 900` : undefined,
+            }}
             d="M153 12C224 9 283 65 288 137C294 211 239 278 165 287C91 296 24 247 13 174C2 101 48 33 119 16C133 12 145 11 158 13C166 14 171 16 177 20"
           />
         </svg>
-        <strong>
-          {display}
-          {suffix}
+        <strong className={prefix ? "is-currency" : ""}>
+          {shownValue === null ? "-" : `${prefix}${display}${suffix}`}
+          {innerUnit && <small>{innerUnit}</small>}
         </strong>
       </span>
       <span className="stat-label">
-        {label.split(" ").map((word, index) => (
-          <span key={word}>
-            {index > 0 && <br className="mobile-stat-break" />}
-            {word}
-            {index === 0 && <span className="desktop-stat-space"> </span>}
-          </span>
-        ))}
+        <span className="desktop-stat-label">{label}</span>
+        <span className="mobile-stat-label">{mobileLabel ?? label}</span>
       </span>
+      {secondary && <span className="stat-secondary">{secondary}</span>}
+      {positiveNote && <span className="stat-positive-note">{positiveNote}</span>}
       {showTooltip && <span className="stat-tooltip">{tooltip}</span>}
     </button>
   );
@@ -101,24 +134,35 @@ export function StatCircles({ totals }: { totals: Totals }) {
   return (
     <section className="stats-screen">
       <StatCircle
-        value={totals.rescued}
+        value={totals.centsWasted / 100}
+        decimals={2}
+        prefix="$"
         delay={0}
-        label="items rescued"
-        tooltip="foods you marked as used this month"
-        positive
-      />
-      <StatCircle
-        value={totals.lbsWasted}
-        decimals={1}
-        delay={STAGGER_MS}
-        label="lbs wasted"
-        tooltip={totals.approximate ? "at least this much food discarded this month; some items have no weight" : "estimated food discarded this month"}
+        label="$ wasted"
+        secondary="last 4 weeks"
+        positiveNote={totals.centsSaved > 0 ? `${dollars(totals.centsSaved)} saved` : undefined}
+        tooltip={
+          totals.missingPrice
+            ? "at least this much tossed in the last 4 weeks; some items have no price"
+            : "food tossed in the last 4 weeks, at its price"
+        }
       />
       <StatCircle
         value={totals.streakDays}
-        delay={STAGGER_MS * 2}
-        label="day streak"
+        delay={STAGGER_MS}
+        label="no-waste streak"
+        mobileLabel="day streak"
+        innerUnit={totals.streakDays === 1 ? "day" : "days"}
         tooltip="days since you last tossed food or left an expired card unswiped"
+        positive
+      />
+      <StatCircle
+        value={totals.usedRate === null ? null : Math.round(totals.usedRate * 100)}
+        suffix="%"
+        delay={STAGGER_MS * 2}
+        label="use rate"
+        progress={totals.usedRate ?? 0}
+        tooltip="share of finished items you used instead of tossing, last 4 weeks"
         positive
       />
     </section>
@@ -128,48 +172,44 @@ export function StatCircles({ totals }: { totals: Totals }) {
 const mascotPose = typeof window === "undefined" || Math.random() < 0.5 ? "cool" : "number-one";
 const noSubscribe = () => () => {};
 
-// One random pose per page load; the server renders none so hydration matches.
-export function StatsMascot() {
-  const pose = useSyncExternalStore(noSubscribe, () => mascotPose, () => null);
-  return <div className="stats-leek-preview">{pose && <Leekly pose={pose} className="stats-mascot" />}</div>;
+// One random pose per page load; the server renders none so hydration matches. A zero-waste month earns the cool leek.
+export function StatsMascot({ zeroWaste }: { zeroWaste: boolean }) {
+  const randomPose = useSyncExternalStore(noSubscribe, () => mascotPose, () => null);
+  const pose = zeroWaste ? "cool" : randomPose;
+  return (
+    <div className="stats-leek-preview">
+      {pose && <Leekly pose={pose} className="stats-mascot" />}
+      {zeroWaste && <FixedTag className="zero-waste-tag">zero-waste leek</FixedTag>}
+    </div>
+  );
 }
 
-export function PeriodTable({ periods }: { periods: Period[] }) {
+const shortDate = (time: number) =>
+  new Date(time).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase();
+
+// "oct 5–11", or "sep 28–oct 4" across a month.
+function weekLabel(start: number, index: number): string {
+  if (index === 0) return "this week";
+  if (index === 1) return "last week";
+  const [from, to] = [shortDate(start), shortDate(start + 6 * DAY)];
+  const [fromMonth] = from.split(" ");
+  const [toMonth, toDay] = to.split(" ");
+  return fromMonth === toMonth ? `${from}–${toDay}` : `${from}–${to}`;
+}
+
+export function PeriodTable({ weeks }: { weeks: Week[] }) {
   return (
     <div className="thin-list week-list">
       <div className="thin-row list-labels">
-        <span>period</span>
-        <span>
-          <span className="desktop-table-label">items rescued</span>
-          <span className="mobile-table-label">rescued</span>
-        </span>
-        <span>
-          <span className="desktop-table-label">lbs wasted</span>
-          <span className="mobile-table-label">lbs</span>
-        </span>
-        <span>
-          <span className="desktop-table-label">$ wasted</span>
-          <span className="mobile-table-label">$</span>
-        </span>
-        <span>
-          <span className="desktop-table-label">% used</span>
-          <span className="mobile-table-label">used</span>
-        </span>
+        <span>week</span>
+        <span>$ wasted</span>
+        <span>use rate</span>
       </div>
-      {periods.map((period) => (
-        <div className="thin-row" key={period.label}>
-          {/* Phones drop "this " so "week" and "month" fit beside five columns. */}
-          <strong>
-            {period.label.startsWith("this ") && <span className="desktop-unit">this </span>}
-            {period.label.replace(/^this /, "")}
-          </strong>
-          <span>{period.rescued}</span>
-          <span>
-            {period.lbsWasted.toFixed(1)}
-            <span className="desktop-unit"> lbs</span>
-          </span>
-          <span>${(period.centsWasted / 100).toFixed(2)}</span>
-          <span>{period.usedRate === null ? "-" : `${Math.round(period.usedRate * 100)}%`}</span>
+      {weeks.map((week, index) => (
+        <div className="thin-row" key={week.start}>
+          <strong>{weekLabel(week.start, index)}</strong>
+          <span>{dollars(week.centsWasted)}</span>
+          <span>{percent(week.usedRate)}</span>
         </div>
       ))}
     </div>

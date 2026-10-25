@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
+import { clearNewGroceries, useNewGroceryCount } from "@/app/_components/useNewGroceryCount";
 
 const pageTitles: Record<string, string> = {
   "/fridge": "my fridge",
@@ -36,6 +37,11 @@ export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const cameraInputRef = useRef<HTMLInputElement>(null);
+  const newGroceries = useNewGroceryCount();
+  // Opening the list counts as seeing what recipes added.
+  useEffect(() => {
+    if (pathname === "/grocery" && newGroceries > 0) clearNewGroceries();
+  }, [pathname, newGroceries]);
 
   return (
     <header className="topbar">
@@ -54,6 +60,11 @@ export function SiteHeader() {
         <span className="nav-camera-spacer" aria-hidden="true" />
         <NavLink href="/grocery" className="nav-grocery" pathname={pathname}>
           grocery
+          {newGroceries > 0 && (
+            <span className="grocery-nav-count" aria-label={`${newGroceries} new grocery items`}>
+              {newGroceries}
+            </span>
+          )}
         </NavLink>
         <NavLink href="/community" className="nav-community" pathname={pathname}>
           community

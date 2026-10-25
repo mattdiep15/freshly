@@ -230,38 +230,3 @@
 .invite-accept {
   height: 44px;
 }
-
-/* % used column, the leaderboard's sort key. The extra class outranks the older friends-list nth-child rules. */
-.friends-list .thin-row.friend-columns {
-  grid-template-columns: 70px minmax(0, 1fr) 110px 130px 110px 90px;
-}
-
-.friends-list .thin-row.friend-columns > :nth-child(n + 3) {
-  text-align: right;
-}
-
-.friends-list .thin-row.friend-columns > :nth-child(6) {
-  justify-self: end;
-}
-
-@media (max-width: 900px) {
-  .friends-list .thin-row.friend-columns {
-    grid-template-columns: 50px minmax(0, 1fr) 80px 90px 80px 76px;
-  }
-}
-
-/* Phones keep rank, name, % used, and streak; lbs and the drawing drop out. */
-@media (max-width: 767px) {
-  .friends-list .thin-row.friend-columns {
-    grid-template-columns: 32px minmax(0, 1fr) 64px 64px;
-  }
-
-  .friends-list .thin-row.friend-columns > :nth-child(4),
-  .friends-list .thin-row.friend-columns > :nth-child(6) {
-    display: none;
-  }
-
-  .friends-list .thin-row.friend-columns > :nth-child(5) {
-    display: block;
-  }
-}

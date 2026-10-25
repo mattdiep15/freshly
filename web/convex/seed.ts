@@ -135,9 +135,9 @@ async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
 
 // p2-03's friends. The leaderboard ranks calendar weeks, so this week's items are placed at a share of the week
 // so far (0 = Monday 00:00 local, 1 = now) and land in the current week on any day. Older tosses set long streaks.
-// Leaderboard order by weekly used rate: maya, theo, dev, you, nina.
-type FriendItem = { name: string; grams: number; wasted?: true } & ({ daysAgo: number } | { weekShare: number });
-const FRIENDS: { name: string; code: string; items: FriendItem[] }[] = [
+// Leaderboard order by weekly used rate: maya, theo, dev, you, nina. nina hides her dollars from friends.
+type FriendItem = { name: string; grams: number; cents?: number; wasted?: true } & ({ daysAgo: number } | { weekShare: number });
+const FRIENDS: { name: string; code: string; hideDollars?: true; items: FriendItem[] }[] = [
   {
     name: "maya",
     code: "MAYA42",
@@ -159,18 +159,19 @@ const FRIENDS: { name: string; code: string; items: FriendItem[] }[] = [
     name: "dev",
     code: "DEVV58",
     items: [
-      { name: "Cilantro", grams: 500, weekShare: 0.1, wasted: true },
+      { name: "Cilantro", grams: 500, cents: 199, weekShare: 0.1, wasted: true },
       ...[0.3, 0.6, 0.9].map((weekShare) => ({ name: "Pasta", grams: 450, weekShare })),
     ],
   },
   {
     name: "nina",
     code: "NINA36",
+    hideDollars: true,
     items: [
-      { name: "Avocados", grams: 150, weekShare: 0.1, wasted: true },
-      { name: "Berries", grams: 150, weekShare: 0.2, wasted: true },
-      { name: "Bagels", grams: 175, weekShare: 0.3, wasted: true },
-      { name: "Hummus", grams: 160, weekShare: 0.4, wasted: true },
+      { name: "Avocados", grams: 150, cents: 299, weekShare: 0.1, wasted: true },
+      { name: "Berries", grams: 150, cents: 499, weekShare: 0.2, wasted: true },
+      { name: "Bagels", grams: 175, cents: 399, weekShare: 0.3, wasted: true },
+      { name: "Hummus", grams: 160, cents: 449, weekShare: 0.4, wasted: true },
       { name: "Oats", grams: 500, weekShare: 0.8 },
     ],
   },
@@ -194,7 +195,14 @@ async function seedFriends(ctx: MutationCtx, demoId: Id<"users">, now: number) {
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", friendId))
       .unique();
-    const profileFields = { userId: friendId, displayName: friend.name, utcOffsetMinutes: FRIEND_UTC_OFFSET, digestHour: 9, inviteCode: friend.code };
+    const profileFields = {
+      userId: friendId,
+      displayName: friend.name,
+      utcOffsetMinutes: FRIEND_UTC_OFFSET,
+      digestHour: 9,
+      inviteCode: friend.code,
+      hideDollarsFromFriends: friend.hideDollars,
+    };
     if (profile) await ctx.db.patch(profile._id, profileFields);
     else await ctx.db.insert("profiles", profileFields);
 
@@ -213,6 +221,7 @@ async function seedFriends(ctx: MutationCtx, demoId: Id<"users">, now: number) {
         name: item.name,
         quantity: 1,
         weightGrams: item.grams,
+        priceCents: item.cents,
         location: "fridge",
         purchasedAt: now - 30 * DAY,
         status: item.wasted ? "wasted" : "used",

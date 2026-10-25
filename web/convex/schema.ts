@@ -72,6 +72,7 @@ export default defineSchema({
     wastedFraction: v.optional(v.number()), // share of a tossed item counted as wasted; DEFAULT_WASTED_FRACTION when absent
     alwaysAskSpoiled: v.optional(v.boolean()), // show the "looks spoiled?" card even when there are no days left to extend
     inviteCode: v.optional(v.string()), // 6 characters, set the first time the user opens the friends view
+    hideDollarsFromFriends: v.optional(v.boolean()), // absent shares weekly $ wasted on the leaderboard
   })
     .index("by_user", ["userId"])
     .index("by_invite_code", ["inviteCode"]),
@@ -129,6 +130,7 @@ export default defineSchema({
     foodId: v.optional(v.id("foods")), // set when the name matches a food, so a scanned receipt can check it off
     checkedAt: v.optional(v.number()), // absent while unchecked
     checkedBy: v.optional(v.union(v.literal("user"), v.literal("receipt"))),
+    recipeName: v.optional(v.string()), // set when added from a recipe's missing ingredients
   }).index("by_user", ["userId"]),
 
   // Shape from docs/exec-plans/p2-01-schema.md. One row per direction, so "my friends" is one index read.

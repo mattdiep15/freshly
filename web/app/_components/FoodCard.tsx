@@ -101,7 +101,7 @@ export function FoodCard({
 
   return (
     <article
-      className={`food-card food-card--${status} ${isExpired ? "expired-surface" : ""} ${transition ? `is-${transition}` : ""} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""} ${highlighted ? "is-newly-added" : ""}`}
+      className={`food-card food-card--${status} ${isExpired ? "expired-surface food-art-surface--dark" : ""} ${transition ? `is-${transition}` : ""} ${expanded ? "is-expanded" : ""} ${filteredOut ? "is-filtered-out" : ""} ${highlighted ? "is-newly-added" : ""}`}
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
     >

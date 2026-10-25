@@ -10,6 +10,11 @@ describe("groceryKey", () => {
 describe("groceryHint", () => {
   const none = { wastedNames: [], fridge: [], soonNames: [] };
 
+  it("names the recipe an entry was added for before anything else", () => {
+    const hint = groceryHint("strawberries", { ...none, wastedNames: ["strawberries"] }, "Berry Smoothie");
+    expect(hint).toEqual({ kind: "recipe", text: "for berry smoothie." });
+  });
+
   it("warns about past waste first", () => {
     const hint = groceryHint("strawberries", {
       ...none,

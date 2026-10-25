@@ -1,0 +1,575 @@
+/* Design v7 (dev/prototype_v7.zip): black expired fridge rows, recipe-to-grocery actions, $ wasted / streak / use rate stats,
+   and the use-rate leaderboard. Loads after design-v6.css. */
+
+/* Authoritative Fridge expired row: one continuous black surface. */
+.fridge-screen .food-card--expired {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+  box-shadow: inset 0 -1px rgb(255 255 255 / 30%);
+}
+
+.fridge-screen .food-card--expired .card-summary,
+.fridge-screen .food-card--expired .card-details,
+.fridge-screen .food-card--expired .detail-main,
+.fridge-screen .food-card--expired .illustration-slot {
+  background: #000;
+  color: #fff;
+}
+
+.fridge-screen .food-card--expired.is-expanded .card-details {
+  border-top-color: rgb(255 255 255 / 30%);
+}
+
+.fridge-screen .food-card--expired .card-title,
+.fridge-screen .food-card--expired .status-timing,
+.fridge-screen .food-card--expired .expand-mark,
+.fridge-screen .food-card--expired .detail-line span {
+  color: #fff;
+}
+
+.fridge-screen .food-card--expired .status-tag--expired,
+.fridge-screen .food-card--expired .status-pill {
+  border-color: #fff;
+  background: #000;
+  color: #fff;
+}
+
+.fridge-screen .food-card--expired .detail-line p {
+  color: rgb(255 255 255 / 85%);
+}
+
+.fridge-screen .food-card--expired .food-icon,
+.fridge-screen .food-card--expired .expanded-food-icon {
+  background: transparent;
+  filter: invert(1);
+  mix-blend-mode: screen;
+  image-rendering: auto;
+}
+
+.fridge-screen .food-card--expired .food-icon-slot,
+.fridge-screen .food-card--expired .illustration-slot {
+  background: transparent;
+}
+
+.fridge-screen .food-card--expired .used-button {
+  border: 2px solid #fff;
+  background: transparent;
+  color: #fff;
+}
+
+@media (hover: hover) {
+  .fridge-screen .food-card--expired .used-button:hover {
+    background: #fff;
+    color: #000;
+  }
+}
+
+/* Recipe-to-grocery actions. */
+.ingredient-grocery-button,
+.cooking-missing button {
+  position: relative;
+  width: 140px;
+  height: 36px;
+  border: 2px solid var(--good);
+  padding: 0 10px;
+  background: var(--paper);
+  color: var(--good);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    background-color 100ms ease,
+    color 100ms ease;
+}
+
+.ingredient-grocery-button:active,
+.cooking-missing button:active {
+  background: var(--good);
+  color: var(--paper);
+}
+
+.ingredient-grocery-button.is-added,
+.cooking-missing button.is-added {
+  background: var(--good);
+  color: var(--paper);
+  cursor: default;
+}
+
+.ingredients-complete {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: -4px 0 12px;
+  color: rgb(0 0 0 / 70%);
+  font-size: 14px;
+}
+
+.ingredients-complete span {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.recipe-primary-actions {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 12px;
+  margin-top: -24px;
+}
+
+.recipe-primary-actions .start-cooking {
+  width: 100%;
+}
+
+.add-missing-groceries {
+  width: 100%;
+  height: 52px;
+  border: 2px solid var(--good);
+  background: var(--good);
+  color: var(--paper);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition:
+    background-color 100ms ease,
+    color 100ms ease;
+}
+
+.add-missing-groceries:active {
+  background: #1b6205;
+}
+
+.add-missing-groceries.is-complete {
+  background: var(--paper);
+  color: var(--good);
+  cursor: default;
+}
+
+.cooking-missing {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.grocery-nav-count {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+  transform: translateX(-50%);
+}
+
+.recipe-grocery-toast {
+  position: fixed;
+  z-index: 35;
+  right: 24px;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 2px solid var(--ink);
+  padding: 14px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: 0.01em;
+}
+
+.recipe-grocery-toast button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .recipe-row.is-expanded .recipe-details {
+    max-height: 1100px;
+  }
+
+  .recipe-ingredients li {
+    min-height: 48px;
+    grid-template-columns: 28px minmax(0, 1fr) 112px;
+    gap: 12px;
+  }
+
+  .recipe-ingredient-art,
+  .recipe-ingredient-art img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .recipe-ingredients li > span:nth-child(2) {
+    min-width: 0;
+    font-size: 16px;
+    line-height: 1.2;
+    overflow-wrap: normal;
+  }
+
+  .ingredient-grocery-button,
+  .cooking-missing button {
+    width: 112px;
+    height: 36px;
+    padding: 0 6px;
+    font-size: 12px;
+  }
+
+  .ingredient-grocery-button::before,
+  .cooking-missing button::before {
+    position: absolute;
+    inset: -4px 0;
+    content: '';
+  }
+
+  .recipe-primary-actions {
+    gap: 12px;
+    margin-top: 0;
+  }
+
+  .cooking-missing {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 16px;
+    text-align: left;
+  }
+
+  .recipes-page {
+    padding-bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 52px + 40px);
+  }
+
+  .recipe-grocery-toast {
+    right: 12px;
+    bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 64px);
+    left: 12px;
+    min-height: 52px;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 10px 12px;
+  }
+
+  .recipe-grocery-toast > span {
+    width: 100%;
+  }
+
+  .topbar .nav-grocery .grocery-nav-count {
+    top: 41px;
+  }
+
+  .topbar .nav-grocery.active .grocery-nav-count {
+    top: 46px;
+  }
+}
+
+/* Updated Community metrics and save-rate leaderboard. */
+.circle-art strong {
+  width: auto;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.circle-art strong.is-currency {
+  font-size: 52px;
+}
+
+.circle-art strong small {
+  display: block;
+  margin-top: 4px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.circle-art svg.is-partial {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.desktop-stat-label {
+  display: inline;
+}
+
+.mobile-stat-label {
+  display: none;
+}
+
+.stat-secondary,
+.stat-positive-note {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.stat-secondary {
+  color: rgb(0 0 0 / 70%);
+}
+
+.stat-positive-note {
+  color: var(--good);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.zero-waste-tag {
+  margin-top: 8px;
+}
+
+.leaderboard-rule {
+  margin-top: 8px;
+  color: rgb(0 0 0 / 70%);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+}
+
+.friends-list .friend-columns {
+  grid-template-columns: 70px minmax(0, 1fr) 140px 130px 140px 55px;
+}
+
+.friend-mobile-detail {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .numbers-hero .stat-label {
+    font-size: 15px;
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (max-width: 767px) {
+  .stats-screen {
+    align-items: start;
+  }
+
+  .circle-art strong {
+    font-size: 34px;
+  }
+
+  .circle-art strong.is-currency {
+    font-size: 28px;
+  }
+
+  .circle-art strong small {
+    margin-top: 2px;
+    font-size: 13px;
+  }
+
+  .desktop-stat-label {
+    display: none;
+  }
+
+  .mobile-stat-label {
+    display: inline;
+  }
+
+  .stat-label {
+    min-height: 16px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .stat-secondary,
+  .stat-positive-note {
+    margin-top: 4px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .stat-positive-note {
+    font-size: 12px;
+  }
+
+  .week-list .thin-row {
+    min-height: 48px;
+    grid-template-columns: minmax(0, 1fr) 76px 76px;
+    font-size: 14px;
+  }
+
+  .friends-list .friend-columns {
+    grid-template-columns: 32px minmax(0, 1fr) 62px 56px;
+  }
+
+  .friends-list .friend-columns > :nth-child(5),
+  .friends-list .friend-columns > :nth-child(6) {
+    display: none;
+  }
+
+  .friends-list .thin-row.is-expanded {
+    min-height: 84px;
+  }
+
+  .friends-list .thin-row.is-expanded .friend-mobile-detail {
+    min-height: 34px;
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgb(0 0 0 / 25%);
+    padding-top: 8px;
+    color: rgb(0 0 0 / 70%);
+    font-size: 13px;
+    text-align: left;
+  }
+
+  .friends-list .thin-row.is-expanded .friend-mobile-detail strong {
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+  }
+}
+
+/* Surface-driven food artwork color. White surfaces always keep black linework. */
+.food-art {
+  background: transparent !important;
+  filter: none !important;
+  mix-blend-mode: multiply !important;
+  image-rendering: auto;
+}
+
+.food-art-surface--dark .food-art {
+  filter: invert(1) !important;
+  mix-blend-mode: screen !important;
+}
+
+.swipe-card,
+.swipe-food-panel,
+.spoil-food-column {
+  --food-art-filter: none;
+  background-color: var(--paper);
+}
+
+.swipe-card .swipe-food-art {
+  background: transparent !important;
+  filter: none !important;
+  mix-blend-mode: multiply !important;
+  image-rendering: auto;
+}
+
+.swipe-card .status-tag--expired {
+  border-color: #000;
+  background: #000;
+  color: #fff;
+}
+
+/* Expired row timing, deferred action, and expand control use fixed slots. */
+@media (min-width: 768px) {
+  .fridge-screen .food-card--expired .card-summary {
+    grid-template-columns: 200px 72px minmax(0, 1fr) 120px 104px 22px;
+    column-gap: 16px;
+  }
+
+  .fridge-screen .food-card--expired .status-timing {
+    width: 120px;
+    min-width: 120px;
+    grid-column: 4;
+    justify-self: end;
+    text-align: right;
+  }
+
+  .fridge-screen .food-card--expired .check-in-tag {
+    width: 104px;
+    height: 36px;
+    display: grid;
+    grid-column: 5;
+    grid-row: 1;
+    place-items: center;
+    justify-self: center;
+    border: 1px solid #fff;
+    padding: 0;
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  .fridge-screen .food-card--expired .expand-mark {
+    grid-column: 6;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .fridge-screen .food-card--expired .card-info {
+    gap: 3px;
+  }
+
+  .fridge-screen .food-card--expired .card-meta {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: 14px 14px;
+    column-gap: 8px;
+    row-gap: 1px;
+    align-items: center;
+  }
+
+  .fridge-screen .food-card--expired .status-tag--expired {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .fridge-screen .food-card--expired .status-timing {
+    min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: start;
+    overflow: visible;
+    color: #fff;
+    font-size: 12px;
+    text-align: left;
+  }
+
+  .fridge-screen .food-card--expired .check-in-tag {
+    width: max-content;
+    height: 14px;
+    display: block;
+    grid-column: 2;
+    grid-row: 2;
+    border: 0;
+    padding: 0;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 14px;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* Not in the prototype: between phone and wide desktop the circle shrinks, so the dollar figure shrinks with it. */
+@media (min-width: 768px) {
+  .numbers-hero .circle-art strong.is-currency {
+    font-size: clamp(26px, 3.6vw, 52px);
+  }
+}

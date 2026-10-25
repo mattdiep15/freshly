@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { periodStart, summarizeWaste, type ResolvedItem } from "./wasteStats";
+import { periodStart, summarizeWaste, weeklySummaries, type ResolvedItem } from "./wasteStats";
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.parse("2026-10-24T16:00:00Z"); // a Saturday
@@ -62,6 +62,11 @@ describe("summarizeWaste", () => {
     });
   });
 
+  test("saved counts the price of used items only", () => {
+    expect(summarizeWaste(items, "month", NOW, 0).savedCents).toBe(1000);
+    expect(summarizeWaste(items, "all", NOW, 0).savedCents).toBe(1300);
+  });
+
   test("no resolved items gives zeros and a null rate", () => {
     expect(summarizeWaste([], "all", NOW, 0)).toEqual({
       range: "all",
@@ -69,6 +74,7 @@ describe("summarizeWaste", () => {
       itemsWasted: 0,
       usedRate: null,
       wastedCents: 0,
+      savedCents: 0,
       wastedGrams: 0,
       wastedLbs: 0,
       itemsMissingPrice: 0,
@@ -102,5 +108,29 @@ describe("periodStart", () => {
     const items: ResolvedItem[] = [{ status: "wasted", resolvedAt: sundayNight, fractionWasted: 1, priceCents: 100 }];
     expect(summarizeWaste(items, "week", NOW, -420).itemsWasted).toBe(0);
     expect(summarizeWaste(items, "week", NOW, 0).itemsWasted).toBe(1);
+  });
+});
+
+describe("weeklySummaries", () => {
+  const items = [
+    resolved(1, { status: "used", priceCents: 100 }),
+    resolved(6, { status: "wasted", fractionWasted: 1, priceCents: 200 }), // Sunday, last week
+    resolved(12, { status: "used", priceCents: 300 }),
+    resolved(30, { status: "used", priceCents: 400 }),
+  ];
+
+  test("splits calendar weeks newest first", () => {
+    const weeks = weeklySummaries(items, 3, NOW, 0);
+    expect(weeks.map((week) => week.start)).toEqual([
+      Date.parse("2026-10-19T00:00:00Z"),
+      Date.parse("2026-10-12T00:00:00Z"),
+      Date.parse("2026-10-05T00:00:00Z"),
+    ]);
+    expect(weeks.map((week) => [week.itemsUsed, week.itemsWasted])).toEqual([[1, 0], [1, 1], [0, 0]]);
+  });
+
+  test("an item on the boundary falls in one week only", () => {
+    const monday = [{ status: "used" as const, resolvedAt: Date.parse("2026-10-19T00:00:00Z") }];
+    expect(weeklySummaries(monday, 2, NOW, 0).map((week) => week.itemsUsed)).toEqual([1, 0]);
   });
 });

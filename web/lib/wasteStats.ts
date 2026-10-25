@@ -20,6 +20,7 @@ export type WasteSummary = {
   itemsWasted: number;
   usedRate: number | null; // null when nothing was resolved in range
   wastedCents: number;
+  savedCents: number; // price of items marked used
   wastedGrams: number;
   wastedLbs: number;
   itemsMissingPrice: number; // wasted-in-part items left out of wastedCents
@@ -40,14 +41,28 @@ export function periodStart(range: WasteRange, now: number, utcOffsetMinutes: nu
 }
 
 export function summarizeWaste(items: ResolvedItem[], range: WasteRange, now: number, utcOffsetMinutes: number): WasteSummary {
-  const since = periodStart(range, now, utcOffsetMinutes);
-  const inRange = items.filter((i) => i.resolvedAt >= since && i.resolvedAt <= now);
+  return { range, ...summarizeBetween(items, periodStart(range, now, utcOffsetMinutes), now) };
+}
+
+// The current calendar week and the full weeks before it, newest first.
+export function weeklySummaries(items: ResolvedItem[], count: number, now: number, utcOffsetMinutes: number) {
+  const thisWeek = periodStart("week", now, utcOffsetMinutes);
+  return Array.from({ length: count }, (_, index) => {
+    const start = thisWeek - index * 7 * DAY;
+    return { start, ...summarizeBetween(items, start, index === 0 ? now : start + 7 * DAY - 1) };
+  });
+}
+
+export function summarizeBetween(items: ResolvedItem[], since: number, until: number): Omit<WasteSummary, "range"> {
+  const inRange = items.filter((i) => i.resolvedAt >= since && i.resolvedAt <= until);
 
   let wastedCents = 0;
+  let savedCents = 0;
   let wastedGrams = 0;
   let itemsMissingPrice = 0;
   let itemsMissingWeight = 0;
   for (const i of inRange) {
+    if (i.status === "used" && i.priceCents !== undefined) savedCents += i.priceCents * (1 - (i.fractionWasted ?? 0));
     const fraction = i.fractionWasted ?? (i.status === "wasted" ? DEFAULT_WASTED_FRACTION : 0);
     if (fraction === 0) continue;
     if (i.priceCents === undefined) itemsMissingPrice++;
@@ -59,11 +74,11 @@ export function summarizeWaste(items: ResolvedItem[], range: WasteRange, now: nu
   const itemsUsed = inRange.filter((i) => i.status === "used").length;
   const itemsWasted = inRange.length - itemsUsed;
   return {
-    range,
     itemsUsed,
     itemsWasted,
     usedRate: inRange.length === 0 ? null : itemsUsed / inRange.length,
     wastedCents: Math.round(wastedCents),
+    savedCents: Math.round(savedCents),
     wastedGrams: Math.round(wastedGrams),
     wastedLbs: Math.round((wastedGrams / GRAMS_PER_LB) * 100) / 100,
     itemsMissingPrice,

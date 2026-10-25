@@ -122,6 +122,8 @@ export const leaderboard = query({
         name: profile?.displayName ?? "friend",
         lbsWasted: Math.round(week.wastedLbs * 10) / 10,
         usedRate: week.usedRate,
+        // Null when a friend turned sharing off; the caller always sees their own.
+        centsWasted: id === userId || !profile?.hideDollarsFromFriends ? week.wastedCents : null,
         streakDays: await streakFor(ctx, id, now),
         isYou: id === userId,
       });
