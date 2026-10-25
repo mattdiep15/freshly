@@ -146,6 +146,7 @@ function Fridge() {
         onMarkUsed={(item) => decide(item, "used")}
         onReviewExpired={setReviewing}
         onSetDate={(item, expiresAt) => update({ itemId: item._id, expiresAt }).catch(ignoreStale)}
+        onMove={(item, location) => update({ itemId: item._id, location }).catch(ignoreStale)}
       />
       {items.length === 0 && <EmptyState message="your fridge is ready for something fresh." />}
       <UseSoonSection items={pickUseSoon(items, now)} now={now} onUse={(item) => decide(item, "used")} />

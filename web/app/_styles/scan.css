@@ -820,13 +820,16 @@
   font-size: 22px;
 }
 
-.draft-location {
-  grid-area: location;
+.location-picker {
   display: flex;
   justify-self: start;
 }
 
-.draft-location button {
+.draft-row .location-picker {
+  grid-area: location;
+}
+
+.location-picker button {
   min-height: 36px;
   border: 1px solid var(--ink);
   padding: 0 10px;
@@ -837,11 +840,11 @@
   font-size: 13px;
 }
 
-.draft-location button + button {
+.location-picker button + button {
   border-left: 0;
 }
 
-.draft-location button.is-selected {
+.location-picker button.is-selected {
   background: var(--ink);
   color: var(--paper);
 }
@@ -878,7 +881,7 @@
 }
 
 .draft-row.is-removed .draft-name,
-.draft-row.is-removed .draft-location,
+.draft-row.is-removed .location-picker,
 .draft-row.is-removed .draft-date {
   opacity: 0.35;
   text-decoration: line-through;

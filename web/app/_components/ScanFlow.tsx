@@ -12,6 +12,7 @@ import { errorMessage } from "@/app/_components/errorMessage";
 import { shrinkImage } from "@/app/_components/shrinkImage";
 import { ManualEntryCard } from "@/app/_components/ManualEntryCard";
 import { Leekly } from "@/app/_components/ui/Leekly";
+import { LocationPicker } from "@/app/_components/ui/LocationPicker";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 
 type Receipt = { file: File; previewUrl: string };
@@ -86,8 +87,6 @@ function dateLabel(draft: ItemView): string {
   return draft.checkLabel ? "package date" : "good until";
 }
 
-const LOCATIONS: Location[] = ["fridge", "freezer", "pantry"];
-
 // Inputs save on blur, so a tap on "add to fridge" still sends the last edit first.
 function DraftRow({ draft, removed, onSave, onToggleRemove }: {
   draft: ItemView;
@@ -111,20 +110,12 @@ function DraftRow({ draft, removed, onSave, onToggleRemove }: {
       <button className="draft-remove" onClick={onToggleRemove} aria-label={removed ? `keep ${draft.name}` : `remove ${draft.name}`}>
         {removed ? "undo" : "×"}
       </button>
-      <div className="draft-location" role="group" aria-label={`where ${draft.name} is stored`}>
-        {LOCATIONS.map((loc) => (
-          <button
-            type="button"
-            key={loc}
-            className={draft.location === loc ? "is-selected" : ""}
-            aria-pressed={draft.location === loc}
-            disabled={removed}
-            onClick={() => draft.location !== loc && onSave({ location: loc })}
-          >
-            {loc}
-          </button>
-        ))}
-      </div>
+      <LocationPicker
+        value={draft.location}
+        label={`where ${draft.name} is stored`}
+        disabled={removed}
+        onPick={(location) => onSave({ location })}
+      />
       <label className="draft-date">
         <span>{dateLabel(draft)}</span>
         {/* Keyed by the date so a storage change that recomputes expiry shows the new value. */}

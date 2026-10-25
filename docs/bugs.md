@@ -2,13 +2,6 @@
 
 Open bugs that are known and not yet fixed. Add the date found, where it lives, how to reproduce it, and a proposed fix. Delete the entry in the commit that fixes it.
 
-## Items already in the fridge can't move to the freezer
-
-- Found: 2026-10-24.
-- Where: `itemEdits.update({ location })` and `expiryAfterMove` in `lib/expiry.ts` work. Since #34, the review screen's fridge, freezer, and pantry buttons call them for drafts. Nothing on the fridge page (`app/fridge/page.tsx`, `FoodCard`) calls them for an active item, so the only path is the dev route `/api/item-edits/update`.
-- Reproduce: confirm a receipt with chicken breast in the fridge. Two days later, open its card on the fridge tab. There is no way to say you froze it, so it still expires on its fridge date and shows up as a swipe card.
-- Proposed fix: add a "move to freezer / fridge" action on `FoodCard`'s detail view that calls `itemEdits.update({ itemId, location })`. The server already keeps a date that has passed and restarts the clock from today when the food has `freezerDays`, so the fix is UI only.
-
 ## Removing a friend has no UI (later)
 
 - Found: 2026-10-24.

@@ -330,6 +330,19 @@
   color: var(--ink);
 }
 
+.card-location {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+}
+
+.card-location span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
 @media (max-width: 900px) {
   .card-details {
     grid-template-columns: 254px 1fr;

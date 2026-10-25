@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
 import { freshness } from "@/lib/freshness";
+import type { Location } from "@/lib/referenceMerge";
 import { FoodCard } from "@/app/_components/FoodCard";
 import { Leekly } from "@/app/_components/ui/Leekly";
 
@@ -35,6 +36,7 @@ export function FoodList({
   onMarkUsed,
   onReviewExpired,
   onSetDate,
+  onMove,
 }: {
   items: ItemView[];
   now: number;
@@ -44,6 +46,7 @@ export function FoodList({
   onMarkUsed: (item: ItemView) => void;
   onReviewExpired: (item: ItemView) => void;
   onSetDate: (item: ItemView, expiresAt: number) => void;
+  onMove: (item: ItemView, location: Location) => void;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [filter, setFilter] = useState<FridgeFilter>("all");
@@ -154,6 +157,7 @@ export function FoodList({
               onMarkUsed={() => onMarkUsed(item)}
               onReviewExpired={() => onReviewExpired(item)}
               onSetDate={(expiresAt) => onSetDate(item, expiresAt)}
+              onMove={(location) => onMove(item, location)}
             />
           ))}
           {filter !== "all" && visibleCount === 0 && (
