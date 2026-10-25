@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
 import { endOfLocalDay, freshness, statusTiming, type Freshness } from "@/lib/freshness";
+import type { Location } from "@/lib/referenceMerge";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
+import { LocationPicker } from "@/app/_components/ui/LocationPicker";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
 import { StatusTag } from "@/app/_components/ui/StatusTag";
 
@@ -46,6 +48,8 @@ function DateForm({ item, onSetDate }: { item: ItemView; onSetDate: (expiresAt: 
 
 const STATUS_TRANSITION_MS = 400;
 
+const shortDate = (t: number) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase();
+
 // Animates a row that crosses into or out of expired while it is on screen.
 function useStatusTransition(status: Freshness) {
   const previous = useRef(status);
@@ -77,6 +81,7 @@ export function FoodCard({
   onMarkUsed,
   onReviewExpired,
   onSetDate,
+  onMove,
 }: {
   item: ItemView;
   now: number;
@@ -91,6 +96,7 @@ export function FoodCard({
   onMarkUsed: () => void;
   onReviewExpired: () => void;
   onSetDate: (expiresAt: number) => void;
+  onMove: (location: Location) => void;
 }) {
   const status = freshness(item.expiresAt, now);
   const isExpired = status === "expired";
@@ -136,6 +142,13 @@ export function FoodCard({
         </div>
         <div className="card-actions">
           {(item.expiresAt === undefined || item.checkLabel) && <DateForm item={item} onSetDate={onSetDate} />}
+          {/* A move never rescues a passed date, so expired items skip the choice. */}
+          {!isExpired && (
+            <div className="card-location">
+              <LocationPicker value={item.location} label={`where ${item.name} is stored`} onPick={onMove} />
+              {item.expiresAt !== undefined && <span>good until {shortDate(item.expiresAt)}</span>}
+            </div>
+          )}
           <button className="used-button" onClick={needsReview ? onReviewExpired : onMarkUsed}>
             {needsReview ? "review expired item" : "mark as used"}
           </button>

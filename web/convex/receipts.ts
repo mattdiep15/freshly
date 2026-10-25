@@ -144,6 +144,16 @@ export const setPurchasedAt = mutation({
   },
 });
 
+// The user checked a header field the readers disagreed on; date flags clear through setPurchasedAt instead.
+export const dismissFlag = mutation({
+  args: { receiptId: v.id("receipts"), flag: v.union(v.literal("store_mismatch"), v.literal("total_mismatch")) },
+  handler: async (ctx, { receiptId, flag }) => {
+    const receipt = await ownReceipt(ctx, receiptId);
+    const flags = (receipt.reviewFlags ?? []).filter((f) => f !== flag);
+    await ctx.db.patch(receiptId, { reviewFlags: flags.length > 0 ? flags : undefined });
+  },
+});
+
 export async function bumpTimesAdded(ctx: MutationCtx, userId: Id<"users">, foodId: Id<"foods">) {
   const row = await ctx.db
     .query("foodFamiliarity")

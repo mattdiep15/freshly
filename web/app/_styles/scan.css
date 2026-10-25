@@ -820,13 +820,16 @@
   font-size: 22px;
 }
 
-.draft-location {
-  grid-area: location;
+.location-picker {
   display: flex;
   justify-self: start;
 }
 
-.draft-location button {
+.draft-row .location-picker {
+  grid-area: location;
+}
+
+.location-picker button {
   min-height: 36px;
   border: 1px solid var(--ink);
   padding: 0 10px;
@@ -837,11 +840,11 @@
   font-size: 13px;
 }
 
-.draft-location button + button {
+.location-picker button + button {
   border-left: 0;
 }
 
-.draft-location button.is-selected {
+.location-picker button.is-selected {
   background: var(--ink);
   color: var(--paper);
 }
@@ -878,7 +881,7 @@
 }
 
 .draft-row.is-removed .draft-name,
-.draft-row.is-removed .draft-location,
+.draft-row.is-removed .location-picker,
 .draft-row.is-removed .draft-date {
   opacity: 0.35;
   text-decoration: line-through;
@@ -892,6 +895,60 @@
 .review-confirm {
   width: 100%;
   margin-top: 24px;
+}
+
+.review-flags {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  border: 2px solid var(--ink);
+  padding: 14px 16px;
+}
+
+.review-flags p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.review-flag-line,
+.review-flag-date {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.review-flag-line {
+  align-items: center;
+}
+
+.review-flag-line p {
+  flex: 1 1 200px;
+}
+
+.review-flag-date label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.review-flag-date span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.review-flag-date input {
+  width: 150px;
+  min-height: 36px;
+  box-sizing: border-box;
+  border: 1px solid var(--ink);
+  padding: 0 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
 }
 
 @media (min-width: 768px) {
