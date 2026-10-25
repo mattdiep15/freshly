@@ -46,7 +46,8 @@ async function insertEntry(
       ? await ctx.db
           .query("foods")
           .withIndex("by_name", (q) => q.eq("name", name.toLowerCase()))
-          .unique()
+          // first(), not unique(): prod has duplicate food names, and unique() throws on them.
+          .first()
       : await ctx.db.get(foodId);
   for (const entry of await groceryEntries(ctx, userId)) {
     if (groceryKey(entry.name) === groceryKey(name)) await ctx.db.delete(entry._id);

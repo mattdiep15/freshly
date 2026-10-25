@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import Image from "next/image";
-import { useRef, useState, type FormEvent, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type PointerEvent } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { freshness } from "@/lib/freshness";
@@ -25,15 +25,19 @@ const ignoreFailure = () => {};
 const SWIPE_REVEAL = 88;
 // Matches the .grocery-swipe transition, so the row is gone before it moves lists.
 const FADE_MS = 250;
+// Covers the .grocery-swipe.is-arriving fade-in in the other list.
+const ARRIVE_MS = 400;
 
 function GroceryRow({
   row,
   hints,
+  arriving = false,
   onToggle,
   onRemove,
 }: {
   row: Row;
   hints: HintContext;
+  arriving?: boolean;
   onToggle: () => Promise<unknown>;
   onRemove: () => void;
 }) {
@@ -96,7 +100,7 @@ function GroceryRow({
   };
 
   return (
-    <div className={`grocery-swipe ${offset === 0 ? "" : "is-open"}`} ref={swipeRef}>
+    <div className={`grocery-swipe ${offset === 0 ? "" : "is-open"} ${arriving ? "is-arriving" : ""}`} ref={swipeRef}>
       <button
         type="button"
         className="grocery-swipe-delete"
@@ -233,6 +237,14 @@ export default function GroceryPage() {
   const removeEntry = useMutation(api.grocery.remove);
   const clearChecked = useMutation(api.grocery.clearChecked);
   const [showCompleted, setShowCompleted] = useState(false);
+  // The row that just changed lists, so it fades in where it lands.
+  const [arriving, setArriving] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!arriving) return;
+    const clear = window.setTimeout(() => setArriving(null), ARRIVE_MS);
+    return () => window.clearTimeout(clear);
+  }, [arriving]);
 
   const heading = (
     <section className="grocery-heading">
@@ -256,7 +268,10 @@ export default function GroceryPage() {
     fridge: active.map((item) => ({ name: item.name, quantity: item.quantity })),
     soonNames: active.filter((item) => freshness(item.expiresAt, now) === "soon").map((item) => item.name),
   };
-  const toggle = (row: Row) => () => toggleEntry({ entryId: row._id });
+  const toggle = (row: Row) => () => {
+    setArriving(row._id);
+    return toggleEntry({ entryId: row._id });
+  };
   const remove = (row: Row) => () => removeEntry({ entryId: row._id }).catch(ignoreFailure);
   // Newest first, as the design adds to the top; checked ones by most recent check.
   const todo = rows.filter((row) => row.checkedAt === undefined).sort((a, b) => b._creationTime - a._creationTime);
@@ -275,7 +290,14 @@ export default function GroceryPage() {
         <>
           <section className="grocery-list" aria-label="Grocery list">
             {todo.map((row) => (
-              <GroceryRow key={row._id} row={row} hints={hints} onToggle={toggle(row)} onRemove={remove(row)} />
+              <GroceryRow
+                key={row._id}
+                row={row}
+                hints={hints}
+                arriving={arriving === row._id}
+                onToggle={toggle(row)}
+                onRemove={remove(row)}
+              />
             ))}
           </section>
           {done.length > 0 && (
@@ -288,10 +310,21 @@ export default function GroceryPage() {
                   clear
                 </button>
               </div>
-              {showCompleted &&
-                done.map((row) => (
-                  <GroceryRow key={row._id} row={row} hints={hints} onToggle={toggle(row)} onRemove={remove(row)} />
-                ))}
+              {/* Always rendered so it can slide open; inert keeps hidden rows out of tab order. */}
+              <div className={`grocery-completed-rows ${showCompleted ? "is-open" : ""}`} inert={!showCompleted}>
+                <div>
+                  {done.map((row) => (
+                    <GroceryRow
+                      key={row._id}
+                      row={row}
+                      hints={hints}
+                      arriving={arriving === row._id}
+                      onToggle={toggle(row)}
+                      onRemove={remove(row)}
+                    />
+                  ))}
+                </div>
+              </div>
             </section>
           )}
         </>

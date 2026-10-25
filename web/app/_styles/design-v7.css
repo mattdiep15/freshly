@@ -845,3 +845,111 @@
     animation: none;
   }
 }
+
+/* Follow-up pass: grocery and use-soon motion, scan labels, fridge detail alignment. */
+
+/* An add error takes its own line instead of squeezing the input. */
+.grocery-form .scan-error {
+  flex-basis: 100%;
+}
+
+/* A row that just changed lists fades in where it lands. */
+.grocery-swipe.is-arriving {
+  animation: grocery-row-in 350ms ease both;
+}
+
+@keyframes grocery-row-in {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  to {
+    max-height: 160px;
+    opacity: 1;
+  }
+}
+
+/* "got it" slides open instead of popping in. */
+.grocery-completed-rows {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms ease;
+}
+
+.grocery-completed-rows.is-open {
+  grid-template-rows: 1fr;
+}
+
+.grocery-completed-rows > div {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* UseSoonList sets the height and opacity inline as a checked row leaves. */
+.suggestions-list .daily-task {
+  overflow: hidden;
+  transition:
+    height 250ms ease,
+    opacity 200ms ease;
+}
+
+@media (min-width: 768px) {
+  /* A fixed actions column, so every open row has the same right edge whatever its date or picker shows. */
+  .fridge-screen .card-details {
+    grid-template-columns: 200px minmax(0, 1fr) 200px;
+  }
+
+  /* The two hints center as one block with their headings level. */
+  .fridge-screen .detail-copy {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+    align-self: center;
+  }
+
+  .fridge-screen .food-card.is-expanded .detail-line {
+    align-self: start;
+  }
+
+  .fridge-screen .card-location span {
+    flex-basis: 100%;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  .fridge-screen .card-details {
+    grid-template-columns: 150px minmax(0, 1fr) 200px;
+  }
+
+  .fridge-screen .detail-copy {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Both labels sit on the card's bottom edge, with the drawing centered above. */
+  .scan-step .receipt-choice > img,
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    margin-top: auto;
+  }
+
+  .scan-step .camera-choice-copy,
+  .scan-step .file-choice-copy {
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grocery-swipe.is-arriving {
+    animation: none;
+  }
+
+  .grocery-completed-rows,
+  .suggestions-list .daily-task {
+    transition: none;
+  }
+}

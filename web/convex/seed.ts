@@ -84,7 +84,7 @@ export async function seedDemo(ctx: MutationCtx) {
     const food = await ctx.db
       .query("foods")
       .withIndex("by_name", (q) => q.eq("name", seed.food))
-      .unique();
+      .first();
     if (!food) throw new Error(`Seed food missing from reference data: ${seed.food}`);
     const base = {
       userId,
@@ -128,7 +128,7 @@ async function seedGrocery(ctx: MutationCtx, userId: Id<"users">) {
     const food = await ctx.db
       .query("foods")
       .withIndex("by_name", (q) => q.eq("name", name))
-      .unique();
+      .first();
     await ctx.db.insert("groceryItems", { userId, name, foodId: food?._id });
   }
 }
