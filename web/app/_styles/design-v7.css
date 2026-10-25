@@ -259,12 +259,12 @@
   }
 
   .recipes-page {
-    padding-bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 52px + 40px);
+    padding-bottom: 24px;
   }
 
   .recipe-grocery-toast {
     right: 12px;
-    bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 64px);
+    bottom: calc(var(--nav-h) + 40px);
     left: 12px;
     min-height: 52px;
     flex-wrap: wrap;
@@ -277,11 +277,11 @@
   }
 
   .topbar .nav-grocery .grocery-nav-count {
-    top: 41px;
+    top: 36px;
   }
 
   .topbar .nav-grocery.active .grocery-nav-count {
-    top: 46px;
+    top: 42px;
   }
 }
 
@@ -571,5 +571,40 @@
 @media (min-width: 768px) {
   .numbers-hero .circle-art strong.is-currency {
     font-size: clamp(26px, 3.6vw, 52px);
+  }
+}
+
+/* Mobile rows that scroll sideways at their natural width instead of squeezing; swipe rows stay out of this list. */
+@media (max-width: 767px) {
+  .numbers-hero .stats-screen,
+  .week-list {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .numbers-hero .stats-screen::-webkit-scrollbar,
+  .week-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .numbers-hero .stats-screen {
+    display: flex;
+    gap: 16px;
+  }
+
+  .numbers-hero .stats-screen > .stat-circle {
+    flex: 0 0 auto;
+  }
+
+  .week-list .thin-row {
+    min-width: max-content;
+    grid-template-columns: 128px 96px 80px;
+    column-gap: 16px;
+  }
+
+  .week-list .thin-row > * {
+    white-space: nowrap;
   }
 }
