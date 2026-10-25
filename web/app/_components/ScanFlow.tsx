@@ -229,6 +229,18 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
   const [dismissedFoods, setDismissedFoods] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
 
+  if (receipt === null) {
+    return (
+      <section className="step-panel">
+        <p className="eyebrow">receipt gone</p>
+        <h1>this receipt was removed.</h1>
+        <button className="add-button" onClick={onRetake}>
+          scan another
+        </button>
+      </section>
+    );
+  }
+
   if (receipt === undefined || receipt.status === "uploaded" || receipt.status === "parsing") return <ReadingReceipt />;
 
   if (receipt.status === "failed") {
@@ -281,7 +293,7 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
       </div>
       {tipDraft?.storageTip && tipDraft.foodId && (
         <div className="tip-card">
-          <span>unknown food tip</span>
+          <span>food tip</span>
           <strong>{tipDraft.name}</strong>
           <p>{tipDraft.storageTip.text}</p>
           <SourceNote source={tipDraft.storageTip.source} />

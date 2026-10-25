@@ -632,7 +632,8 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 24px;
-    align-items: center;
+    /* Top-aligned, so the $ circle's extra lines below it don't lift it above the others. */
+    align-items: start;
   }
 
   .numbers-hero .stat-circle {

@@ -309,7 +309,7 @@ function ManualItemSection({ draft, index, now, catalog, onChange, onRemove }: {
 
         {draft.name.trim() && !draft.food && (
           <div className="manual-unknown-tip">
-            <span>unknown food tip</span>
+            <span>food tip</span>
             <strong>{draft.name.trim()}</strong>
             <p>we&apos;ll look up how to store it once it&apos;s in your fridge.</p>
           </div>

@@ -624,6 +624,11 @@
   .spoil-food-column .swipe-status-meta .status-timing {
     display: none;
   }
+
+  /* Grows past 560px when a long hint and both answers need the room, instead of spilling over its border. */
+  .swipe-card--step-2 {
+    height: auto;
+  }
 }
 
 /* GroceryRow sets the height and opacity inline; this animates them before the row changes lists. */

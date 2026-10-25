@@ -72,7 +72,10 @@ export const create = mutation({
 export const get = query({
   args: { receiptId: v.id("receipts") },
   handler: async (ctx, { receiptId }) => {
-    const receipt = await ownReceipt(ctx, receiptId);
+    // Null instead of throwing: a reset can delete the receipt while its review page is open.
+    const userId = await getUserId(ctx);
+    const receipt = await ctx.db.get(receiptId);
+    if (!receipt || receipt.userId !== userId) return null;
     const items = await ctx.db
       .query("items")
       .withIndex("by_receipt", (q) => q.eq("receiptId", receiptId))

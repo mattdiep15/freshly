@@ -1066,11 +1066,6 @@
 }
 
 .swipe-status-meta {
-  color: #fff;
-}
-
-/* Card 2 sits on white, unlike card 1's black food panel. */
-.spoil-food-column .swipe-status-meta {
   color: var(--ink);
 }
 
