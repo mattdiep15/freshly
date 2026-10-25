@@ -42,6 +42,8 @@ function UseSoonList({
     setChecked((current) => [...current, item._id]);
     const save = () => {
       pending.current.delete(item._id);
+      // Clear the check so an undo brings the item back unchecked.
+      setChecked((current) => current.filter((id) => id !== item._id));
       onUse(item);
     };
     pending.current.set(item._id, { timer: window.setTimeout(save, SAVE_DELAY_MS), save });
