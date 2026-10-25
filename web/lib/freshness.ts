@@ -1,3 +1,5 @@
+import type { Location } from "./referenceMerge";
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 // Matches the 3-day reminder ping in docs/PRODUCT.md.
@@ -79,6 +81,15 @@ export function sortByUrgency<T extends { expiresAt?: number }>(items: T[], now:
     (a, b) =>
       URGENCY_RANK[freshness(a.expiresAt, now)] - URGENCY_RANK[freshness(b.expiresAt, now)] ||
       (a.expiresAt ?? 0) - (b.expiresAt ?? 0),
+  );
+}
+
+const LOCATION_ORDER: Location[] = ["fridge", "freezer", "pantry"];
+
+// Keeps each group's incoming order, so a list sorted by urgency stays sorted within each location.
+export function groupByLocation<T extends { location: Location }>(items: T[]): { location: Location; items: T[] }[] {
+  return LOCATION_ORDER.map((location) => ({ location, items: items.filter((item) => item.location === location) })).filter(
+    (group) => group.items.length > 0,
   );
 }
 

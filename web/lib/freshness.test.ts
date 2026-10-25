@@ -8,6 +8,7 @@ import {
   endOfLocalDay,
   expiredLabel,
   freshness,
+  groupByLocation,
   localNoon,
   numberWord,
   sortByUrgency,
@@ -69,6 +70,28 @@ describe("expiredLabel", () => {
     expect(expiredLabel(at(23, 8), now)).toBe("expired today");
     expect(expiredLabel(at(22), now)).toBe("expired 1 day ago");
     expect(expiredLabel(at(19), now)).toBe("expired 4 days ago");
+  });
+});
+
+describe("groupByLocation", () => {
+  it("orders fridge, freezer, pantry and skips empty locations", () => {
+    const items = [
+      { name: "beans", location: "pantry" as const },
+      { name: "peas", location: "freezer" as const },
+      { name: "milk", location: "fridge" as const },
+    ];
+    expect(groupByLocation(items).map((g) => g.location)).toEqual(["fridge", "freezer", "pantry"]);
+    expect(groupByLocation(items.slice(0, 1)).map((g) => g.location)).toEqual(["pantry"]);
+    expect(groupByLocation([])).toEqual([]);
+  });
+
+  it("keeps the incoming order within a location", () => {
+    const items = [
+      { name: "a", location: "fridge" as const },
+      { name: "b", location: "freezer" as const },
+      { name: "c", location: "fridge" as const },
+    ];
+    expect(groupByLocation(items)[0].items.map((i) => i.name)).toEqual(["a", "c"]);
   });
 });
 
