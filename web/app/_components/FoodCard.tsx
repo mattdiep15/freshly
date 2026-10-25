@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { ItemView } from "@/convex/items";
 import { splitFoodName } from "@/lib/foodName";
 import { endOfLocalDay, freshness, statusTiming, type Freshness } from "@/lib/freshness";
@@ -48,6 +48,9 @@ function DateForm({ item, onSetDate }: { item: ItemView; onSetDate: (expiresAt: 
 }
 
 const STATUS_TRANSITION_MS = 400;
+// Phones: a drag past this share of the row's width commits on release.
+const SWIPE_COMMIT = 0.35;
+const SWIPE_EXIT_MS = 180;
 
 const shortDate = (t: number) => new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase();
 
@@ -80,6 +83,7 @@ export function FoodCard({
   onHover,
   onLeave,
   onMarkUsed,
+  onToss,
   onReviewExpired,
   onSetDate,
   onMove,
@@ -95,6 +99,7 @@ export function FoodCard({
   onHover: () => void;
   onLeave: () => void;
   onMarkUsed: () => void;
+  onToss: () => void;
   onReviewExpired: () => void;
   onSetDate: (expiresAt: number) => void;
   onMove: (location: Location) => void;
@@ -106,6 +111,46 @@ export function FoodCard({
   // The swipe card needs the backend's expired status; the cron sets it up to an hour after the date passes.
   const needsReview = item.status === "expired";
   const { base, detail } = splitFoodName(item.name);
+  const [dx, setDx] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  // A ref, so moves that land before the next render still see the drag; horizontal stays null until the gesture picks an axis.
+  const drag = useRef<{ x: number; y: number; width: number; horizontal: boolean | null } | null>(null);
+  const swiped = useRef(false);
+
+  // Touch only: left marks used, right tosses; a vertical move hands the gesture back to scrolling.
+  const onPointerDown = (event: PointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType !== "touch") return;
+    swiped.current = false;
+    drag.current = { x: event.clientX, y: event.clientY, width: event.currentTarget.offsetWidth || 1, horizontal: null };
+  };
+  const onPointerMove = (event: PointerEvent<HTMLButtonElement>) => {
+    const current = drag.current;
+    if (!current) return;
+    const moveX = event.clientX - current.x;
+    const moveY = event.clientY - current.y;
+    if (current.horizontal === null) {
+      if (Math.abs(moveX) > 8 && Math.abs(moveX) > Math.abs(moveY)) {
+        current.horizontal = true;
+        swiped.current = true;
+        setDragging(true);
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } else if (Math.abs(moveY) > 8) {
+        drag.current = null;
+        return;
+      }
+    }
+    if (current.horizontal) setDx(moveX);
+  };
+  const onPointerUp = () => {
+    const current = drag.current;
+    drag.current = null;
+    if (!current?.horizontal) return;
+    setDragging(false);
+    if (Math.abs(dx) < current.width * SWIPE_COMMIT) return setDx(0);
+    const used = dx < 0;
+    setDx(used ? -current.width : current.width);
+    window.setTimeout(used ? onMarkUsed : onToss, SWIPE_EXIT_MS);
+  };
 
   return (
     <article
@@ -113,28 +158,49 @@ export function FoodCard({
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
     >
-      <button
-        className="card-summary"
-        onClick={checkIn ? onReviewExpired : onToggle}
-        aria-expanded={expanded}
-      >
-        <span className="food-icon-slot">
-          <FoodArt name={item.name} className="food-icon" />
+      <div className="card-swipe">
+        {/* Grows from the side the row slides away from; touch only, so mouse users keep the buttons below. */}
+        <span
+          className={`card-swipe-reveal ${dx < 0 ? "is-used" : "is-toss"}`}
+          style={{ width: Math.abs(dx) }}
+          aria-hidden="true"
+        >
+          <span>{dx < 0 ? "✓ used" : "toss"}</span>
         </span>
-        <span className="card-info">
-          <span className="card-title" title={item.name}>
-            {base}
-            {detail && <span className="card-title-detail">{detail}</span>}
+        <button
+          className="card-summary"
+          onClick={checkIn ? onReviewExpired : onToggle}
+          onClickCapture={(event) => {
+            // A swipe ends with a click; it should not also open the row.
+            if (!swiped.current) return;
+            swiped.current = false;
+            event.stopPropagation();
+          }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerUp}
+          style={dx === 0 ? undefined : { transform: `translateX(${dx}px)`, transition: dragging ? "none" : undefined }}
+          aria-expanded={expanded}
+        >
+          <span className="food-icon-slot">
+            <FoodArt name={item.name} className="food-icon" />
           </span>
-          <span className="card-meta">
-            <StatusTag status={status} />
-            {timing && <span className="status-timing">{timing}</span>}
-            {extended && <span className="extended-tag">extended</span>}
-            {checkIn && <span className="check-in-tag">check in</span>}
+          <span className="card-info">
+            <span className="card-title" title={item.name}>
+              {base}
+              {detail && <span className="card-title-detail">{detail}</span>}
+            </span>
+            <span className="card-meta">
+              <StatusTag status={status} />
+              {timing && <span className="status-timing">{timing}</span>}
+              {extended && <span className="extended-tag">extended</span>}
+              {checkIn && <span className="check-in-tag">check in</span>}
+            </span>
           </span>
-        </span>
-        <span className="expand-mark">{expanded ? "−" : "+"}</span>
-      </button>
+          <span className="expand-mark">{expanded ? "−" : "+"}</span>
+        </button>
+      </div>
       <div className="card-details">
         <div className="detail-main">
           <div className="illustration-slot">
@@ -154,9 +220,11 @@ export function FoodCard({
               {item.expiresAt !== undefined && <span>good until {shortDate(item.expiresAt)}</span>}
             </div>
           )}
-          <button className="used-button" onClick={needsReview ? onReviewExpired : onMarkUsed}>
+          <button className={`used-button ${needsReview ? "" : "used-button--mark"}`} onClick={needsReview ? onReviewExpired : onMarkUsed}>
             {needsReview ? "review expired item" : "mark as used"}
           </button>
+          {/* Phones swap the button for the row swipe; this tells them how. */}
+          <p className="swipe-row-hint">swipe the row left if used, right to toss</p>
         </div>
       </div>
     </article>
