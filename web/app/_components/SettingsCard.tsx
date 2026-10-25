@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery } from "convex/react";
+import Link from "next/link";
 import { useState } from "react";
 import { api } from "@/convex/_generated/api";
 
@@ -83,6 +84,16 @@ export function SettingsCard() {
           onChange={(event) => update({ hideWebRecipes: !event.target.checked }).catch(ignoreFailure)}
         />
       </label>
+      {/* TODO(release): replace with designed push opt-in; a Home Screen app has no address bar to reach /dev/push */}
+      <div className="setting-row">
+        <span>
+          <strong>push reminders</strong>
+          <small>get your daily use-soon digest on this device.</small>
+        </span>
+        <Link href="/dev/push" className="outline-button">
+          set up
+        </Link>
+      </div>
     </section>
   );
 }
