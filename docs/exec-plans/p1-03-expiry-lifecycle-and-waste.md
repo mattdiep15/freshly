@@ -61,7 +61,7 @@ Computing on read is fine at hackathon scale. P2's leaderboard (p2-03) computes 
 - [x] 2. `items.resolve`
 - [x] 3. `lib/digest.ts` and its tests
 - [x] 4. `lifecycle.tick` and the cron
-- [x] 5. Web push sending (2026-10-23: verified up to the `web-push` call; a real system notification needs a human, see Surprises)
+- [x] 5. Web push sending (2026-10-23: verified up to the `web-push` call; 2026-10-24: a real notification reached an iPhone, see Surprises)
 - [x] 6. In-app notification feed
 - [x] 7. `lib/wasteStats.ts`, its tests, and `stats.summary`
 - [x] 8. `/api` test routes
@@ -182,4 +182,5 @@ Result on 2026-10-23, on a fresh seed against `localhost:3005`: lint, typecheck,
 - 2026-10-23: The browser pane denies notification permission, so no real system notification was seen. Verified instead: `push.saveSubscription` stores a subscription (made with a generated P-256 key), `/api/dev/push-test` builds the payload `{ title, body, url }`, `web-push` encrypts and sends it, and a network failure is reported as `failed` without deleting the row. A forced tick schedules `pushNode.send`, which completed successfully. `web-push` only speaks HTTPS, so the 404 and 410 path was checked by unit test (`lib/pushDelivery.test.ts`) plus a direct run of `push.deleteByEndpoints`. To check in a real browser: run the app, open `http://localhost:3005/dev/push`, click Subscribe and allow notifications, then open `http://localhost:3005/api/dev/push-test`. The JSON should say `"sent": 1` and a system notification should appear. `/api/dev/tick?force=1` should then show the digest as a notification.
 - 2026-10-23: Seeded `expiresAt` values are relative to the moment of seeding, while `/api/dev/tick?now=...` uses the given time. A tick at a fixed `now` far from the seed time sees different `daysLeft` values than the seed intends, so the 1, 3, and 7 day items may not appear in that digest. `/api/dev/tick?force=1` without `now` uses the real time and shows them.
 - 2026-10-23: A forced tick with a future `now` writes a notification with a future `dateKey`. Later real-time ticks ignore it for the weekly undated check, which only looks at dates up to today. This only happens in dev, and `/api/dev/seed` clears it.
+- 2026-10-24: A real push reached an iPhone. iOS allows web push only for a site added to the Home Screen, which needed `app/manifest.ts`, and a Home Screen app has no address bar, so `SettingsCard` links to `/dev/push`. The phone loads the dev server through a `cloudflared` quick tunnel because push needs HTTPS. The team dev deployment had no VAPID keys until that day. Setup and the live demo steps are in `docs/DEMO.md`.
 - 2026-10-24: Foods on this branch have no `freshnessHint` yet; p1-02's `foods.backfillTips` writes them. Until the branches combine, the second card's hint is null for every seeded item.
