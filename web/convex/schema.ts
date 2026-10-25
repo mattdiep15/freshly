@@ -7,11 +7,17 @@ export const shelfLifeSource = v.union(v.literal("fda_chart"), v.literal("foodke
 // ref points at the exact source row, e.g. "FDA chart 2018-03 > Fresh Poultry > Chicken or turkey, parts > ...";
 // a web ref is the page URL, the basis, and the quoted sentence.
 export const shelfLife = v.object({ min: v.number(), max: v.number(), source: shelfLifeSource, ref: v.string() });
+// A web tip's ref is the page URL and the passage it was written from, quoted word for word.
 export const storageTip = v.object({
   text: v.string(),
-  source: v.union(v.literal("fda_chart"), v.literal("foodkeeper"), v.literal("llm")),
+  source: v.union(v.literal("fda_chart"), v.literal("foodkeeper"), v.literal("web"), v.literal("llm")),
+  ref: v.optional(v.string()),
 });
-export const freshnessHint = v.object({ text: v.string(), source: v.union(v.literal("foodkeeper"), v.literal("llm")) });
+export const freshnessHint = v.object({
+  text: v.string(),
+  source: v.union(v.literal("foodkeeper"), v.literal("web"), v.literal("llm")),
+  ref: v.optional(v.string()),
+});
 // Mirrors ReviewFlag in lib/receiptCheck.ts.
 export const reviewFlag = v.union(
   v.literal("implausible_date"),
@@ -58,7 +64,7 @@ export const foodFields = {
   freshnessHint: v.optional(freshnessHint),
   defaultWeightGrams: v.optional(v.number()), // rough estimate for lbs wasted, not a safety claim
   hasPrintedDate: v.optional(v.boolean()), // processed product sold with a best-by date; the UI asks for it
-  webLookupAt: v.optional(v.number()), // set when shelfLifeWeb has searched for this food, so it searches once
+  webLookupAt: v.optional(v.number()), // set when shelfLifeWeb has searched StillTasty for this food, so it searches once
 };
 
 export default defineSchema({

@@ -1,13 +1,13 @@
 # P1-05: Sponsor tracks (Apify, Gemini, GoDaddy)
 
-Tier: P1 (the hackathon judges these tracks). Depends on p1-02. Status: parts A and B built; part C moved to p3; part D (domain) not started.
+Tier: P1 (the hackathon judges these tracks). Depends on p1-02. Status: parts A, B, and E built; part C moved to p3; part D (domain) not started.
 
 ## Purpose
 
 `docs/design_tracks.pdf` lists the tracks the team is entering: Apify, Gemini, Convex, GoDaddy, People-First Social Impact, Best Planet-First Hack, and Figma Best Design. This plan puts each sponsor technology where it does real work in Freshly:
 
-- Apify fetches web pages: shelf-life guidance for packaged foods the FDA chart and FoodKeeper do not cover. Recipes, store prices, and recall alerts are planned for P2 and P3.
-- Gemini reads what Apify fetches and checks receipts: it extracts the shelf-life passage from a page and reads each receipt's store, date, and total a second time.
+- Apify fetches web pages: shelf-life guidance for packaged foods the FDA chart and FoodKeeper do not cover, and storage tips and freshness hints for every food. Recipes, store prices, and recall alerts are planned for P2 and P3.
+- Gemini reads what Apify fetches and checks receipts: it extracts the shelf-life passage, storage tip, and freshness hint from a page and reads each receipt's store, date, and total a second time.
 - GoDaddy holds the project's domain.
 
 The tracks doc puts it as "apify gets data, gemini interprets it". This plan keeps that split.
@@ -16,7 +16,7 @@ The tracks doc puts it as "apify gets data, gemini interprets it". This plan kee
 
 | Track | Where it fits | Plan |
 | --- | --- | --- |
-| Apify | Web shelf-life lookup (part B); later, recipes (p2-04), and recall alerts and store prices (p3) | This plan, p2-04, p3 |
+| Apify | Web shelf-life lookup (part B); storage tips and freshness hints (part E); later, recipes (p2-04), and recall alerts and store prices (p3) | This plan, p2-04, p3 |
 | Gemini | Receipt header check (part A); shelf-life extraction (B); later, recipe cards from web pages (p2-04) | This plan, p2-04 |
 | Convex | Already the backend: file storage for receipt photos, actions that call Gemini and Apify, the scheduler that runs lookups after a parse | p1-01, p1-02, this plan |
 | GoDaddy | Domain for the Vercel deployment (part D) | This plan |
@@ -51,7 +51,7 @@ Changed the same day, after the live check (see Decision log): Claude is the def
 
 Leo answered open question 8 on 2026-10-24: packaged foods may take web figures, stored as their own source next to FDA and FoodKeeper. `CLAUDE.md` now says so.
 
-Runs only for a packaged food (`hasPrintedDate: true`) with no FDA or FoodKeeper range in any location (`needsWebLookup` in `lib/webShelfLife.ts`), once per food, never per item.
+Ranges are only for a packaged food (`hasPrintedDate: true`) with no FDA or FoodKeeper range in any location (`needsWebRanges` in `lib/webShelfLife.ts`). Since part E the same lookup also runs for tips and hints. It runs once per food, never per item.
 
 1. `saveResult` (receipt parse) and `itemEdits.insertManual` call `scheduleWebLookup`, which starts `shelfLifeWeb.lookupNext` when any of their foods qualifies. `lookupNext` claims one food at a time with `claimNext` (it sets `foods.webLookupAt`, so a food is searched once and two chains never search the same food), then schedules itself for the next one. Run `npx convex run shelfLifeWeb:lookupNext` to backfill existing foods.
 2. Search: the official `apify/rag-web-browser` actor through `run-sync-get-dataset-items` with `fetch` (no new library), query `"<food name> site:stilltasty.com"`, `maxResults: 5`, `scrapingTool: "raw-http"`, 2 GB per run. Token in `APIFY_TOKEN` (`npx convex env set APIFY_TOKEN <token>` from `web/`; the Apify user ID is not needed). Without the token the lookup logs and does nothing.
@@ -63,6 +63,24 @@ Runs only for a packaged food (`hasPrintedDate: true`) with no FDA or FoodKeeper
    Verify: on a local deployment, sour cream (FoodKeeper has no range) got fridge 7 to 14 days from the StillTasty page "SOUR CREAM - UNOPENED PACKAGE", quoting "Sour cream will generally keep for one to two weeks after the \"sell-by\" date on the package". A manual add of "shin ramyun instant noodle cup" created the packaged food `instant noodle cup` and started a lookup on its own; StillTasty only returned soup-mix and noodles-and-sauce-mix pages, and the model returned no figure, so the item stays undated. `saveRanges` dated an undated `active` item at purchase plus `min` and did not overwrite on a second call.
 
 Cost and speed: `apify/rag-web-browser` is listed at $1.33 per 1,000 fetched pages; one lookup took 10 to 90 seconds. It runs in the background, so the review screen does not wait for it.
+
+## Part E: Storage tips and freshness hints from StillTasty (built 2026-10-24)
+
+Leo chose StillTasty over model-written text on 2026-10-24. `foods.backfillTips` had filled all 674 foods on Leo's dev deployment with Claude-written tips and hints (`source: "llm"`). StillTasty food pages answer "How to tell if <food> is bad?" under "Shelf Life Tips" and give storage advice in the same list. FoodKeeper has storage notes but no signs of spoilage, so it cannot supply hints.
+
+1. Part B's lookup does both jobs with one Apify search and one model call. `needsWebLookup` is true for a packaged food that needs a range (`needsWebRanges`) and for any food whose `storageTip` or `freshnessHint` is missing or model-written (`replaceableTip`). Ranges are still saved only for foods that pass `needsWebRanges`.
+2. `WEB_SHELF_LIFE_SCHEMA` adds `storageTip` and `freshnessHint`, each `{ text, url, quote }` or null. The prompt asks for one short sentence that says only what the quote says and never how long the food lasts.
+3. `pickWebTips` keeps a tip only when its page was fetched and is allowlisted and its quote is on the page word for word (the same `quoteOnPage` check as ranges). It drops text that mentions days, weeks, months, or years, because shelf life comes only from sourced ranges.
+4. `shelfLifeWeb.saveTips` stores `{ text, source: "web", ref: "<url> > \"<quote>\"" }` and replaces only a missing or model-written value. FoodKeeper tips stay, and `mergeReferenceFood` already ranks `foodkeeper` above `web` above `llm` on re-import.
+5. The fridge card and the "does it look spoiled?" card show these with the existing label "source: food safety page" (`SourceNote`).
+
+The order of the two backfills does not matter: `foods:backfillTips` fills only empty fields, and the web lookup replaces only model-written ones. A food with no StillTasty page, or whose page has no matching passage, keeps its model-written tip.
+
+Backfill with `npx convex run shelfLifeWeb:lookupNext`. Each call starts one chain that looks up one food at a time, and another call starts a second chain alongside it. `claimNext` keeps chains off the same food, and Apify's 16 GB account cap allows at most 8 runs of 2 GB at once.
+
+Cost and time for all 674 foods: about 3,400 fetched pages, so about $4.50 at Apify's listed $1.33 per 1,000, plus one model call per food. Gemini's free tier allows 20 calls a day, so most calls fall back to Claude, each with about 5 pages of text. At 10 to 90 seconds per food, one chain takes several hours.
+
+Verify: unit tests cover `needsWebLookup`, `needsWebRanges`, `replaceableTip`, and `pickWebTips`. Not yet run on a shared deployment.
 
 ## Part C: Recipes for use-soon items (moved to p3)
 
@@ -79,6 +97,7 @@ Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the back
 
 - [x] Part A (2026-10-24: Gemini provider built and scored, see Surprises; then Claude made the default again, with Gemini as the header verifier and the receipt date guard)
 - [x] Part B (2026-10-24: web ranges for packaged foods; see Part B and Surprises)
+- [x] Part E (2026-10-24: StillTasty tips and hints; not yet run on a shared deployment)
 - [ ] Part C, moved to p3 (2026-10-24)
 - [ ] Part D
 
@@ -88,11 +107,13 @@ Moved to the recipe section of `p3-integrations.md` on 2026-10-24, with the back
 - Part A scores at least 80% on the p1-02 receipt check, the same bar p1-02 used.
 - No item gets an `expiresAt` from a web value that lacks a stored URL and a verbatim quote.
 - FDA and FoodKeeper ranges are never overwritten by web values.
+- No tip or hint has `source: "web"` without a URL and a verbatim quote in `ref`, and no FoodKeeper tip is replaced.
 
 ## Decision log
 
 - 2026-10-24: Apify store-product scrapers (Costco, Trader Joe's, Safeway) are not used for expiry. Product pages carry no shelf life or printed date. A Costco item-number lookup could improve food matching, but p1-02 already matches 33 of 36 lines, and Costco runs on Apify succeed 84% of the time.
 - 2026-10-24: Web shelf-life comes from general shelf-life pages through `apify/rag-web-browser`, limited to an allowlist of sites, and only for foods with no FDA or FoodKeeper range.
+- 2026-10-24: Storage tips and freshness hints come from StillTasty through the part B lookup, decided by Leo. The model writes the shown sentence from a passage it must copy word for word, as with ranges, instead of the app showing StillTasty's sentence itself. The quote check proves the page says it, and the paraphrase keeps StillTasty's wording off the page until its terms of use are checked.
 - 2026-10-24: Web numbers count from the purchase date only when the page gives a from-purchase or unopened figure for a food with no printed date. For packaged goods the web figure is usually "past the printed date" or "after opening", and counting it from purchase would overstate how long the food lasts.
 
 - 2026-10-24: Gemini is called through REST with `fetch` instead of `@google/genai`. No new dependency, and it runs in Convex's default runtime, which `foods.backfillTips` uses.

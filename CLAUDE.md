@@ -48,8 +48,9 @@ keeps the demo settings. Never copy a production env.
 deployment in `web/.env.local` or the project's prod deployment, and prod needs a typed "yes".
 It generates the Convex Auth keys, sets `SITE_URL`, the API keys (input is hidden, Enter
 skips), VAPID keys, and optional model overrides, sets `ALLOW_DEMO_USER=true` on dev only,
-and offers to push functions, load data, and run `foods:backfillTips`. With no `.env.local`,
-run `npx convex dev --once` first.
+and offers to push functions, load data, and run the two paid backfills: `foods:backfillTips`
+(model-written tips) and `shelfLifeWeb:lookupNext` (StillTasty tips, hints, and packaged-food
+ranges). With no `.env.local`, run `npx convex dev --once` first.
 
 ### Where code goes
 
@@ -89,6 +90,10 @@ The one exception is packaged foods (`hasPrintedDate`) with no FDA or FoodKeeper
 they may take a web range (`source: "web"`) from an allowlisted page, stored with the page
 URL and a sentence quoted word for word from it. FDA and FoodKeeper ranges always win, and
 the UI still asks for the printed date.
+
+Storage tips and freshness hints never state how long a food lasts. They come from
+FoodKeeper first, then StillTasty through the Apify lookup (`source: "web"`, with the page URL
+and a quoted sentence in `ref`), then the model (`source: "llm"`) as the fallback.
 
 ### Code style
 

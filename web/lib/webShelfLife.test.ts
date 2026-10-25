@@ -1,5 +1,14 @@
 import { describe, expect, test } from "vitest";
-import { allowedSite, needsWebLookup, pickWebRanges, quoteOnPage, type WebEntry } from "./webShelfLife";
+import {
+  allowedSite,
+  needsWebLookup,
+  needsWebRanges,
+  pickWebRanges,
+  pickWebTips,
+  quoteOnPage,
+  replaceableTip,
+  type WebEntry,
+} from "./webShelfLife";
 
 const fda = { min: 1, max: 2, source: "fda_chart" as const, ref: "FDA chart" };
 const page = {
@@ -24,17 +33,40 @@ const opened: WebEntry = {
   quote: "Once opened, energy drinks will keep for about 3 to 4 days in the fridge.",
 };
 
+const sourcedTips = { storageTip: { source: "foodkeeper" }, freshnessHint: { source: "web" } };
+
+describe("needsWebRanges", () => {
+  test("takes web ranges only for a packaged food with no FDA or FoodKeeper range", () => {
+    expect(needsWebRanges({ hasPrintedDate: true })).toBe(true);
+    expect(needsWebRanges({ hasPrintedDate: false })).toBe(false);
+    expect(needsWebRanges({})).toBe(false);
+    expect(needsWebRanges({ hasPrintedDate: true, freezerDays: fda })).toBe(false);
+  });
+});
+
 describe("needsWebLookup", () => {
   test("looks up a packaged food with no sourced range, once", () => {
-    expect(needsWebLookup({ hasPrintedDate: true })).toBe(true);
+    expect(needsWebLookup({ hasPrintedDate: true, ...sourcedTips })).toBe(true);
     expect(needsWebLookup({ hasPrintedDate: true, webLookupAt: 1 })).toBe(false);
   });
 
-  test("skips fresh foods and foods with any FDA or FoodKeeper range", () => {
-    expect(needsWebLookup({ hasPrintedDate: false })).toBe(false);
-    expect(needsWebLookup({})).toBe(false);
-    expect(needsWebLookup({ hasPrintedDate: true, freezerDays: fda })).toBe(false);
+  test("looks up any food whose tip or hint is missing or model-written", () => {
+    expect(needsWebLookup({ hasPrintedDate: false, freezerDays: fda })).toBe(true);
+    expect(needsWebLookup({ freezerDays: fda, ...sourcedTips, freshnessHint: { source: "llm" } })).toBe(true);
+  });
+
+  test("skips a food with a sourced range and sourced tips, and a missing food", () => {
+    expect(needsWebLookup({ freezerDays: fda, ...sourcedTips })).toBe(false);
     expect(needsWebLookup(null)).toBe(false);
+  });
+});
+
+describe("replaceableTip", () => {
+  test("replaces only a missing or model-written tip", () => {
+    expect(replaceableTip(undefined)).toBe(true);
+    expect(replaceableTip({ source: "llm" })).toBe(true);
+    expect(replaceableTip({ source: "foodkeeper" })).toBe(false);
+    expect(replaceableTip({ source: "web" })).toBe(false);
   });
 });
 
@@ -98,5 +130,38 @@ describe("pickWebRanges", () => {
         [page, blocked],
       ),
     ).toEqual({});
+  });
+});
+
+describe("pickWebTips", () => {
+  const chicken = {
+    url: "https://www.stilltasty.com/fooditems/index/16798",
+    markdown:
+      "## Shelf Life Tips\n\n* How to tell if raw ground chicken is bad? Signs of bad ground chicken are a sour smell, dull color and slimy texture.\n* Refrigerate raw ground chicken in its original store packaging.",
+  };
+  const hint = {
+    text: "A sour smell, dull color, or slimy texture means it has gone bad.",
+    url: chicken.url,
+    quote: "Signs of bad ground chicken are a sour smell, dull color and slimy texture.",
+  };
+  const tip = {
+    text: "Keep it in the fridge in its original store packaging.",
+    url: chicken.url,
+    quote: "Refrigerate raw ground chicken in its original store packaging.",
+  };
+
+  test("keeps a tip and hint whose quotes are on the page, citing the page and quote", () => {
+    expect(pickWebTips({ storageTip: tip, freshnessHint: hint }, [chicken])).toEqual({
+      storageTip: { text: tip.text, source: "web", ref: `${chicken.url} > "${tip.quote}"` },
+      freshnessHint: { text: hint.text, source: "web", ref: `${chicken.url} > "${hint.quote}"` },
+    });
+  });
+
+  test("drops an invented quote, a blocked site, text that states a duration, and null", () => {
+    const blocked = { url: "https://randomblog.com/chicken", markdown: chicken.markdown };
+    const pick = (storageTip: typeof tip, pages = [chicken]) => pickWebTips({ storageTip, freshnessHint: null }, pages);
+    expect(pick({ ...tip, quote: "Store raw ground chicken on the top shelf of the fridge." })).toEqual({});
+    expect(pick({ ...tip, url: blocked.url }, [blocked])).toEqual({});
+    expect(pick({ ...tip, text: "Keep it in the fridge for up to 2 days." })).toEqual({});
   });
 });

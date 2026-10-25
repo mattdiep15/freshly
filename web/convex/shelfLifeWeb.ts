@@ -1,6 +1,16 @@
 import { v } from "convex/values";
 import { expiryFor } from "../lib/expiry";
-import { allowedSite, needsWebLookup, pickWebRanges, type WebEntry, type WebPage } from "../lib/webShelfLife";
+import {
+  allowedSite,
+  needsWebLookup,
+  needsWebRanges,
+  pickWebRanges,
+  pickWebTips,
+  replaceableTip,
+  type WebEntry,
+  type WebPage,
+  type WebTips,
+} from "../lib/webShelfLife";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { internalAction, internalMutation, type MutationCtx } from "./_generated/server";
@@ -8,7 +18,7 @@ import { searchPages } from "./model/apify";
 import { askClaude } from "./model/claude";
 import { askGemini } from "./model/gemini";
 import { WEB_SHELF_LIFE_SCHEMA, webShelfLifeSystemPrompt } from "./model/llm";
-import { shelfLife } from "./schema";
+import { freshnessHint, shelfLife, storageTip } from "./schema";
 
 // Starts a lookup chain when any of these foods needs one; each chain claims foods one at a time.
 export async function scheduleWebLookup(ctx: MutationCtx, foodIds: (Id<"foods"> | undefined)[]) {
@@ -26,7 +36,7 @@ export const claimNext = internalMutation({
     const food = (await ctx.db.query("foods").collect()).find(needsWebLookup);
     if (!food) return null;
     await ctx.db.patch(food._id, { webLookupAt: Date.now() });
-    return { foodId: food._id, name: food.name };
+    return { foodId: food._id, name: food.name, needsRanges: needsWebRanges(food) };
   },
 });
 
@@ -75,19 +85,37 @@ export const saveRanges = internalMutation({
   },
 });
 
+// Replaces only a missing or model-written tip or hint.
+export const saveTips = internalMutation({
+  args: { foodId: v.id("foods"), storageTip: v.optional(storageTip), freshnessHint: v.optional(freshnessHint) },
+  handler: async (ctx, { foodId, ...tips }) => {
+    const food = await ctx.db.get(foodId);
+    if (!food) return 0;
+    const patch: Partial<typeof food> = {};
+    if (tips.storageTip && replaceableTip(food.storageTip)) patch.storageTip = tips.storageTip;
+    if (tips.freshnessHint && replaceableTip(food.freshnessHint)) patch.freshnessHint = tips.freshnessHint;
+    if (Object.keys(patch).length > 0) await ctx.db.patch(foodId, patch);
+    return Object.keys(patch).length;
+  },
+});
+
+type Extracted = WebTips & { entries: WebEntry[] };
+const NOTHING: Extracted = { entries: [], storageTip: null, freshnessHint: null };
+
 // Gemini reads the pages for the Gemini track; Claude covers a Gemini outage or a spent free-tier quota.
-async function extract(foodName: string, pages: WebPage[]): Promise<WebEntry[]> {
+async function extract(foodName: string, pages: WebPage[]): Promise<Extracted> {
   const system = webShelfLifeSystemPrompt(foodName);
   const parts = pages.map((p) => ({ type: "text" as const, text: `URL: ${p.url}\n\n${p.markdown}` }));
   try {
-    return ((await askGemini(system, parts, WEB_SHELF_LIFE_SCHEMA)) as { entries: WebEntry[] }).entries;
+    return (await askGemini(system, parts, WEB_SHELF_LIFE_SCHEMA)) as Extracted;
   } catch (e) {
     console.warn(`shelfLifeWeb: Gemini failed, using Claude: ${e instanceof Error ? e.message.slice(0, 120) : e}`);
-    return ((await askClaude(system, parts, WEB_SHELF_LIFE_SCHEMA)) as { entries: WebEntry[] }).entries;
+    return (await askClaude(system, parts, WEB_SHELF_LIFE_SCHEMA)) as Extracted;
   }
 }
 
 // Run by scheduleWebLookup after a parse or manual add; `npx convex run shelfLifeWeb:lookupNext` backfills existing foods.
+// Each call starts a chain that looks up one food at a time; another call runs a second chain alongside it.
 export const lookupNext = internalAction({
   args: {},
   handler: async (ctx) => {
@@ -98,10 +126,13 @@ export const lookupNext = internalAction({
     try {
       // StillTasty has a page per packaged food; an OR of every allowed site returned fewer usable pages.
       const pages = await searchPages(`${next.name.slice(0, 80)} site:stilltasty.com`, token, allowedSite);
-      const entries = pages.length > 0 ? await extract(next.name, pages) : [];
-      const ranges = pickWebRanges(entries, pages);
+      const found = pages.length > 0 ? await extract(next.name, pages) : NOTHING;
+      const ranges = next.needsRanges ? pickWebRanges(found.entries, pages) : {};
       const result = await ctx.runMutation(internal.shelfLifeWeb.saveRanges, { foodId: next.foodId, ranges });
-      console.log(`shelfLifeWeb: ${next.name}: ${pages.length} pages, ${entries.length} figures, saved ${result.saved}, dated ${result.dated}`);
+      const tips = await ctx.runMutation(internal.shelfLifeWeb.saveTips, { foodId: next.foodId, ...pickWebTips(found, pages) });
+      console.log(
+        `shelfLifeWeb: ${next.name}: ${pages.length} pages, ${found.entries.length} figures, saved ${result.saved}, dated ${result.dated}, tips ${tips}`,
+      );
     } catch (e) {
       console.error(`shelfLifeWeb: ${next.name}: ${e instanceof Error ? e.message : e}`);
       await ctx.runMutation(internal.shelfLifeWeb.release, { foodId: next.foodId });
