@@ -96,10 +96,6 @@
     min-height: 0;
     overflow: hidden;
   }
-
-  .mobile-page-scroll:has(.stats-page) .mobile-page-end-spacer {
-    display: none;
-  }
 }
 
 @media (min-width: 768px) {
@@ -455,8 +451,8 @@
 /* Compact mobile manual-entry sheet. */
 @media (max-width: 767px) {
   .manual-entry-card {
-    top: calc(max(calc(env(safe-area-inset-top) + 12px), 56px) + 68px);
-    bottom: calc(64px + env(safe-area-inset-bottom) + 52px);
+    top: calc(env(safe-area-inset-top) + 68px);
+    bottom: calc(var(--nav-h) + 52px);
   }
 
   .manual-entry-header {
@@ -659,12 +655,8 @@
     display: block;
     flex: 1 1 auto;
     overflow: hidden;
-    margin-bottom: calc(64px + env(safe-area-inset-bottom));
+    margin-bottom: var(--nav-h);
     padding-bottom: 0;
-  }
-
-  .mobile-page-scroll:has(.manual-entry-card--multi) .mobile-page-end-spacer {
-    display: none;
   }
 
   .add-screen:has(.manual-entry-card--multi) {
@@ -1188,7 +1180,7 @@
     flex: 1 1 auto;
     overflow-x: hidden;
     overflow-y: auto;
-    padding-bottom: calc(56px + 64px + 34px + env(safe-area-inset-bottom) + 24px);
+    padding-bottom: calc(56px + var(--nav-h) + 24px);
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
   }
@@ -1389,7 +1381,7 @@
     height: 100%;
     box-sizing: border-box;
     overflow: hidden;
-    padding: 24px 0 calc(104px + env(safe-area-inset-bottom));
+    padding: 24px 0;
   }
 
   .receipt-step {
@@ -1495,7 +1487,7 @@
 
   .parsed-scroll {
     padding-bottom: calc(
-      56px + 64px + 34px + env(safe-area-inset-bottom) + 52px + 24px
+      56px + var(--nav-h) + 52px + 24px
     );
   }
 
@@ -1503,7 +1495,7 @@
     position: fixed;
     z-index: 18;
     right: 0;
-    bottom: calc(64px + 34px + env(safe-area-inset-bottom));
+    bottom: var(--nav-h);
     left: 0;
     height: 124px;
     border-top: 1px solid var(--ink);
@@ -1515,7 +1507,7 @@
   .parsed-step .mobile-pinned-action {
     z-index: 19;
     right: 16px;
-    bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 52px);
+    bottom: calc(var(--nav-h) + 52px);
     left: 16px;
     width: auto;
     height: 56px;
@@ -2063,12 +2055,8 @@
     display: block;
     flex: 1 1 auto;
     overflow: hidden;
-    margin-bottom: calc(64px + env(safe-area-inset-bottom));
+    margin-bottom: var(--nav-h);
     padding-bottom: 0;
-  }
-
-  .mobile-page-scroll:has(.manual-entry-card--multi) .mobile-page-end-spacer {
-    display: none;
   }
 
   .mobile-page-scroll:has(.manual-entry-card--multi) .add-screen {
@@ -3153,7 +3141,7 @@
 
 @media (max-width: 767px) {
   .recipes-page {
-    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    padding-bottom: 24px;
   }
 
   .recipes-heading {
@@ -3328,7 +3316,7 @@
 /* Decluttered mobile recipes. Desktop recipe layout remains unchanged. */
 @media (max-width: 767px) {
   .recipes-page {
-    padding-bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 52px + 24px);
+    padding-bottom: 24px;
   }
 
   .ingredient-chips {
@@ -3586,7 +3574,7 @@
     z-index: 19;
     top: 0;
     right: 0;
-    bottom: calc(64px + max(env(safe-area-inset-bottom), 24px));
+    bottom: var(--nav-h);
     left: 0;
     display: block;
     padding: 0;
@@ -3666,7 +3654,7 @@
   .cooking-actions {
     position: fixed;
     right: 16px;
-    bottom: calc(64px + max(env(safe-area-inset-bottom), 24px) + 52px);
+    bottom: calc(var(--nav-h) + 52px);
     left: 16px;
     width: auto;
     height: 56px;

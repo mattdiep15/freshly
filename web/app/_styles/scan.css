@@ -141,40 +141,6 @@
   margin-top: 28px;
 }
 
-.parsed-list {
-  border-top: 2px solid var(--ink);
-}
-
-.parsed-row {
-  min-height: 48px;
-  display: grid;
-  grid-template-columns: 1fr 210px;
-  align-items: center;
-  border-bottom: 1px solid var(--ink);
-  font-family: var(--font-display), sans-serif;
-  font-size: 18px;
-  letter-spacing: 0.06em;
-}
-
-.parsed-row label {
-  display: grid;
-  gap: 10px;
-  align-items: center;
-  font-family: var(--font-body), sans-serif;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-}
-
-.parsed-row input {
-  width: 100%;
-  border: 0;
-  border-bottom: 1px solid var(--ink);
-  padding: 7px 3px;
-  background: transparent;
-  font-size: 11px;
-}
-
 .tip-card {
   margin-top: 22px;
   border: 2px solid var(--ink);
@@ -217,17 +183,12 @@
     font-size: 20px;
   }
 
-  .parsed-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    padding: 13px 0;
-  }
 }
 
 @media (max-width: 767px) {
   .add-screen {
     display: block;
-    padding: 42px 0 95px;
+    padding: 42px 0 24px;
   }
 
   .step-count {
@@ -274,17 +235,6 @@
 
   .receipt-preview .add-button {
     width: 100%;
-  }
-
-  .parsed-row {
-    min-height: 52px;
-    grid-template-columns: 1fr 150px;
-    gap: 10px;
-    padding: 0;
-  }
-
-  .parsed-row label {
-    grid-template-columns: auto 1fr;
   }
 
   .tip-card {
@@ -633,7 +583,7 @@
   .add-screen:has(.scan-step) {
     width: 100%;
     box-sizing: border-box;
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+    padding-bottom: 24px;
   }
 
   .scan-step {
@@ -784,32 +734,6 @@
   cursor: pointer;
 }
 
-/* The port adds a "days" unit after the input, so the label needs a third column. */
-.parsed-row label {
-  grid-template-columns: auto 1fr auto;
-}
-
-.parsed-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.parsed-controls label {
-  flex: 1;
-}
-
-.parsed-row.needs-date {
-  border-left: 4px solid var(--good);
-  padding-left: 10px;
-}
-
-.parsed-row.is-removed .parsed-name,
-.parsed-row.is-removed label {
-  opacity: 0.4;
-  text-decoration: line-through;
-}
-
 .tip-card .outline-button {
   display: block;
   margin-top: 12px;
@@ -846,5 +770,162 @@
 @media (max-width: 640px) {
   .manual-fields {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Receipt review: each line is name + remove, then storage + date, so nothing truncates on a phone. */
+.draft-list {
+  border-top: 1px solid var(--ink);
+}
+
+.draft-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  grid-template-areas:
+    "name remove"
+    "location date";
+  gap: 8px 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--ink);
+  padding: 12px 0;
+}
+
+.draft-name {
+  grid-area: name;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px dashed transparent;
+  padding: 6px 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.draft-name:focus {
+  border-bottom-color: var(--ink);
+  outline: none;
+}
+
+.draft-remove {
+  grid-area: remove;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.draft-location {
+  grid-area: location;
+  display: flex;
+  justify-self: start;
+}
+
+.draft-location button {
+  min-height: 36px;
+  border: 1px solid var(--ink);
+  padding: 0 10px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.draft-location button + button {
+  border-left: 0;
+}
+
+.draft-location button.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.draft-date {
+  grid-area: date;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.draft-date span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+.draft-date input {
+  width: 128px;
+  min-height: 36px;
+  box-sizing: border-box;
+  border: 1px solid var(--ink);
+  padding: 0 6px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.draft-row.needs-date .draft-date input {
+  border-width: 2px;
+}
+
+.draft-row.is-removed .draft-name,
+.draft-row.is-removed .draft-location,
+.draft-row.is-removed .draft-date {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+.draft-row.is-removed .draft-remove {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.review-confirm {
+  width: 100%;
+  margin-top: 24px;
+}
+
+@media (min-width: 768px) {
+  .draft-row {
+    grid-template-columns: minmax(0, 1fr) auto auto 44px;
+    grid-template-areas: "name location date remove";
+    gap: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Flex so the name gets the full first line; storage and date share the second. */
+  .review-step .draft-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+
+  .review-step .draft-name {
+    flex: 1 1 calc(100% - 56px);
+  }
+
+  .review-step .draft-date {
+    margin-left: auto;
+  }
+
+  /* Stays in reach while the list scrolls; the shadow hides rows passing under it. */
+  .review-confirm {
+    position: sticky;
+    z-index: 5;
+    bottom: 0;
+    height: 52px;
+    margin-top: 16px;
+    box-shadow: 0 20px 0 12px var(--paper);
   }
 }

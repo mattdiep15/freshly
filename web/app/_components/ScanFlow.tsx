@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { ItemView } from "@/convex/items";
+import type { Location } from "@/lib/referenceMerge";
 import { dateInputValue, endOfLocalDay } from "@/lib/freshness";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
 import { errorMessage } from "@/app/_components/errorMessage";
@@ -85,17 +86,20 @@ function dateLabel(draft: ItemView): string {
   return draft.checkLabel ? "package date" : "good until";
 }
 
+const LOCATIONS: Location[] = ["fridge", "freezer", "pantry"];
+
 // Inputs save on blur, so a tap on "add to fridge" still sends the last edit first.
 function DraftRow({ draft, removed, onSave, onToggleRemove }: {
   draft: ItemView;
   removed: boolean;
-  onSave: (patch: { name?: string; expiresAt?: number }) => void;
+  onSave: (patch: { name?: string; expiresAt?: number; location?: Location }) => void;
   onToggleRemove: () => void;
 }) {
+  const dateValue = draft.expiresAt === undefined ? "" : dateInputValue(draft.expiresAt);
   return (
-    <div className={`parsed-row ${draft.checkLabel ? "needs-date" : ""} ${removed ? "is-removed" : ""}`}>
+    <div className={`draft-row ${draft.checkLabel ? "needs-date" : ""} ${removed ? "is-removed" : ""}`}>
       <input
-        className="parsed-name"
+        className="draft-name"
         defaultValue={draft.name}
         disabled={removed}
         aria-label="food name"
@@ -104,26 +108,37 @@ function DraftRow({ draft, removed, onSave, onToggleRemove }: {
           if (name && name !== draft.name) onSave({ name });
         }}
       />
-      <div className="parsed-controls">
-        <label>
-          {dateLabel(draft)}
-          <input
-            type="date"
-            defaultValue={draft.expiresAt === undefined ? "" : dateInputValue(draft.expiresAt)}
+      <button className="draft-remove" onClick={onToggleRemove} aria-label={removed ? `keep ${draft.name}` : `remove ${draft.name}`}>
+        {removed ? "undo" : "×"}
+      </button>
+      <div className="draft-location" role="group" aria-label={`where ${draft.name} is stored`}>
+        {LOCATIONS.map((loc) => (
+          <button
+            type="button"
+            key={loc}
+            className={draft.location === loc ? "is-selected" : ""}
+            aria-pressed={draft.location === loc}
             disabled={removed}
-            aria-label={`date for ${draft.name}`}
-            onBlur={(e) => {
-              const value = e.target.value;
-              if (value && value !== (draft.expiresAt === undefined ? "" : dateInputValue(draft.expiresAt))) {
-                onSave({ expiresAt: endOfLocalDay(value) });
-              }
-            }}
-          />
-        </label>
-        <button className="remove-line" onClick={onToggleRemove} aria-label={removed ? `keep ${draft.name}` : `remove ${draft.name}`}>
-          {removed ? "undo" : "×"}
-        </button>
+            onClick={() => draft.location !== loc && onSave({ location: loc })}
+          >
+            {loc}
+          </button>
+        ))}
       </div>
+      <label className="draft-date">
+        <span>{dateLabel(draft)}</span>
+        {/* Keyed by the date so a storage change that recomputes expiry shows the new value. */}
+        <input
+          key={dateValue}
+          type="date"
+          defaultValue={dateValue}
+          disabled={removed}
+          onBlur={(e) => {
+            const value = e.target.value;
+            if (value && value !== dateValue) onSave({ expiresAt: endOfLocalDay(value) });
+          }}
+        />
+      </label>
     </div>
   );
 }
@@ -174,10 +189,10 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
   );
 
   return (
-    <section className="step-panel">
+    <section className="step-panel review-step">
       <p className="eyebrow">looks like you bought{receipt.storeName ? ` at ${receipt.storeName.toLowerCase()}` : ""}</p>
       <h1>check the list.</h1>
-      <div className="parsed-list">
+      <div className="draft-list">
         {receipt.drafts.map((draft) => (
           <DraftRow
             key={draft._id}
@@ -210,7 +225,7 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
         </div>
       )}
       <button
-        className="add-button mobile-pinned-action"
+        className="add-button review-confirm"
         disabled={saving}
         onClick={async () => {
           setSaving(true);

@@ -47,7 +47,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <SiteHeader />
             <div className="mobile-page-scroll">
               {children}
-              <div className="mobile-page-end-spacer" aria-hidden="true" />
             </div>
             <footer>
               <p>spoil less eat fresh!</p>
