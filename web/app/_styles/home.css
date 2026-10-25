@@ -160,6 +160,11 @@
   width: 160px;
 }
 
+.setting-row .outline-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .setting-row .pill-toggle {
   position: relative;
   width: 48px;
