@@ -9,11 +9,11 @@ const OWNS_GESTURE =
   'a, button, input, select, textarea, label, summary, [role="button"], [role="tab"], [role="dialog"], [contenteditable], .grocery-swipe, .food-card, header';
 // iOS uses edge swipes for back and forward.
 const EDGE_PX = 24;
-// Share of the finger's travel the page follows; much less at the first and last tab, where there is nowhere to go.
-const FOLLOW = 0.5;
+// The page tracks the finger one to one; at the first and last tab it only stretches a little, since there is nowhere to go.
 const END_RESIST = 0.15;
-const OUT_MS = 140;
-const IN_MS = 240;
+// Out and in together read as one continuous slide between the two pages.
+const OUT_MS = 160;
+const IN_MS = 220;
 const BACK_MS = 180;
 // Gives up on the slide-in if the route never changes, so the page is never left pushed aside.
 const NAV_TIMEOUT_MS = 1500;
@@ -45,8 +45,7 @@ export function useSwipeTabs(pathname: string) {
     leaving.current = null;
     window.clearTimeout(pending.timeout);
     pending.exit.cancel();
-    const from = -pending.direction * page.offsetWidth * 0.4;
-    page.animate([{ transform: `translateX(${from}px)`, opacity: 0 }, { transform: "none", opacity: 1 }], {
+    page.animate([{ transform: `translateX(${-pending.direction * page.offsetWidth}px)` }, { transform: "none" }], {
       duration: IN_MS,
       easing: "cubic-bezier(0.2, 0.8, 0.2, 1)",
     });
@@ -61,7 +60,6 @@ export function useSwipeTabs(pathname: string) {
 
     const reset = (el: HTMLElement) => {
       el.style.transform = "";
-      el.style.opacity = "";
     };
 
     const onStart = (event: TouchEvent) => {
@@ -86,10 +84,10 @@ export function useSwipeTabs(pathname: string) {
         else if (Math.abs(dy) > 10) start = null;
         return;
       }
+      // Once the swipe is sideways, the page stops scrolling up and down under the finger.
+      if (event.cancelable) event.preventDefault();
       if (reduced()) return;
-      const offset = dx * (hasNeighbor(pathname, dx) ? FOLLOW : END_RESIST);
-      el.style.transform = `translateX(${offset}px)`;
-      el.style.opacity = String(1 - Math.min(Math.abs(offset) / el.offsetWidth, 0.5));
+      el.style.transform = `translateX(${hasNeighbor(pathname, dx) ? dx : dx * END_RESIST}px)`;
     };
 
     const onEnd = (event: TouchEvent) => {
@@ -108,7 +106,7 @@ export function useSwipeTabs(pathname: string) {
       if (reduced()) return router.push(next);
       const direction = dx < 0 ? -1 : 1;
       const exit = el.animate(
-        [{ transform: dragged || "none" }, { transform: `translateX(${direction * el.offsetWidth * 0.4}px)`, opacity: 0 }],
+        [{ transform: dragged || "none" }, { transform: `translateX(${direction * el.offsetWidth}px)` }],
         { duration: OUT_MS, easing: "ease-in", fill: "forwards" },
       );
       const timeout = window.setTimeout(() => {
@@ -127,7 +125,8 @@ export function useSwipeTabs(pathname: string) {
     };
 
     window.addEventListener("touchstart", onStart, { passive: true });
-    window.addEventListener("touchmove", onMove, { passive: true });
+    // Not passive, so a sideways swipe can stop the vertical scroll.
+    window.addEventListener("touchmove", onMove, { passive: false });
     window.addEventListener("touchend", onEnd, { passive: true });
     window.addEventListener("touchcancel", onCancel, { passive: true });
     return () => {
