@@ -734,7 +734,8 @@
     grid-column: 1;
     grid-row: 1;
     justify-self: start;
-    margin-left: 96px;
+    /* Clears the 120px status tag it shares the column with. */
+    margin-left: 128px;
   }
 
   .food-card:has(.extended-tag) .card-summary {
