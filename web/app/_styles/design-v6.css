@@ -152,18 +152,76 @@
   filter: invert(1);
 }
 
+/* One line per suggestion: the variants truncate before the food name does. */
+.food-suggestion-name {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.food-suggestion-base,
+.food-suggestion-detail {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.food-suggestion-base {
+  flex: 0 1 auto;
+}
+
+.food-suggestion-detail {
+  flex: 1 1 0;
+  min-width: 0;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
 .grocery-list,
 .grocery-completed {
   width: min(100%, 920px);
 }
 
+.grocery-swipe {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Only touch screens get the swipe; desktop uses the X. */
+.grocery-swipe-delete {
+  display: none;
+}
+
 .grocery-row {
+  position: relative;
   display: grid;
   min-height: 72px;
-  grid-template-columns: 44px 48px minmax(0, 1fr) auto;
+  grid-template-columns: 44px 48px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid var(--ink);
+  background: var(--paper);
+  transition: transform 180ms ease;
+}
+
+.grocery-remove {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  grid-column: 5;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: rgb(0 0 0 / 55%);
+  font-size: 26px;
+  line-height: 1;
+}
+
+.grocery-remove:hover,
+.grocery-remove:focus-visible {
+  color: var(--ink);
 }
 
 .grocery-check {
@@ -435,6 +493,30 @@
     min-height: 64px;
     grid-template-columns: 38px 44px minmax(0, 1fr) auto;
     gap: 8px;
+    touch-action: pan-y;
+  }
+
+  .grocery-remove {
+    display: none;
+  }
+
+  .grocery-swipe-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: block;
+    width: 88px;
+    border: 0;
+    background: #c62828;
+    color: var(--paper);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  /* Hidden while closed so its red does not bleed past the row's edge. */
+  .grocery-swipe:not(.is-open) .grocery-swipe-delete {
+    visibility: hidden;
   }
 
   .grocery-check {

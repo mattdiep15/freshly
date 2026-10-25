@@ -3,6 +3,7 @@
 import type { FunctionReturnType } from "convex/server";
 import type { api } from "@/convex/_generated/api";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
+import { splitFoodName } from "@/lib/foodName";
 
 export type CatalogFood = FunctionReturnType<typeof api.foods.catalog>[number];
 
@@ -28,21 +29,29 @@ export function FoodSuggestions({ id, foods, active, className, iconClassName, o
 }) {
   return (
     <div className={className} id={id} role="listbox">
-      {foods.map((food, i) => (
-        <button
-          type="button"
-          role="option"
-          id={`${id}-${i}`}
-          aria-selected={i === active}
-          className={i === active ? "is-active" : ""}
-          key={food.name}
-          onPointerDown={(event) => event.preventDefault()}
-          onClick={() => onPick(food)}
-        >
-          <FoodArt name={food.name} className={iconClassName} />
-          <span>{food.name}</span>
-        </button>
-      ))}
+      {foods.map((food, i) => {
+        const { base, detail } = splitFoodName(food.name);
+        return (
+          <button
+            type="button"
+            role="option"
+            id={`${id}-${i}`}
+            aria-selected={i === active}
+            className={i === active ? "is-active" : ""}
+            key={food.name}
+            aria-label={food.name}
+            title={food.name}
+            onPointerDown={(event) => event.preventDefault()}
+            onClick={() => onPick(food)}
+          >
+            <FoodArt name={food.name} className={iconClassName} />
+            <span className="food-suggestion-name">
+              <span className="food-suggestion-base">{base}</span>
+              {detail && <span className="food-suggestion-detail">{detail}</span>}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }

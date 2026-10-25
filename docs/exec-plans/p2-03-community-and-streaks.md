@@ -4,12 +4,13 @@ Tier: P2. Estimate: 4 to 5 hours for one engineer. Depends on p2-01. Can run in 
 
 ## Purpose
 
-Give users a reason to keep swiping their cards: a streak on the stats tab, and a weekly leaderboard with friends on the friends tab. This covers "Community tab" and "Gamified tracking" in `docs/PRODUCT.md`. Dollars and pounds wasted already exist from p1-03.
+Give users a reason to keep swiping their cards: a streak in the "my numbers" view and a weekly leaderboard in the "friends" view of `/community`. This covers "Community tab" and "Gamified tracking" in `docs/PRODUCT.md`. Dollars and pounds wasted already exist from p1-03.
 
 ## Context
 
 - Code paths are relative to `web/`. `stats.summary` and `summarizeWaste` are in p1-03.
-- v5 (`claude/frontend-prototype-v5-19a533`) dropped the "me" tab. The nav is fridge, recipes, camera, stats, friends. The streak goes on the stats tab, in the third circle that p1-04 filled with "% used" until streaks existed. The leaderboard stays on the friends tab.
+- v6 (#23) merged the stats and friends tabs into one page, `app/community/page.tsx`, with a "my numbers / friends" switch. `/stats` and `/friends` redirect there with `?view=numbers` or `?view=friends`; the page reads `view` once, stores it through `setCommunityView` in `app/_components/useCommunityView.ts`, and replaces the URL with plain `/community`.
+- The streak goes in `NumbersView`, in the third circle of `StatCircles` that p1-04 filled with "% used" until streaks existed. The leaderboard and the add-friend button go in `FriendsView`, which renders a disabled "+ add a friend" button and `demoLeaderboard`.
 - `app/_components/Leaderboard.tsx` already renders `{ name, lbsWasted, streakDays, isYou }[]` from `demoLeaderboard` in `app/_demo/fixtures.ts`. This plan feeds it real data and keeps the component as is.
 - The design counts the streak in days. A streak that needs activity every day would punish students who shop once a week, so this plan counts days without waste instead (see Behavior).
 - `friendships` (two rows per pair) and `profiles.inviteCode` are in p2-01.
@@ -35,7 +36,7 @@ Streak, in `lib/streak.ts`: `streakDays({ lastWasteAt, firstItemAt, now, utcOffs
 
 Example: a user's first item was 12 days ago and they tossed yogurt 4 days ago, so the streak is 4. An item expiring today that they have not swiped resets it to 0.
 
-Leaderboard: `friends.leaderboard()` returns the caller and their friends for the current week (`range: "week"` in `summarizeWaste`):
+Leaderboard: `friends.leaderboard()` returns the caller and their friends for the current calendar week, Monday 00:00 in each person's time zone (`range: "week"` in `summarizeWaste`):
 
 - each row is `{ userId, name, lbsWasted, usedRate, streakDays, isYou }`, with `lbsWasted` rounded to one decimal
 - sorted by `usedRate` high to low, users with no resolved items this week last, ties broken by lower `lbsWasted`
@@ -48,7 +49,7 @@ Adding friends:
 - `friends.inviteCode()` is a mutation that returns the caller's code, creating a 6-character code on first call. Use letters and digits without look-alikes (no 0, O, 1, I) and retry on a collision through the `by_invite_code` index.
 - `friends.add({ code })` looks up the code, rejects the caller's own code, an unknown code, and an existing friendship, then inserts both `friendships` rows. Entering a code is the consent, so there is no pending state.
 - `friends.remove({ friendId })` deletes both rows.
-- An invite link is `/friends?invite=<code>`. The friends page reads the param and asks "add <name> as a friend?" before calling `add`.
+- An invite link is `/community?view=friends&invite=<code>`. `view=friends` reuses the existing switch, and the page keeps the code after it clears the URL, then the friends view asks "add <name> as a friend?" before calling `add`.
 
 ## Steps
 
@@ -71,15 +72,15 @@ Adding friends:
 5. In `convex/seed.ts`, add four friend users (maya, theo, dev, nina) with profiles, invite codes, friendships with the demo user, and used and wasted items resolved over the last two weeks. Pick the items so the leaderboard order and streaks resemble `demoLeaderboard`. Fake data stays in the seed, per `CLAUDE.md`.
    Verify: after `/api/dev/seed`, `/api/friends/leaderboard` returns five rows with the demo user marked `isYou`.
 
-6. Stats tab: the third circle in `StatCircles` shows `stats.streak` as "N days" instead of "% used". Keep `usedRate` in the period table.
+6. My numbers view: in `app/community/page.tsx`, `NumbersView` passes `stats.streak` to `StatCircles`, and its third circle shows "N days" instead of "% used". Keep `usedRate` in the period table.
    Verify: in the running app, tossing an item from a swipe card drops the streak to 0.
 
-7. Friends tab: `app/friends/page.tsx` reads `friends.leaderboard` and passes it to `Leaderboard`. Enable "+ add a friend": it shows the user's invite link with a copy button and a field to paste a friend's code. Use the designer's dialog if it has landed. Handle `?invite=`. Remove `demoLeaderboard` from `app/_demo/fixtures.ts` and the `TODO(release)` line in the friends page.
-   Verify: as the demo user, the friends tab shows the seeded leaderboard and pasting a seeded friend's code after removing them adds them back. Once sign-in exists, in two browsers signed in as different users, user A opens user B's invite link, confirms, and each sees the other on the leaderboard.
+7. Friends view: `FriendsView` in `app/community/page.tsx` reads `friends.leaderboard` and passes it to `Leaderboard`. Enable "+ add a friend": it shows the user's invite link with a copy button and a field to paste a friend's code. Use the designer's dialog if it has landed. Handle `/community?view=friends&invite=<code>`. Remove `demoLeaderboard` from `app/_demo/fixtures.ts` and the `TODO(release)` line in `FriendsView`.
+   Verify: as the demo user, the friends view shows the seeded leaderboard and pasting a seeded friend's code after removing them adds them back. Once sign-in exists, in two browsers signed in as different users, user A opens user B's invite link, confirms, and each sees the other on the leaderboard.
 
 ## File ownership
 
-This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, `lib/streak.ts` and its test, `app/api/friends/`, `app/api/stats/streak/`, `app/friends/page.tsx`, `app/_components/Leaderboard.tsx`, `app/_components/WasteStats.tsx`, and `demoLeaderboard` in `app/_demo/fixtures.ts`. p2-02 also edits `convex/seed.ts`; keep this plan's seed code in its own helper function.
+This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, `lib/streak.ts` and its test, `app/api/friends/`, `app/api/stats/streak/`, `NumbersView` and `FriendsView` in `app/community/page.tsx`, `app/_components/Leaderboard.tsx`, `app/_components/WasteStats.tsx`, and `demoLeaderboard` in `app/_demo/fixtures.ts`. p2-02 also edits `convex/seed.ts`; keep this plan's seed code in its own helper function.
 
 ## Interfaces delivered
 
@@ -89,19 +90,20 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 | `friends.inviteCode()` | mutation | `GET /api/friends/invite-code` |
 | `friends.add({ code })` | mutation | `GET /api/friends/add?code=` |
 | `friends.remove({ friendId })` | mutation | `GET /api/friends/remove?id=` |
+| `friends.invitePreview({ code })` | query | `GET /api/friends/invite-preview?code=` |
 | `friends.leaderboard()` | query | `GET /api/friends/leaderboard` |
 
 `friends.add` returns `{ friendId, name }` and throws on the cases above with a message the UI can show. `friends.leaderboard` returns the rows described in Behavior, already sorted.
 
 ## Progress
 
-- [ ] 1. `lib/streak.ts` and tests
-- [ ] 2. `convex/model/stats.ts` and `stats.streak`
-- [ ] 3. `convex/friends.ts`
-- [ ] 4. `/api` routes
-- [ ] 5. Seed friends
-- [ ] 6. Stats tab streak
-- [ ] 7. Friends tab
+- [x] 1. `lib/streak.ts` and tests
+- [x] 2. `convex/model/stats.ts` and `stats.streak`
+- [x] 3. `convex/friends.ts`
+- [x] 4. `/api` routes
+- [x] 5. Seed friends
+- [x] 6. My numbers streak
+- [x] 7. Friends view (demo user and seeded friends; two real accounts wait on sign-in)
 
 ## Validation
 
@@ -121,7 +123,22 @@ This plan owns `convex/friends.ts`, `convex/stats.ts`, `convex/model/stats.ts`, 
 - 2026-10-24: Streaks count days without waste, so a weekly shopper keeps a streak. An unswiped expired item counts as waste, so ignoring cards does not protect a streak.
 - 2026-10-24: Leaderboard and streaks compute on read, with no `userStats` table (p2-01).
 - 2026-10-24: Friends join by invite code or link, not by searching names, so users cannot browse other accounts.
+- 2026-10-24: Re-pointed at the v6 `/community` page (#23). `app/stats/page.tsx` and `app/friends/page.tsx` are gone, so the streak goes in `NumbersView` and the leaderboard in `FriendsView`, and the invite link is `/community?view=friends&invite=<code>` to reuse the page's `?view=` handling.
+- 2026-10-24: p2-01 was not run on its own. This plan added only `friendships`, `profiles.inviteCode`, and `by_invite_code` to `convex/schema.ts`, in the p2-01 shape; p2-04 adds the recipe table on its branch.
+- 2026-10-24: `streakInputs` uses the newest pending `expiresAt`, not the oldest the step 2 text named. The latest waste event bounds the streak, so the oldest would overstate it.
+- 2026-10-24: Added `friends.invitePreview({ code })`, a query returning `{ status: "ok" | "friends" | "self" | "unknown", name? }`, so the invite link can say "add <name> as a friend?" before anything is written.
+- 2026-10-24: Leaderboard ties after `lbsWasted` break by name, so the order is stable. A friend list is capped at 50 (`MAX_FRIENDS`).
+- 2026-10-24: v6's period table had no used-rate column, so "% used" became its fourth column when the streak took the third circle.
+- 2026-10-24: Stats use calendar periods, not rolling windows (team call). "Week" starts Monday 00:00 and "month" on the 1st, both in the user's time zone (`periodStart` in `lib/wasteStats.ts`). With rolling windows, ranks shifted every day as old items aged out; now they move only when someone resolves an item, and everyone resets on Monday. This changes p1-03's `summarizeWaste`, which now takes `utcOffsetMinutes`.
+- 2026-10-24: Dollars wasted shows to the user as a "$ wasted" column in the period table (team call). The leaderboard does not return it, so friends never see it.
+- 2026-10-24: The leaderboard shows a "% used" column, since it sorts on that number. The plan said to keep `Leaderboard.tsx` as is, but without the column the order looked arbitrary. Phones show rank, name, % used, and streak, and drop lbs.
+- 2026-10-24: An expired item still waiting for a swipe counts as wasted at its expiry in every stat, not only the streak: % used, lbs and $ wasted, and the leaderboard. It uses the user's toss fraction. Without this, a user could swipe only the items they used and skip the rest to show 100%. Swiping the card later moves it to used or wasted as usual.
+- 2026-10-24: No designer dialog has landed, so "+ add a friend" opens an inline panel under the heading. The caller's row shows "you", as the old fixture did.
 
 ## Surprises
 
-(none yet)
+- A streak longer than the days since Monday means nothing was wasted this week, so the old fixture's rows (theo: 0.7 lbs this week, 9-day streak) cannot happen. The seeded friends follow the definition: maya and theo show 0 lbs.
+- The seeded demo user ranks last after a reseed. Its three unswiped cards count as wasted, so its week is 1 used of 7 (14%), below nina's 20%. Swiping one card as used moves it to 29%, above nina. Its streak starts at 1, since its three swipe cards expired yesterday; tossing one drops it to 0.
+- The p1 seed places the demo user's resolved items 1 to 11 days back, so a reseed early in the week puts most of them in last week. On a Monday the demo user has nothing resolved this week and ranks last. The friends' seed places this week's items inside the current week on any day.
+- The fridge holds a swipe decision for a 5-second undo window, and a full page reload inside that window drops the decision without saving it.
+- The worktree's `web/.env.local` pointed at the team dev deployment. Testing used a local anonymous deployment instead (`CONVEX_AGENT_MODE=anonymous npx convex dev`), with `ALLOW_DEMO_USER=true` set on it.

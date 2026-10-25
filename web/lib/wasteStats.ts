@@ -1,11 +1,10 @@
-const DAY = 24 * 60 * 60 * 1000;
+const MINUTE = 60 * 1000;
+const DAY = 24 * 60 * MINUTE;
 const GRAMS_PER_LB = 453.6;
 
 export type WasteRange = "week" | "month" | "all";
 // TODO(release): hardcoded guess; a binary "wasted" swipe does not say how much was thrown out
 export const DEFAULT_WASTED_FRACTION = 0.5;
-
-const RANGE_DAYS: Record<WasteRange, number | null> = { week: 7, month: 30, all: null };
 
 export type ResolvedItem = {
   status: "used" | "wasted";
@@ -27,9 +26,21 @@ export type WasteSummary = {
   itemsMissingWeight: number;
 };
 
-export function summarizeWaste(items: ResolvedItem[], range: WasteRange, now: number): WasteSummary {
-  const days = RANGE_DAYS[range];
-  const since = days === null ? -Infinity : now - days * DAY;
+// Calendar periods in the user's time zone, weeks starting Monday, so totals and rankings only move when someone resolves an item.
+export function periodStart(range: WasteRange, now: number, utcOffsetMinutes: number): number {
+  if (range === "all") return -Infinity;
+  const local = new Date(now + utcOffsetMinutes * MINUTE);
+  const year = local.getUTCFullYear();
+  const month = local.getUTCMonth();
+  const localStart =
+    range === "month"
+      ? Date.UTC(year, month, 1)
+      : Date.UTC(year, month, local.getUTCDate()) - ((local.getUTCDay() + 6) % 7) * DAY;
+  return localStart - utcOffsetMinutes * MINUTE;
+}
+
+export function summarizeWaste(items: ResolvedItem[], range: WasteRange, now: number, utcOffsetMinutes: number): WasteSummary {
+  const since = periodStart(range, now, utcOffsetMinutes);
   const inRange = items.filter((i) => i.resolvedAt >= since && i.resolvedAt <= now);
 
   let wastedCents = 0;

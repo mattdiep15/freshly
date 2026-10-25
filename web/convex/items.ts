@@ -144,3 +144,19 @@ export const extend = mutation({
     return { itemId, status: "active" as const, expiresAt };
   },
 });
+
+// Undo for resolve or extend: the client passes back the status and date it had before.
+export const reopen = mutation({
+  args: {
+    itemId: v.id("items"),
+    status: v.union(v.literal("active"), v.literal("expired")),
+    expiresAt: v.optional(v.number()),
+  },
+  handler: async (ctx, { itemId, status, expiresAt }) => {
+    const userId = await getUserId(ctx);
+    const item = await ctx.db.get(itemId);
+    if (!item || item.userId !== userId) throw new Error("Item not found");
+    if (item.status === "draft") throw new Error("Draft items can't be reopened");
+    await ctx.db.patch(itemId, { status, expiresAt, fractionWasted: undefined, resolvedAt: undefined });
+  },
+});

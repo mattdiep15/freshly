@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import { daysUntil, freshness, sortByUrgency } from "@/lib/freshness";
 import { rankRecipes, RECIPES } from "@/lib/recipes";
@@ -13,7 +13,13 @@ import { useNow } from "@/app/_components/useNow";
 export default function RecipesPage() {
   const now = useNow();
   const active = useQuery(api.items.list, { status: "active" });
+  const suggestion = useQuery(api.recipes.today);
+  const request = useMutation(api.recipes.request);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // Starts today's web search when the use-soon items changed; the fixed list shows until it is ready.
+  useEffect(() => {
+    request().catch((e) => console.warn("recipes.request failed", e));
+  }, [request]);
   if (now === null || active === undefined) return <main className="recipes-page" aria-busy="true" />;
 
   // Chips come from use-soon items only; expired ones belong to the swipe check-in.
@@ -22,6 +28,8 @@ export default function RecipesPage() {
     .map((item) => ({ ...item, daysLeft: item.expiresAt === undefined ? Infinity : daysUntil(item.expiresAt, now) }));
   // A selected item that left use-soon drops out of the filter on its own.
   const selected = soonItems.filter((item) => selectedIds.includes(item._id));
+  // Web recipes go first so they win ties in the stable sort.
+  const recipes = [...(suggestion?.status === "ready" ? suggestion.recipes : []), ...RECIPES];
   const toggle = (id: string) =>
     setSelectedIds((ids) => (ids.includes(id) ? ids.filter((other) => other !== id) : [...ids, id]));
 
@@ -53,7 +61,7 @@ export default function RecipesPage() {
           })}
         </div>
       )}
-      <RecipeList recipes={rankRecipes(RECIPES, soonItems, selected)} fridgeNames={active.map((item) => item.name)} />
+      <RecipeList recipes={rankRecipes(recipes, soonItems, selected)} fridgeNames={active.map((item) => item.name)} />
     </main>
   );
 }

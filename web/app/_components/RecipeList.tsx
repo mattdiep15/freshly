@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usesItem, type RankedRecipe, type Recipe } from "@/lib/recipes";
+import { siteName } from "@/lib/recipeWeb";
 import { CookingTakeover, phaseDrawing } from "@/app/_components/CookingTakeover";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { RecipeDrawing } from "@/app/_components/ui/RecipeDrawing";
@@ -74,6 +75,13 @@ function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
             <span className="desktop-servings">{recipe.servings} servings</span>
             <span className="mobile-servings">{recipe.servings}</span>
           </span>
+          {recipe.sourceUrl && (
+            <span>
+              <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer">
+                from {siteName(recipe.sourceUrl)}
+              </a>
+            </span>
+          )}
         </div>
         <FixedTag className="recipe-mobile-expiring-tag">{expiringTag}</FixedTag>
         <div className="recipe-ingredients">
@@ -109,7 +117,7 @@ function RecipeRow({ ranked, expanded, fridgeNames, onToggle, onCook }: {
           <h2>steps</h2>
           <ol>
             {recipe.steps.map((step, index) => (
-              <li key={step.phase}>
+              <li key={index}>
                 <span className="phase-icon">
                   <RecipeDrawing name={phaseDrawing(recipe, step.phase)} />
                 </span>

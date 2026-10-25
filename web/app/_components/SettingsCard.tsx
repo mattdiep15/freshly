@@ -51,6 +51,8 @@ export function SettingsCard() {
         </span>
         <input
           type="checkbox"
+          role="switch"
+          className="pill-toggle"
           checked={settings.alwaysAskSpoiled}
           onChange={(event) => update({ alwaysAskSpoiled: event.target.checked }).catch(ignoreFailure)}
         />

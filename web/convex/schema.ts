@@ -19,6 +19,25 @@ export const reviewFlag = v.union(
   v.literal("date_mismatch"),
   v.literal("total_mismatch"),
 );
+// Mirrors Recipe in lib/recipes.ts, plus a source link.
+export const recipeStep = v.object({
+  phase: v.union(v.literal("prep"), v.literal("cook"), v.literal("serve")),
+  text: v.string(),
+  timedMinutes: v.optional(v.number()),
+  whisk: v.optional(v.boolean()),
+});
+export const recipe = v.object({
+  id: v.string(),
+  name: v.string(),
+  ingredients: v.array(v.string()),
+  minutes: v.number(),
+  dish: v.union(v.literal("pot"), v.literal("pan"), v.literal("bowl")),
+  cookTool: v.union(v.literal("pot"), v.literal("pan")),
+  heat: v.string(),
+  servings: v.number(),
+  steps: v.array(recipeStep),
+  sourceUrl: v.optional(v.string()), // absent for the static fallback recipes
+});
 export const itemStatus = v.union(
   v.literal("draft"),
   v.literal("active"),
@@ -52,7 +71,10 @@ export default defineSchema({
     digestHour: v.number(), // local hour for the daily reminder, default 9
     wastedFraction: v.optional(v.number()), // share of a tossed item counted as wasted; DEFAULT_WASTED_FRACTION when absent
     alwaysAskSpoiled: v.optional(v.boolean()), // show the "looks spoiled?" card even when there are no days left to extend
-  }).index("by_user", ["userId"]),
+    inviteCode: v.optional(v.string()), // 6 characters, set the first time the user opens the friends view
+  })
+    .index("by_user", ["userId"])
+    .index("by_invite_code", ["inviteCode"]),
 
   foods: defineTable(foodFields).index("by_name", ["name"]),
 
@@ -109,6 +131,14 @@ export default defineSchema({
     checkedBy: v.optional(v.union(v.literal("user"), v.literal("receipt"))),
   }).index("by_user", ["userId"]),
 
+  // Shape from docs/exec-plans/p2-01-schema.md. One row per direction, so "my friends" is one index read.
+  friendships: defineTable({
+    userId: v.id("users"),
+    friendId: v.id("users"),
+  })
+    .index("by_user", ["userId"])
+    .index("by_pair", ["userId", "friendId"]),
+
   foodFamiliarity: defineTable({
     userId: v.id("users"),
     foodId: v.id("foods"),
@@ -134,5 +164,14 @@ export default defineSchema({
     itemIds: v.array(v.id("items")),
     undatedCount: v.optional(v.number()), // set when the digest nudged about undated items, for the weekly limit
     readAt: v.optional(v.number()),
+  }).index("by_user_date", ["userId", "dateKey"]),
+
+  recipeSuggestions: defineTable({
+    userId: v.id("users"),
+    dateKey: v.string(), // local date, like notifications.dateKey
+    ingredients: v.array(v.string()), // the use-soon names the search used
+    status: v.union(v.literal("pending"), v.literal("ready"), v.literal("failed")),
+    recipes: v.array(recipe),
+    error: v.optional(v.string()),
   }).index("by_user_date", ["userId", "dateKey"]),
 });

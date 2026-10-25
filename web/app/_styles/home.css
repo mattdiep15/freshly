@@ -160,9 +160,43 @@
   width: 160px;
 }
 
-.setting-row input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
+.setting-row .pill-toggle {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  appearance: none;
+  background: var(--paper);
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.setting-row .pill-toggle::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ink);
+  content: "";
+  transition: transform 150ms ease;
+}
+
+.setting-row .pill-toggle:checked {
+  border-color: var(--good);
+  background: var(--good);
+}
+
+.setting-row .pill-toggle:checked::before {
+  background: var(--paper);
+  transform: translateX(20px);
+}
+
+.setting-row .pill-toggle:focus-visible {
+  outline: 2px solid var(--good);
+  outline-offset: 3px;
 }
 
 @media (max-width: 620px) {

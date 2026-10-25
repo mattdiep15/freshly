@@ -258,3 +258,20 @@
     height: 150px;
   }
 }
+
+/* Columns for $ wasted and % used; % used moved out of the third stat circle when the streak took it. */
+.week-list .thin-row {
+  grid-template-columns: 1fr 150px 130px 130px 110px;
+}
+
+.week-list .thin-row > :nth-child(4),
+.week-list .thin-row > :nth-child(5) {
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .week-list .thin-row {
+    grid-template-columns: minmax(0, 1fr) 54px 40px 50px 38px;
+    column-gap: 6px;
+  }
+}
