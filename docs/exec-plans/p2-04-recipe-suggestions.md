@@ -99,6 +99,7 @@ This plan owns `convex/recipes.ts`, `convex/recipesWeb.ts`, `convex/model/apify.
 - 2026-10-24: Preload from the two places items become active instead of a cron, so a search runs only when the fridge changes. No on/off setting yet; the 3-a-day cap bounds cost.
 - 2026-10-24: A preload skips while today's newest search is `pending`, so a burst of manual adds does not use up the 3 daily runs in a minute.
 - 2026-10-24: `recipes.today` reads `Date.now()` for the local date, like `items.list`. Convex's guidelines advise passing time in instead; the page also calls `request` on mount, which writes and so refreshes the query.
+- 2026-10-24: `profiles.hideWebRecipes` turns web recipes off. `recipes.today` returns null and `requestSuggestion` skips the search, so off also stops the Apify and model calls; the page shows the fixed list.
 
 ## Surprises
 

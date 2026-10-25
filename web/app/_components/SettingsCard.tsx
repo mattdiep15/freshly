@@ -70,6 +70,19 @@ export function SettingsCard() {
           onChange={(event) => update({ hideDollarsFromFriends: !event.target.checked }).catch(ignoreFailure)}
         />
       </label>
+      <label className="setting-row">
+        <span>
+          <strong>show recipes from the web</strong>
+          <small>searches recipe sites for your use-soon food and cites each page. off shows only built-in recipes.</small>
+        </span>
+        <input
+          type="checkbox"
+          role="switch"
+          className="pill-toggle"
+          checked={!settings.hideWebRecipes}
+          onChange={(event) => update({ hideWebRecipes: !event.target.checked }).catch(ignoreFailure)}
+        />
+      </label>
     </section>
   );
 }

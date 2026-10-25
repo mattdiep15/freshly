@@ -25,6 +25,7 @@ export async function settingsFor(ctx: QueryCtx, userId: Id<"users">) {
     wastedFraction: profile?.wastedFraction ?? DEFAULT_WASTED_FRACTION,
     alwaysAskSpoiled: profile?.alwaysAskSpoiled ?? false,
     hideDollarsFromFriends: profile?.hideDollarsFromFriends ?? false,
+    hideWebRecipes: profile?.hideWebRecipes ?? false,
   };
 }
 
@@ -38,8 +39,9 @@ export const updateSettings = mutation({
     wastedFraction: v.optional(v.number()),
     alwaysAskSpoiled: v.optional(v.boolean()),
     hideDollarsFromFriends: v.optional(v.boolean()),
+    hideWebRecipes: v.optional(v.boolean()),
   },
-  handler: async (ctx, { wastedFraction, alwaysAskSpoiled, hideDollarsFromFriends }) => {
+  handler: async (ctx, { wastedFraction, alwaysAskSpoiled, hideDollarsFromFriends, hideWebRecipes }) => {
     const userId = await getUserId(ctx);
     if (wastedFraction !== undefined && !(wastedFraction >= 0 && wastedFraction <= 1)) {
       throw new Error("wastedFraction must be between 0 and 1");
@@ -50,6 +52,8 @@ export const updateSettings = mutation({
       ...(wastedFraction !== undefined && { wastedFraction }),
       ...(alwaysAskSpoiled !== undefined && { alwaysAskSpoiled }),
       ...(hideDollarsFromFriends !== undefined && { hideDollarsFromFriends }),
+      // Off is stored as absent, matching the schema default.
+      ...(hideWebRecipes !== undefined && { hideWebRecipes: hideWebRecipes || undefined }),
     });
     return await settingsFor(ctx, userId);
   },

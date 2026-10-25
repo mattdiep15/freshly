@@ -73,6 +73,7 @@ export default defineSchema({
     alwaysAskSpoiled: v.optional(v.boolean()), // show the "looks spoiled?" card even when there are no days left to extend
     inviteCode: v.optional(v.string()), // 6 characters, set the first time the user opens the friends view
     hideDollarsFromFriends: v.optional(v.boolean()), // absent shares weekly $ wasted on the leaderboard
+    hideWebRecipes: v.optional(v.boolean()), // absent shows grounded web recipes and runs the daily search
   })
     .index("by_user", ["userId"])
     .index("by_invite_code", ["inviteCode"]),
