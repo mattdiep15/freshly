@@ -23,6 +23,8 @@ const ignoreFailure = () => {};
 
 // Width of the red delete button a left swipe uncovers on touch screens.
 const SWIPE_REVEAL = 88;
+// Matches the .grocery-swipe transition, so the row is gone before it moves lists.
+const FADE_MS = 250;
 
 function GroceryRow({
   row,
@@ -32,10 +34,12 @@ function GroceryRow({
 }: {
   row: Row;
   hints: HintContext;
-  onToggle: () => void;
+  onToggle: () => Promise<unknown>;
   onRemove: () => void;
 }) {
   const checked = row.checkedAt !== undefined;
+  const [leaving, setLeaving] = useState(false);
+  const swipeRef = useRef<HTMLDivElement>(null);
   const hint = checked ? null : groceryHint(row.name, hints, row.recipeName);
   const { base, detail } = splitFoodName(row.name);
   const [offset, setOffset] = useState(0);
@@ -68,8 +72,31 @@ function GroceryRow({
     setOffset((current) => (current < -SWIPE_REVEAL / 2 ? -SWIPE_REVEAL : 0));
   };
 
+  // Fades and collapses the row first, so it does not vanish the moment it changes lists.
+  const toggle = () => {
+    const el = swipeRef.current;
+    if (leaving || !el) return;
+    setLeaving(true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      onToggle().catch(() => setLeaving(false));
+      return;
+    }
+    el.style.height = `${el.offsetHeight}px`;
+    el.getBoundingClientRect();
+    el.style.height = "0px";
+    el.style.opacity = "0";
+    window.setTimeout(() => {
+      // A failed toggle leaves the row in its list, so it comes back.
+      onToggle().catch(() => {
+        el.style.height = "";
+        el.style.opacity = "";
+        setLeaving(false);
+      });
+    }, FADE_MS);
+  };
+
   return (
-    <div className={`grocery-swipe ${offset === 0 ? "" : "is-open"}`}>
+    <div className={`grocery-swipe ${offset === 0 ? "" : "is-open"}`} ref={swipeRef}>
       <button
         type="button"
         className="grocery-swipe-delete"
@@ -99,9 +126,9 @@ function GroceryRow({
           className="grocery-check"
           aria-label={`${checked ? "Restore" : "Complete"} ${row.name}`}
           aria-pressed={checked}
-          onClick={onToggle}
+          onClick={toggle}
         >
-          <span>{checked ? "✓" : ""}</span>
+          <span>{checked !== leaving ? "✓" : ""}</span>
         </button>
         <FoodArt name={row.name} className="grocery-icon" />
         <span className="grocery-copy">
@@ -229,7 +256,7 @@ export default function GroceryPage() {
     fridge: active.map((item) => ({ name: item.name, quantity: item.quantity })),
     soonNames: active.filter((item) => freshness(item.expiresAt, now) === "soon").map((item) => item.name),
   };
-  const toggle = (row: Row) => () => toggleEntry({ entryId: row._id }).catch(ignoreFailure);
+  const toggle = (row: Row) => () => toggleEntry({ entryId: row._id });
   const remove = (row: Row) => () => removeEntry({ entryId: row._id }).catch(ignoreFailure);
   // Newest first, as the design adds to the top; checked ones by most recent check.
   const todo = rows.filter((row) => row.checkedAt === undefined).sort((a, b) => b._creationTime - a._creationTime);

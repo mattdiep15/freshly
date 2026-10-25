@@ -384,7 +384,14 @@ export function ScanFlow({ receiptId, onReceipt, onDone, onManualAdded }: {
   return (
     <main className="add-screen">
       {manual ? (
-        <ManualEntryCard onCancel={() => setManual(false)} onAdded={onManualAdded} />
+        <ManualEntryCard
+          onCancel={() => setManual(false)}
+          onAdded={(itemIds) => {
+            // cacheComponents keeps this page's state, so the next visit to /scan would reopen the form.
+            setManual(false);
+            onManualAdded(itemIds);
+          }}
+        />
       ) : receiptId ? (
         <ReceiptReview receiptId={receiptId} onRetake={retake} onDone={onDone} />
       ) : uploading ? (

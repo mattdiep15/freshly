@@ -7,9 +7,9 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { ItemView } from "@/convex/items";
 import { EXTENSION_DAYS } from "@/lib/extension";
+import { splitFoodName } from "@/lib/foodName";
 import { freshness, pickUseSoon, sortByUrgency, statusTiming } from "@/lib/freshness";
-import { fullnessStage } from "@/lib/fullness";
-import { demoFullness } from "@/app/_demo/fixtures";
+import { fullnessStage, stashGroups } from "@/lib/fullness";
 import { EmptyState } from "@/app/_components/EmptyState";
 import { FoodList } from "@/app/_components/FoodList";
 import { FullnessPreview, fullnessLabels } from "@/app/_components/FullnessPreview";
@@ -99,6 +99,7 @@ function Fridge() {
     );
   const items = sortByUrgency(visible, now);
   const stage = fullnessStage(active.length);
+  const stash = stashGroups(active);
 
   // Saves straight away so a reload or closed tab can't drop the decision; undo reverts it.
   const decide = (item: FridgeRow, result: SwipeResult) => {
@@ -127,7 +128,7 @@ function Fridge() {
   return (
     <main className="fridge-screen">
       <section className="page-heading">
-        <FullnessPreview stage={stage} stocked={demoFullness.stocked} empty={demoFullness.empty} />
+        <FullnessPreview stage={stage} stocked={stash.stocked} empty={stash.empty} />
         <div className="fridge-title">
           <div className="fridge-title-copy">
             <p className="eyebrow">sorted by urgency</p>
@@ -186,7 +187,7 @@ function Fridge() {
 
 function addedLabel(ids: readonly string[], rows: readonly ItemView[]): string {
   const item = ids.length === 1 ? rows.find((row) => row._id === ids[0]) : undefined;
-  return item ? `added ${item.name}` : `added ${ids.length} ${ids.length === 1 ? "item" : "items"}`;
+  return item ? `added ${splitFoodName(item.name).base}` :`added ${ids.length} ${ids.length === 1 ? "item" : "items"}`;
 }
 
 export default function FridgePage() {

@@ -608,3 +608,235 @@
     white-space: nowrap;
   }
 }
+
+/* Bug pass, Oct 2026: fridge rows, filter bar, community fit, and small fades. */
+
+/* Past the sourced range the extend answer stays on card 2, greyed out. */
+.swipe-card .swipe-actions button.used-choice:disabled {
+  border-color: rgb(0 0 0 / 20%);
+  background: rgb(0 0 0 / 6%);
+  color: rgb(0 0 0 / 35%);
+  cursor: not-allowed;
+}
+
+/* Desktop repeats the timing under the drawing, so card 2's header keeps just the tag there. */
+@media (min-width: 768px) {
+  .spoil-food-column .swipe-status-meta .status-timing {
+    display: none;
+  }
+}
+
+/* GroceryRow sets the height and opacity inline; this animates them before the row changes lists. */
+.grocery-swipe {
+  transition:
+    height 250ms ease,
+    opacity 200ms ease;
+}
+
+/* FoodKeeper names list variants after a comma; they trail the food name, smaller, like the grocery list. */
+.fridge-screen .card-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-title-detail {
+  margin-left: 8px;
+  opacity: 0.6;
+  font-size: 0.6em;
+}
+
+.manual-name-detail {
+  display: block;
+  overflow: hidden;
+  margin-top: 6px;
+  opacity: 0.6;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  /* The actions column takes the width its location picker needs, so it never runs off the card. */
+  .fridge-screen .card-details {
+    grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr) minmax(180px, max-content);
+    gap: 24px;
+  }
+
+  .fridge-screen .illustration-slot {
+    height: 200px;
+  }
+
+  .fridge-screen .expanded-food-icon {
+    width: 170px;
+    height: 170px;
+  }
+}
+
+/* Between tablet and wide desktop the two hints stack in one column instead of squeezing side by side. */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .fridge-screen .card-details {
+    grid-template-columns: 150px minmax(0, 1fr) minmax(180px, max-content);
+  }
+
+  .fridge-screen .food-card.is-expanded .card-details {
+    max-height: 520px;
+  }
+
+  .fridge-screen .illustration-slot {
+    height: 150px;
+    padding: 0;
+  }
+
+  .fridge-screen .expanded-food-icon {
+    width: 130px;
+    height: 130px;
+  }
+
+  .fridge-screen .detail-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* The row above already shows the food's drawing, so the open card gives the hints the full width. */
+  .fridge-screen .illustration-slot {
+    display: none;
+  }
+
+  .fridge-screen .card-actions {
+    width: 100%;
+    gap: 12px;
+    margin-top: 16px;
+    border-top: 1px solid rgb(0 0 0 / 15%);
+    padding-top: 16px;
+  }
+
+  .fridge-screen .food-card--expired .card-actions {
+    border-top-color: rgb(255 255 255 / 30%);
+  }
+
+  /* Where it lives, then the package date, then the main action last. */
+  .fridge-screen .card-location {
+    order: 1;
+    justify-content: space-between;
+  }
+
+  .fridge-screen .date-form {
+    order: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 12px;
+  }
+
+  .fridge-screen .date-form .outline-button {
+    height: 40px;
+  }
+
+  .fridge-screen .food-card.is-expanded .card-actions .used-button {
+    order: 3;
+    grid-row: auto;
+    margin-top: 0;
+  }
+
+  /* The bar keeps its spot in the page while it shrinks, so the list under it does not jump. */
+  .fridge-filter-tabs:not(.is-compact) {
+    height: 77px;
+  }
+
+  .fridge-filter-tabs,
+  .fridge-filter-tabs button {
+    transition:
+      height 200ms ease,
+      padding 200ms ease,
+      margin-bottom 200ms ease;
+  }
+
+  .fridge-filter-tabs.is-compact {
+    margin-bottom: 32px;
+  }
+
+  /* Keeps the heading's top margin from collapsing into that 32px. */
+  .fridge-count-header + .location-section {
+    display: flow-root;
+  }
+
+  /* Two names for one fade, so the labels fade in again each time the layout switches. */
+  .fridge-filter-tabs:not(.is-compact) button > * {
+    animation: filter-labels-in 200ms ease;
+  }
+
+  .fridge-filter-tabs.is-compact button > * {
+    animation: filter-labels-in-compact 200ms ease;
+  }
+
+  /* Community: the shell already has a 16px gutter, so the stats fit without sideways scrolling. */
+  .community-page {
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  /* Its -4px side margins would now poke past the page and clip the heading. */
+  #community-friends {
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .friends-list .thin-row.is-you {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .numbers-hero .stats-screen {
+    width: 100%;
+    gap: 8px;
+    justify-content: space-between;
+    overflow: visible;
+  }
+
+  .week-list {
+    overflow: visible;
+  }
+
+  .week-list .thin-row {
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr) 88px 72px;
+    column-gap: 12px;
+  }
+}
+
+@keyframes filter-labels-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes filter-labels-in-compact {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grocery-swipe,
+  .fridge-filter-tabs,
+  .fridge-filter-tabs button {
+    transition: none;
+  }
+
+  .fridge-filter-tabs button > * {
+    animation: none;
+  }
+}

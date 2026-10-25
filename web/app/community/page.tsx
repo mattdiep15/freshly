@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import { api } from "@/convex/_generated/api";
@@ -11,7 +11,7 @@ import { setCommunityView, useCommunityView, type CommunityView } from "@/app/_c
 import { PeriodTable, StatCircles, StatsMascot } from "@/app/_components/WasteStats";
 import { Leekly } from "@/app/_components/ui/Leekly";
 
-const VIEW_LABELS: Record<CommunityView, string> = { numbers: "my numbers", friends: "friends" };
+const VIEW_LABELS: Record<CommunityView, string> = { numbers: "my numbers", friends: "my friends" };
 
 const ZERO_WASTE_RATE = 0.9;
 
@@ -48,6 +48,7 @@ function NumbersView() {
 
 function FriendsView({ invite, onInviteDone }: { invite: string | null; onInviteDone: () => void }) {
   const leaderboard = useQuery(api.friends.leaderboard);
+  const removeFriend = useMutation(api.friends.remove);
   const [adding, setAdding] = useState(false);
   return (
     <div className="friends-page">
@@ -65,7 +66,17 @@ function FriendsView({ invite, onInviteDone }: { invite: string | null; onInvite
       {invite && <InviteConfirm code={invite} onDone={onInviteDone} />}
       {adding && <AddFriendPanel />}
       <div className="friends-stage">
-        {leaderboard && <Leaderboard entries={leaderboard.map((row) => (row.isYou ? { ...row, name: "you" } : row))} />}
+        {leaderboard && (
+          <Leaderboard
+            entries={leaderboard.map((row) => (row.isYou ? { ...row, name: "you" } : row))}
+            onRemove={(friend) => {
+              // A friend removed elsewhere throws "Not friends"; the live query drops the row either way.
+              if (window.confirm(`remove ${friend.name} from your friends?`)) {
+                removeFriend({ friendId: friend.userId }).catch(() => {});
+              }
+            }}
+          />
+        )}
       </div>
     </div>
   );

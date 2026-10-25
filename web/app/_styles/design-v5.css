@@ -1069,6 +1069,11 @@
   color: #fff;
 }
 
+/* Card 2 sits on white, unlike card 1's black food panel. */
+.spoil-food-column .swipe-status-meta {
+  color: var(--ink);
+}
+
 @media (max-width: 767px) {
   .status-tag {
     width: 88px;
@@ -2833,8 +2838,8 @@
 }
 
 .recipe-time .recipe-drawing {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
 }
 
 .recipe-expiring-tag {
@@ -3198,8 +3203,8 @@
   }
 
   .recipe-time .recipe-drawing {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
   }
 
   .recipe-expiring-tag {
@@ -3401,8 +3406,8 @@
   }
 
   .mobile-recipe-line .recipe-drawing {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
     flex: 0 0 18px;
   }
 

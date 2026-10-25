@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
+import { splitFoodName } from "@/lib/foodName";
 import { daysLeftLabel, numberWord } from "@/lib/freshness";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { Leekly } from "@/app/_components/ui/Leekly";
@@ -64,7 +65,7 @@ function UseSoonList({
             <span className="task-number">0{index + 1}</span>
             <FoodArt name={item.name} className="task-icon" />
             <span className="task-copy">
-              <strong>use up {item.name}</strong>
+              <strong>use up {splitFoodName(item.name).base}</strong>
               <small>{note}</small>
             </span>
           </label>

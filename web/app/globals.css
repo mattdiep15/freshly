@@ -154,7 +154,6 @@ h1 {
   border-bottom: 1px solid var(--ink);
   padding: 0 16px;
   background: var(--paper);
-  cursor: pointer;
   font-size: 16px;
   letter-spacing: 0.12em;
   text-align: left;
@@ -376,7 +375,7 @@ h1 {
 .source-note {
   display: block;
   margin-top: 6px;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.18em;
   opacity: 0.6;

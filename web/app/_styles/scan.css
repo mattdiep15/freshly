@@ -648,14 +648,6 @@
     text-align: center;
   }
 
-  .scan-step .camera-choice-copy::before {
-    width: 18px;
-    height: 18px;
-    display: block;
-    flex: 0 0 18px;
-    content: '';
-  }
-
   .scan-step .file-choice-copy .upload-file-icon {
     width: 18px;
     height: 18px;
