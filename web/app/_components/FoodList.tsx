@@ -34,6 +34,7 @@ export function FoodList({
   checkInIds,
   highlightedIds,
   onMarkUsed,
+  onToss,
   onReviewExpired,
   onSetDate,
   onMove,
@@ -44,6 +45,7 @@ export function FoodList({
   checkInIds: readonly string[];
   highlightedIds: readonly string[];
   onMarkUsed: (item: ItemView) => void;
+  onToss: (item: ItemView) => void;
   onReviewExpired: (item: ItemView) => void;
   onSetDate: (item: ItemView, expiresAt: number) => void;
   onMove: (item: ItemView, location: Location) => void;
@@ -165,6 +167,7 @@ export function FoodList({
                       if (hoverOpens()) setExpanded((id) => (id === item._id ? null : id));
                     }}
                     onMarkUsed={() => onMarkUsed(item)}
+                    onToss={() => onToss(item)}
                     onReviewExpired={() => onReviewExpired(item)}
                     onSetDate={(expiresAt) => onSetDate(item, expiresAt)}
                     onMove={(location) => onMove(item, location)}

@@ -145,6 +145,7 @@ function Fridge() {
         checkInIds={checkInIds}
         highlightedIds={highlightedIds}
         onMarkUsed={(item) => decide(item, "used")}
+        onToss={(item) => decide(item, "wasted")}
         onReviewExpired={setReviewing}
         onSetDate={(item, expiresAt) => update({ itemId: item._id, expiresAt }).catch(ignoreStale)}
         onMove={(item, location) => update({ itemId: item._id, location }).catch(ignoreStale)}

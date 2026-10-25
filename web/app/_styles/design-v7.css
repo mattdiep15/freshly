@@ -953,3 +953,109 @@
     transition: none;
   }
 }
+
+/* Fridge row swipe (touch only): left marks used, right tosses. */
+.card-swipe {
+  position: relative;
+}
+
+.card-swipe .card-summary {
+  touch-action: pan-y;
+  transition: transform 180ms ease;
+}
+
+/* Grows from the side the row slides away from; FoodCard sets its width to the drag distance. */
+.card-swipe-reveal {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: var(--paper);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.card-swipe-reveal > span {
+  padding: 0 20px;
+}
+
+.card-swipe-reveal.is-used {
+  right: 0;
+  justify-content: flex-end;
+  background: var(--good);
+}
+
+.card-swipe-reveal.is-toss {
+  left: 0;
+  justify-content: flex-start;
+  background: #c62828;
+}
+
+.swipe-row-hint {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  /* The row swipe replaces "mark as used" on phones; expired items keep "review expired item". */
+  .fridge-screen .food-card.is-expanded .card-actions .used-button.used-button--mark {
+    display: none;
+  }
+
+  .fridge-screen .swipe-row-hint {
+    display: block;
+    order: 4;
+    margin: 0;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    opacity: 0.6;
+    text-align: center;
+  }
+
+  /* Undo sits on the nav's top edge, text left and undo right of the camera button, instead of floating over the list. */
+  .decision-toast,
+  .added-item-toast,
+  .extension-toast {
+    z-index: 19;
+    right: 0;
+    bottom: var(--nav-h);
+    left: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 0;
+    border-top: 1px solid var(--ink);
+    padding: 0 16px;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 14px;
+    text-align: left;
+    transform: none;
+  }
+
+  /* Recipe names stop at two lines and stay clear of the + column. */
+  .recipe-copy {
+    min-width: 0;
+    overflow: hidden;
+    padding-right: 8px;
+  }
+
+  .recipe-copy strong {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-swipe .card-summary {
+    transition: none;
+  }
+}
