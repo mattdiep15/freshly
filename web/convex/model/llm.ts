@@ -124,7 +124,7 @@ Only use figures the pages state. Never estimate or fill in a figure yourself. R
 Also return, from a page about this food:
 - storageTip: how to store it to keep it fresh.
 - freshnessHint: how to tell it has gone bad (look, smell, texture).
-For each, text is one short sentence that says only what the quote says, and never how many days, weeks, months, or years the food lasts. url is the page's URL exactly as given, and quote is the passage the text comes from, copied word for word. Use null when the pages do not say.`;
+For each, text is one short sentence that says only what the quote says, calls the food "it" instead of naming it, and never says how many days, weeks, months, or years the food lasts. url is the page's URL exactly as given, and quote is the passage the text comes from, copied word for word. Use null when the pages do not say.`;
 }
 
 // Mirrors WebRecipe in lib/recipeWeb.ts; the id is assigned after grounding.
