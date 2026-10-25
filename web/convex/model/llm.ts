@@ -74,7 +74,15 @@ export const HEADER_SYSTEM_PROMPT = `You check grocery receipts for Freshly, an 
 - totalCents: the final total paid, in cents, or null.
 Never copy member numbers, card digits, cashier names, or other personal details.`;
 
-// Mirrors WebEntry in lib/webShelfLife.ts.
+// Mirrors WebTip in lib/webShelfLife.ts.
+const WEB_TIP_SCHEMA = {
+  type: "object",
+  properties: { text: { type: "string" }, url: { type: "string" }, quote: { type: "string" } },
+  required: ["text", "url", "quote"],
+  additionalProperties: false,
+};
+
+// Mirrors WebEntry and WebTips in lib/webShelfLife.ts.
 export const WEB_SHELF_LIFE_SCHEMA = {
   type: "object",
   properties: {
@@ -94,8 +102,10 @@ export const WEB_SHELF_LIFE_SCHEMA = {
         additionalProperties: false,
       },
     },
+    storageTip: nullable(WEB_TIP_SCHEMA),
+    freshnessHint: nullable(WEB_TIP_SCHEMA),
   },
-  required: ["entries"],
+  required: ["entries", "storageTip", "freshnessHint"],
   additionalProperties: false,
 };
 
@@ -109,7 +119,12 @@ For every shelf-life figure a page states for this food, return one entry. Skip 
 - url: the page's URL exactly as given.
 - quote: the passage the figure comes from, copied word for word from the page and long enough to show the food and the figure. On a table-style page, copy the heading, the storage location, and the figure in the order they appear, leaving out image and link markup.
 
-Only use figures the pages state. Never estimate or fill in a figure yourself. Return no entries when the pages give none for this food.`;
+Only use figures the pages state. Never estimate or fill in a figure yourself. Return no entries when the pages give none for this food.
+
+Also return, from a page about this food:
+- storageTip: how to store it to keep it fresh.
+- freshnessHint: how to tell it has gone bad (look, smell, texture).
+For each, text is one short sentence that says only what the quote says, calls the food "it" instead of naming it, and never says how many days, weeks, months, or years the food lasts. url is the page's URL exactly as given, and quote is the passage the text comes from, copied word for word. Use null when the pages do not say.`;
 }
 
 // Mirrors WebRecipe in lib/recipeWeb.ts; the id is assigned after grounding.

@@ -211,8 +211,11 @@ async function main() {
   if (prod && (await confirm("Load reference foods (foods:importReference)?", true))) {
     runStep(["run", "foods:importReference", ...targetFlags]);
   }
-  if (await confirm("Fill missing storage tips (foods:backfillTips)? It makes paid model calls.", false)) {
+  if (await confirm("Fill missing storage tips, freshness hints, and printed-date flags (foods:backfillTips)? It makes paid model calls.", false)) {
     runStep(["run", "foods:backfillTips", ...targetFlags]);
+  }
+  if (await confirm("Look up StillTasty tips, hints, and packaged-food ranges (shelfLifeWeb:lookupNext)? It makes paid Apify and model calls and runs for hours.", false)) {
+    runStep(["run", "shelfLifeWeb:lookupNext", ...targetFlags]);
   }
 
   console.log(prod ? "\nDone. Vercel needs NEXT_PUBLIC_CONVEX_URL for this deployment." : "\nDone. Start the app with npm run dev.");

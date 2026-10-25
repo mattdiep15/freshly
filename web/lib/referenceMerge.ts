@@ -1,9 +1,9 @@
 export type ShelfLifeSource = "fda_chart" | "foodkeeper" | "web";
-export type TipSource = "fda_chart" | "foodkeeper" | "llm";
+export type TipSource = "fda_chart" | "foodkeeper" | "web" | "llm";
 export type Location = "fridge" | "freezer" | "pantry";
 
 export type ShelfLife = { min: number; max: number; source: ShelfLifeSource; ref: string };
-export type SourcedText<S extends TipSource = TipSource> = { text: string; source: S };
+export type SourcedText<S extends TipSource = TipSource> = { text: string; source: S; ref?: string };
 
 export type ReferenceFood = {
   name: string;
@@ -14,7 +14,7 @@ export type ReferenceFood = {
   freezerDays?: ShelfLife;
   pantryDays?: ShelfLife;
   storageTip?: SourcedText;
-  freshnessHint?: SourcedText<"foodkeeper" | "llm">;
+  freshnessHint?: SourcedText<"foodkeeper" | "web" | "llm">;
   defaultWeightGrams?: number;
 };
 
