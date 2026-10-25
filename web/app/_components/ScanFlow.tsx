@@ -3,10 +3,10 @@
 import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { ItemView } from "@/convex/items";
 import type { Location } from "@/lib/referenceMerge";
-import { dateInputValue, endOfLocalDay } from "@/lib/freshness";
+import { dateInputValue, endOfLocalDay, localNoon } from "@/lib/freshness";
 import { CAMERA_FILE_EVENT } from "@/app/_components/cameraFile";
 import { errorMessage } from "@/app/_components/errorMessage";
 import { shrinkImage } from "@/app/_components/shrinkImage";
@@ -143,6 +143,88 @@ function DraftRow({ draft, removed, onSave, onToggleRemove }: {
   );
 }
 
+const dayLabel = (t: number) =>
+  new Date(t).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }).toLowerCase();
+const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+const either = (a: string | null, b: string | null) => `${a ?? "nothing"} or ${b ?? "nothing"}`;
+
+// Header fields the readers flagged; picking a date re-dates the drafts and clears both date flags.
+function ReviewFlags({ receipt }: { receipt: Doc<"receipts"> }) {
+  const setPurchasedAt = useMutation(api.receipts.setPurchasedAt);
+  const dismissFlag = useMutation(api.receipts.dismissFlag);
+  const [error, setError] = useState<string | null>(null);
+  const flags = receipt.reviewFlags ?? [];
+  if (flags.length === 0) return null;
+  const check = receipt.verification;
+  const askDate = flags.includes("implausible_date") || flags.includes("date_mismatch");
+  const dismiss = (flag: "store_mismatch" | "total_mismatch") =>
+    dismissFlag({ receiptId: receipt._id, flag }).catch((e) => setError(errorMessage(e)));
+
+  return (
+    <div className="review-flags">
+      {flags.includes("implausible_date") && <p>the date on the receipt looks wrong, so these are dated from today.</p>}
+      {flags.includes("date_mismatch") && (
+        <p>
+          two readings disagree on the date:{" "}
+          {either(
+            receipt.purchasedAt === undefined ? null : dayLabel(receipt.purchasedAt),
+            check?.purchasedAt ? dayLabel(localNoon(check.purchasedAt)) : null,
+          )}
+          .
+        </p>
+      )}
+      {askDate && (
+        <form
+          className="review-flag-date"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const date = new FormData(event.currentTarget).get("date");
+            if (typeof date !== "string" || !date) return;
+            setError(null);
+            setPurchasedAt({ receiptId: receipt._id, date }).catch((e) => setError(errorMessage(e)));
+          }}
+        >
+          <label>
+            <span>when did you buy these?</span>
+            <input
+              type="date"
+              name="date"
+              required
+              aria-label="purchase date"
+              defaultValue={receipt.purchasedAt === undefined ? "" : dateInputValue(receipt.purchasedAt)}
+            />
+          </label>
+          <button className="outline-button">set date</button>
+        </form>
+      )}
+      {flags.includes("store_mismatch") && (
+        <div className="review-flag-line">
+          <p>two readings disagree on the store: {either(receipt.storeName ?? null, check?.storeName ?? null)}.</p>
+          <button className="outline-button" onClick={() => dismiss("store_mismatch")}>
+            dismiss
+          </button>
+        </div>
+      )}
+      {flags.includes("total_mismatch") && (
+        <div className="review-flag-line">
+          <p>
+            two readings disagree on the total:{" "}
+            {either(
+              receipt.totalCents === undefined ? null : dollars(receipt.totalCents),
+              check?.totalCents === undefined ? null : dollars(check.totalCents),
+            )}
+            .
+          </p>
+          <button className="outline-button" onClick={() => dismiss("total_mismatch")}>
+            dismiss
+          </button>
+        </div>
+      )}
+      {error && <p className="scan-error">{error}</p>}
+    </div>
+  );
+}
+
 function ReceiptReview({ receiptId, onRetake, onDone }: {
   receiptId: Id<"receipts">;
   onRetake: () => void;
@@ -192,6 +274,7 @@ function ReceiptReview({ receiptId, onRetake, onDone }: {
     <section className="step-panel review-step">
       <p className="eyebrow">looks like you bought{receipt.storeName ? ` at ${receipt.storeName.toLowerCase()}` : ""}</p>
       <h1>check the list.</h1>
+      <ReviewFlags receipt={receipt} />
       <div className="draft-list">
         {receipt.drafts.map((draft) => (
           <DraftRow

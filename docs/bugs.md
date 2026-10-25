@@ -2,13 +2,6 @@
 
 Open bugs that are known and not yet fixed. Add the date found, where it lives, how to reproduce it, and a proposed fix. Delete the entry in the commit that fixes it.
 
-## Receipt review flags are saved but never shown
-
-- Found: 2026-10-24, while tracing flows for the system map.
-- Where: `convex/receipts.ts` writes `reviewFlags` in `saveResult` (`implausible_date`) and `saveVerification` (Gemini's `store_mismatch`, `date_mismatch`, `total_mismatch`). `app/_components/ScanFlow.tsx` reads the receipt but never renders the flags.
-- Reproduce: scan a receipt whose printed date is more than 60 days old. The drafts are dated from the upload time and the receipt gets `implausible_date`, but the review screen looks the same as for a clean receipt. With `GEMINI_API_KEY` set, a receipt where Gemini reads a different date or total gets a mismatch flag, which is also invisible. The Gemini check currently changes nothing a user can see.
-- Proposed fix: on the review screen, show one line per flag above the drafts. For `implausible_date` and `date_mismatch`, add a date picker that calls `receipts.setPurchasedAt`. It is already a public mutation, and it re-dates the drafts and clears both date flags. For `store_mismatch` and `total_mismatch`, show both readings and a dismiss button.
-
 ## Items already in the fridge can't move to the freezer
 
 - Found: 2026-10-24.
