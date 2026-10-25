@@ -125,7 +125,10 @@ export const lookupNext = internalAction({
     if (!next) return;
     try {
       // StillTasty has a page per packaged food; an OR of every allowed site returned fewer usable pages.
-      const pages = await searchPages(`${next.name.slice(0, 80)} site:stilltasty.com`, token, allowedSite);
+      const query = `${next.name.slice(0, 80)} site:stilltasty.com`;
+      // About half of searches came back empty and then found pages on a second try.
+      let pages = await searchPages(query, token, allowedSite);
+      if (pages.length === 0) pages = await searchPages(query, token, allowedSite);
       const found = pages.length > 0 ? await extract(next.name, pages) : NOTHING;
       const ranges = next.needsRanges ? pickWebRanges(found.entries, pages) : {};
       const result = await ctx.runMutation(internal.shelfLifeWeb.saveRanges, { foodId: next.foodId, ranges });
