@@ -76,7 +76,7 @@ receipts.saveParsed or itemEdits.insertManual
   v
 shelfLifeWeb.lookupNext (action)        returns early when APIFY_TOKEN is unset
   | shelfLifeWeb.claimNext (mutation)   set webLookupAt on the next food so no other chain takes it
-  | searchPages("<food> site:stilltasty.com", allowedSite)
+  | searchPages("<food> site:stilltasty.com", allowedSite), once more if it returns no pages
   | askGemini with WEB_SHELF_LIFE_SCHEMA; askClaude if Gemini throws
   | pickWebRanges, pickWebTips (lib/webShelfLife.ts): keep figures with URL and quote
   v
@@ -89,6 +89,14 @@ chain ends when claimNext finds no food
 ```
 
 Ranges are looked up only for packaged foods (`hasPrintedDate`) with no FDA or FoodKeeper range. After an error, `shelfLifeWeb.release` clears `webLookupAt` and the chain stops, so a later chain retries that food. `npx convex run shelfLifeWeb:lookupNext` backfills existing foods.
+
+Apify's search often comes back empty and then finds pages on a second try: in the 2026-10-24 dev backfill, 93 of the first 178 searches returned nothing, and butter found 5 pages when requeued. So an empty search runs once more before the food is marked searched.
+
+Speed and cost, from that backfill of 674 foods:
+
+- One food took about 90 seconds per chain: 20 to 40 for the Apify run, about 20 for the model, and about 30 lost to Gemini retries on a spent free-tier quota. `askGemini` now skips the retry when the 429 names a daily quota (`PerDay` in its `quotaId`) and falls straight back to Claude.
+- Each `lookupNext` call starts one chain. Apify's free plan allows 5 Actor runs at once, so 5 chains is the most, and a sixth run (a chain or a recipe search) fails with 402 `concurrent-runs-limit-exceeded`. A chain that hits it releases its food and stops.
+- Apify lists `rag-web-browser` at $1.33 per 1,000 fetched pages, so about $0.007 per search of 5 pages and about $4.50 for one pass over 674 foods, plus retries. Each food also costs one model call, which is Claude whenever Gemini's quota is spent.
 
 ## foods:backfillTips
 
