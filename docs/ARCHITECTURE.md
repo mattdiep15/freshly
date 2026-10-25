@@ -1,6 +1,6 @@
 # Architecture
 
-How Freshly's services connect and which functions each workflow runs through. Paths are relative to `web/`.
+How Freshly's services connect and which functions each workflow runs through. Paths are relative to `web/`. For how each service works in general (Convex deployments and function kinds, Apify Actors and billing, MCP), see [sponsor-tools.md](sponsor-tools.md).
 
 ## How the pieces connect
 
