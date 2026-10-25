@@ -6,6 +6,7 @@ import { useRef, useState, type FormEvent, type PointerEvent } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { freshness } from "@/lib/freshness";
+import { splitFoodName } from "@/lib/foodName";
 import { groceryHint } from "@/lib/grocery";
 import { errorMessage } from "@/app/_components/errorMessage";
 import { FoodSuggestions, suggestionsFor } from "@/app/_components/FoodSuggestions";
@@ -36,6 +37,7 @@ function GroceryRow({
 }) {
   const checked = row.checkedAt !== undefined;
   const hint = checked ? null : groceryHint(row.name, hints, row.recipeName);
+  const { base, detail } = splitFoodName(row.name);
   const [offset, setOffset] = useState(0);
   const [dragging, setDragging] = useState(false);
   // A ref, so a move that lands before the next render still sees the drag.
@@ -103,7 +105,10 @@ function GroceryRow({
         </button>
         <FoodArt name={row.name} className="grocery-icon" />
         <span className="grocery-copy">
-          <strong>{row.name}</strong>
+          <strong title={row.name}>
+            {base}
+            {detail && <span className="grocery-detail">{detail}</span>}
+          </strong>
           {hint && <small>{hint.text}</small>}
         </span>
         {hint?.kind === "in-fridge" && <FixedTag className="grocery-fridge-tag">in fridge</FixedTag>}

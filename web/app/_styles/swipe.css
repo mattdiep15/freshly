@@ -446,8 +446,6 @@
 .step-count,
 .receipt-choice small,
 .outline-button,
-.parsed-row label,
-.parsed-row input,
 .tip-card span,
 .tip-card p,
 .stat-tooltip,
@@ -1279,26 +1277,6 @@ footer {
 /* Decorative art would start a native image drag and swallow the swipe. */
 .swipe-card img {
   pointer-events: none;
-}
-
-/* Scan check list: editable name, date, and a remove toggle per draft line. */
-/* scan rule; loads here to stay after .eyebrow */
-.parsed-name {
-  width: 100%;
-  border: 0;
-  padding: 6px 0;
-  background: transparent;
-  font: inherit;
-}
-
-/* globals rule; loads here to stay after .eyebrow */
-.remove-line {
-  border: 1px solid var(--ink);
-  padding: 4px 8px;
-  background: var(--paper);
-  cursor: pointer;
-  font-size: 10px;
-  font-weight: 700;
 }
 
 /* scan rule; loads here to stay after .eyebrow */

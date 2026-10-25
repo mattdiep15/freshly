@@ -1,3 +1,10 @@
+/* Mobile bottom nav: one row of tabs plus the home-bar inset; pages and fixed sheets clear it with --nav-h. */
+:root {
+  --nav-row: 52px;
+  --nav-pad: max(env(safe-area-inset-bottom), 8px);
+  --nav-h: calc(var(--nav-row) + var(--nav-pad));
+}
+
 .app-shell {
   width: min(100%, 1500px);
   min-height: 100vh;
@@ -158,27 +165,27 @@ footer {
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
-    padding-top: max(calc(env(safe-area-inset-top) + 12px), 56px);
-    padding-bottom: 12px;
+    padding-top: calc(env(safe-area-inset-top) + 8px);
+    padding-bottom: 8px;
     border-bottom: 1px solid var(--ink);
   }
 
   .brand {
-    min-height: 44px;
+    min-height: 40px;
     gap: 10px;
     align-items: center;
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1;
   }
 
   .brand > span:last-child {
-    font-size: 24px;
+    font-size: 22px;
     line-height: 1;
   }
 
   .logo-mark {
     width: auto;
-    height: 44px;
+    height: 34px;
     display: block;
     object-fit: contain;
   }
@@ -190,22 +197,20 @@ footer {
   }
 
   nav {
-    height: 68px;
-    padding-bottom: env(safe-area-inset-bottom);
     position: fixed;
     z-index: 20;
     right: 0;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: calc(64px + max(env(safe-area-inset-bottom), 24px));
+    height: var(--nav-h);
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: start;
     gap: 0;
     overflow: visible;
     border-top: 1px solid var(--ink);
-    padding: 0 12px max(env(safe-area-inset-bottom), 24px);
+    padding: 0 12px var(--nav-pad);
     background: var(--paper);
   }
 
@@ -231,7 +236,7 @@ footer {
 
   .nav-camera-spacer {
     width: 100%;
-    height: 64px;
+    height: var(--nav-row);
     display: block;
     grid-column: 3;
     pointer-events: none;
@@ -252,13 +257,13 @@ footer {
   .camera-tab {
     position: absolute;
     z-index: 3;
-    top: -40px;
+    top: -26px;
     left: 50%;
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
     display: grid;
     place-items: center;
-    border: 6px solid var(--paper);
+    border: 5px solid var(--paper);
     border-radius: 50%;
     padding: 0;
     background: var(--ink);
@@ -281,8 +286,8 @@ footer {
   }
 
   .camera-tab svg {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     fill: none;
     stroke: var(--paper);
     stroke-linecap: round;
@@ -343,10 +348,6 @@ footer {
   display: contents;
 }
 
-.mobile-page-end-spacer {
-  display: none;
-}
-
 /* Shared mobile viewport and bottom-control clearance for every page. */
 @media (max-width: 767px) {
   .app-shell > .topbar {
@@ -365,18 +366,10 @@ footer {
     flex: 1 1 auto;
     overflow-x: hidden;
     overflow-y: auto;
-    margin-bottom: calc(64px + 34px + env(safe-area-inset-bottom));
-    padding-bottom: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
+    margin-bottom: var(--nav-h);
+    padding-bottom: 32px;
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
-  }
-
-  .mobile-page-end-spacer {
-    width: 100%;
-    height: calc(64px + 34px + env(safe-area-inset-bottom) + 40px);
-    display: block;
-    flex: 0 0 auto;
-    pointer-events: none;
   }
 
   /* globals rule; loads here to stay after .brand */

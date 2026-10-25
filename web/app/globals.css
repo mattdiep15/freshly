@@ -198,7 +198,7 @@ h1 {
   .add-screen,
   .stats-page,
   .friends-page {
-    min-height: calc(100vh - 148px);
+    min-height: auto;
   }
 
   .mobile-pinned-action {

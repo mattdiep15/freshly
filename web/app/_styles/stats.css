@@ -132,7 +132,6 @@
   .eyebrow,
   .task-copy small,
   .receipt-choice small,
-  .parsed-row label,
   .list-labels,
   .stock-tooltip p {
     font-size: max(11px, 1em);

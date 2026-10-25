@@ -6,6 +6,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { utcOffsetFor } from "./items";
 import { getUserId } from "./model/auth";
+import { settingsFor } from "./profiles";
 import { recipe } from "./schema";
 
 // Each run is an Apify search plus a model call, so a fridge that keeps changing stops after this many a day.
@@ -45,6 +46,8 @@ const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((
 
 // Starts a web search when today's use-soon ingredients changed; a preload waits for a running search instead of stacking runs.
 export async function requestSuggestion(ctx: MutationCtx, userId: Id<"users">, { preload = false } = {}) {
+  // Hidden web recipes skip the search too, so the setting also saves the Apify and model calls.
+  if ((await settingsFor(ctx, userId)).hideWebRecipes) return null;
   const now = Date.now();
   const offset = await utcOffsetFor(ctx, userId);
   const ingredients = await soonestIngredients(ctx, userId, now, offset);
@@ -70,6 +73,7 @@ export const today = query({
   args: {},
   handler: async (ctx) => {
     const userId = await getUserId(ctx);
+    if ((await settingsFor(ctx, userId)).hideWebRecipes) return null;
     const [latest] = await todaysRows(ctx, userId, localDateKey(Date.now(), await utcOffsetFor(ctx, userId)));
     return latest ? view(latest) : null;
   },
