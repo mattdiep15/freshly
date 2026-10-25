@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
+import { splitFoodName } from "@/lib/foodName";
 import { endOfLocalDay, freshness, statusTiming, type Freshness } from "@/lib/freshness";
 import type { Location } from "@/lib/referenceMerge";
 import type { SourcedText } from "@/lib/types";
@@ -104,6 +105,7 @@ export function FoodCard({
   const timing = statusTiming(item.expiresAt, now);
   // The swipe card needs the backend's expired status; the cron sets it up to an hour after the date passes.
   const needsReview = item.status === "expired";
+  const { base, detail } = splitFoodName(item.name);
 
   return (
     <article
@@ -120,7 +122,10 @@ export function FoodCard({
           <FoodArt name={item.name} className="food-icon" />
         </span>
         <span className="card-info">
-          <span className="card-title">{item.name}</span>
+          <span className="card-title" title={item.name}>
+            {base}
+            {detail && <span className="card-title-detail">{detail}</span>}
+          </span>
           <span className="card-meta">
             <StatusTag status={status} />
             {timing && <span className="status-timing">{timing}</span>}

@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import { daysLeft } from "../lib/digest";
 import { needsLabelDate } from "../lib/expiry";
 import { extendExpiry, sourcedRange } from "../lib/extension";
+import { stashGroupFor, type StashGroup } from "../lib/fullness";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import { getUserId } from "./model/auth";
@@ -17,6 +18,8 @@ export type ItemView = Doc<"items"> & {
   freshnessHint: Doc<"foods">["freshnessHint"] | null;
   showTip: boolean;
   checkLabel: boolean;
+  // For the fridge's food-group summary; null when no food matched or its group is left out.
+  stashGroup: StashGroup | null;
 };
 
 // New expiresAt for "1-2 more days", or null when the item has no sourced high end left.
@@ -57,6 +60,7 @@ export async function toItemViews(ctx: QueryCtx, userId: Id<"users">, items: Doc
       freshnessHint,
       showTip: (storageTip !== null || freshnessHint !== null) && (entry?.tipViews ?? 0) < TIP_VIEWS_UNTIL_FAMILIAR,
       checkLabel: needsLabelDate(entry?.food ?? null, item.expirySource),
+      stashGroup: entry?.food ? stashGroupFor(entry.food.name, entry.food.category) : null,
     };
   });
 }

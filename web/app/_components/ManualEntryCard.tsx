@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { addDays, dateInputValue, endOfLocalDay, freshness, localNoon, statusTiming } from "@/lib/freshness";
+import { splitFoodName } from "@/lib/foodName";
 import { groupForCategory, type FoodGroup } from "@/lib/fullness";
 import { errorMessage } from "@/app/_components/errorMessage";
 import { FoodSuggestions, suggestionsFor, type CatalogFood } from "@/app/_components/FoodSuggestions";
@@ -102,6 +103,8 @@ function ManualItemSection({ draft, index, now, catalog, onChange, onRemove }: {
   const status = freshness(expiresAt, now);
   const timing = statusTiming(expiresAt, now);
   const listId = `food-suggestions-${draft.draftId}`;
+  // A picked FoodKeeper row shows its first name in the field and the variants under it, like the grocery list.
+  const { base, detail } = draft.food?.name === draft.name ? splitFoodName(draft.name) : { base: draft.name, detail: "" };
 
   return (
     <section className={`manual-item-section ${status === "expired" ? "expired-surface" : ""}`} data-draft-id={draft.draftId}>
@@ -138,7 +141,8 @@ function ManualItemSection({ draft, index, now, catalog, onChange, onRemove }: {
             aria-expanded={suggestionsOpen && suggestions.length > 0}
             aria-controls={listId}
             aria-activedescendant={suggestionsOpen && suggestions.length > 0 ? `${listId}-${activeSuggestion}` : undefined}
-            value={draft.name}
+            value={base}
+            title={draft.name}
             autoComplete="off"
             onFocus={() => setSuggestionsOpen(true)}
             onBlur={() => setSuggestionsOpen(false)}
@@ -177,6 +181,7 @@ function ManualItemSection({ draft, index, now, catalog, onChange, onRemove }: {
               onPick={selectFood}
             />
           )}
+          {detail && <small className="manual-name-detail">{detail}</small>}
         </label>
 
         <fieldset className="manual-field manual-chip-field">

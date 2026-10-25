@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type PointerEvent } from "react";
+import { splitFoodName } from "@/lib/foodName";
 import type { SourcedText } from "@/lib/types";
 import { FoodArt } from "@/app/_components/ui/FoodArt";
 import { SourceNote } from "@/app/_components/ui/SourceNote";
@@ -169,7 +170,7 @@ export function SwipeTakeover({
                 <StatusTag status="expired" />
                 {timing && <span className="status-timing">{timing}</span>}
               </span>
-              <p>{item.name}</p>
+              <p>{splitFoodName(item.name).base}</p>
               <FoodArt name={item.name} className="swipe-food-art" />
             </div>
             <h1>did you use it?</h1>
@@ -189,7 +190,7 @@ export function SwipeTakeover({
                 <StatusTag status="expired" />
                 {timing && <span className="status-timing">{timing}</span>}
               </span>
-              <p className="spoil-food-name">{item.name}</p>
+              <p className="spoil-food-name">{splitFoodName(item.name).base}</p>
               <div className="spoil-food-art">
                 <FoodArt name={item.name} className="swipe-food-art swipe-food-art--check" />
               </div>
@@ -214,12 +215,11 @@ export function SwipeTakeover({
                   : "it's past the longest time our source gives, so we can't add days."}
               </p>
               <div className="swipe-actions">
-                {canExtend && (
-                  <button className="used-choice" onClick={() => choose("right")}>
-                    <span className="swipe-label-desktop">no, 1-2 more days →</span>
-                    <span className="swipe-label-mobile">1-2 more days →</span>
-                  </button>
-                )}
+                {/* Shown but disabled past the sourced range, so the card keeps both answers in place. */}
+                <button className="used-choice" disabled={!canExtend} onClick={() => choose("right")}>
+                  <span className="swipe-label-desktop">no, 1-2 more days →</span>
+                  <span className="swipe-label-mobile">1-2 more days →</span>
+                </button>
                 <button onClick={() => choose("left")}>
                   <span className="swipe-label-desktop">← yes, toss :(</span>
                   <span className="swipe-label-mobile">← toss it</span>
