@@ -40,6 +40,22 @@
   border-top: 2px solid var(--ink);
 }
 
+.location-section + .location-section {
+  margin-top: 28px;
+}
+
+.location-heading {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+}
+
+.location-heading span {
+  margin-left: 6px;
+  font-weight: 400;
+}
+
 .fridge-list-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 170px;
@@ -1301,6 +1317,19 @@
   .fridge-screen .food-list {
     overflow: hidden;
     margin-top: 16px;
+  }
+
+  /* The heading takes the gap above the list, so it sits next to its cards. */
+  .fridge-screen .location-heading {
+    margin-top: 16px;
+  }
+
+  .fridge-screen .location-heading + .food-list {
+    margin-top: 0;
+  }
+
+  .fridge-screen .location-section + .location-section {
+    margin-top: 12px;
   }
 
   .filter-empty-state {

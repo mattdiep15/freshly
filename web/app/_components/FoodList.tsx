@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { ItemView } from "@/convex/items";
-import { freshness } from "@/lib/freshness";
+import { freshness, groupByLocation } from "@/lib/freshness";
 import type { Location } from "@/lib/referenceMerge";
 import { FoodCard } from "@/app/_components/FoodCard";
 import { Leekly } from "@/app/_components/ui/Leekly";
@@ -136,38 +136,51 @@ export function FoodList({
             })}
           </div>
         </div>
-        <div className="food-list">
-          {items.map((item) => (
-            <FoodCard
-              key={item._id}
-              item={item}
-              now={now}
-              expanded={expanded === item._id}
-              filteredOut={filter !== "all" && freshness(item.expiresAt, now) !== filter}
-              extended={extendedIds.includes(item._id)}
-              checkIn={checkInIds.includes(item._id)}
-              highlighted={highlightedIds.includes(item._id)}
-              onToggle={() => setExpanded(expanded === item._id ? null : item._id)}
-              onHover={() => {
-                if (hoverOpens()) setExpanded(item._id);
-              }}
-              onLeave={() => {
-                if (hoverOpens()) setExpanded((id) => (id === item._id ? null : id));
-              }}
-              onMarkUsed={() => onMarkUsed(item)}
-              onReviewExpired={() => onReviewExpired(item)}
-              onSetDate={(expiresAt) => onSetDate(item, expiresAt)}
-              onMove={(location) => onMove(item, location)}
-            />
-          ))}
-          {filter !== "all" && visibleCount === 0 && (
-            <div className="filter-empty-state">
-              <Leekly className="filter-empty-leek" />
-              <strong>nothing here.</strong>
-              <p>{emptyMessages[filter]}</p>
-            </div>
-          )}
-        </div>
+        {/* A section whose items are all filtered out drops its heading and border too. */}
+        {groupByLocation(items).map(({ location, items: group }) => {
+          const shown =
+            filter === "all" ? group.length : group.filter((item) => freshness(item.expiresAt, now) === filter).length;
+          if (shown === 0) return null;
+          return (
+            <section className="location-section" key={location} aria-label={location}>
+              <h2 className="location-heading">
+                {location} <span>{shown}</span>
+              </h2>
+              <div className="food-list">
+                {group.map((item) => (
+                  <FoodCard
+                    key={item._id}
+                    item={item}
+                    now={now}
+                    expanded={expanded === item._id}
+                    filteredOut={filter !== "all" && freshness(item.expiresAt, now) !== filter}
+                    extended={extendedIds.includes(item._id)}
+                    checkIn={checkInIds.includes(item._id)}
+                    highlighted={highlightedIds.includes(item._id)}
+                    onToggle={() => setExpanded(expanded === item._id ? null : item._id)}
+                    onHover={() => {
+                      if (hoverOpens()) setExpanded(item._id);
+                    }}
+                    onLeave={() => {
+                      if (hoverOpens()) setExpanded((id) => (id === item._id ? null : id));
+                    }}
+                    onMarkUsed={() => onMarkUsed(item)}
+                    onReviewExpired={() => onReviewExpired(item)}
+                    onSetDate={(expiresAt) => onSetDate(item, expiresAt)}
+                    onMove={(location) => onMove(item, location)}
+                  />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+        {filter !== "all" && visibleCount === 0 && (
+          <div className="filter-empty-state">
+            <Leekly className="filter-empty-leek" />
+            <strong>nothing here.</strong>
+            <p>{emptyMessages[filter]}</p>
+          </div>
+        )}
       </div>
       <aside className="fridge-leek-gutter" aria-label="Fridge status">
         <div className={`fridge-status-bubble ${urgent === 0 ? "is-all-fresh" : ""}`}>
