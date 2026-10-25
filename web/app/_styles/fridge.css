@@ -1538,16 +1538,24 @@
     overflow: visible;
     order: 2;
     width: 100%;
-    max-width: 300px;
-    height: 300px;
-    margin: 16px auto 0;
+    /* Small enough that the first food cards show above the bottom nav on a phone. */
+    max-width: 168px;
+    height: 168px;
+    margin: 8px auto 0;
   }
 
   .fridge-screen .fullness-art {
-    width: 300px;
+    width: 168px;
     max-width: 100%;
-    height: 300px;
+    height: 168px;
     margin: 0 auto;
+  }
+
+  /* The food-groups list no longer fits inside the smaller art, so it overhangs it. */
+  .fridge-screen .stock-tooltip {
+    width: 260px;
+    max-width: calc(100vw - 32px);
+    max-height: none;
   }
 
   .fridge-screen .fullness-stage {
@@ -1558,14 +1566,14 @@
   .fridge-screen .stock-label {
     order: 3;
     align-self: center;
-    margin: 12px 0 0;
+    margin: 4px 0 0;
     font-size: 14px;
     line-height: 1;
     text-align: center;
   }
 
   .fridge-screen .fridge-list-stage {
-    margin-top: 32px;
+    margin-top: 20px;
   }
 }
 
