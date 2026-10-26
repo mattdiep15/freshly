@@ -257,13 +257,14 @@ footer {
   .camera-tab {
     position: absolute;
     z-index: 3;
-    top: -26px;
+    top: -21px;
     left: 50%;
-    width: 64px;
-    height: 64px;
+    width: 54px;
+    height: 54px;
     display: grid;
     place-items: center;
-    border: 5px solid var(--paper);
+    /* No white ring: the button floats over the page, and only the nav's top border cuts the content off. */
+    border: 0;
     border-radius: 50%;
     padding: 0;
     background: var(--ink);
@@ -367,7 +368,8 @@ footer {
     overflow-x: hidden;
     overflow-y: auto;
     margin-bottom: var(--nav-h);
-    padding-bottom: 32px;
+    /* The page's own bottom padding is enough; extra room here showed as a white band above the nav. */
+    padding-bottom: 0;
     overscroll-behavior-y: contain;
     -webkit-overflow-scrolling: touch;
   }
