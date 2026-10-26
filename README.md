@@ -132,15 +132,6 @@ Food waste is as much a behavior problem as an information problem. People know 
 
 On the technical side, we learned to build a full app on Convex (schema, server functions, and scheduled jobs), plan the product in Figma before writing code, scrape StillTasty with Apify while keeping the source next to every tip, and turn a Next.js app into a web app that installs on an iPhone home screen and sends push notifications.
 
-## What's next
-
-- **Local shops and farmers markets.** Connect people with nearby growers and grocers, with recommendations sized to what they'll finish. Vendors get anonymous, neighborhood-level data on what people buy, finish, and throw away, so they can stock smarter too.
-- **Location-aware nudges.** At a restaurant, freshly reminds you what's about to expire at home. At the grocery store, it suggests what pairs with what's already in your fridge.
-- **Ask Leeky.** A food safety and storage assistant for questions like "can I freeze cream cheese?", answered from the FDA and FoodKeeper data we already use.
-- **Waste Wrapped.** A shareable monthly recap of food and money saved.
-- **A visual freshness model.** Snap your produce and get a prediction of how many days it has left from its color and ripeness. Every swipe would help train it.
-- **Speech accessibility.** Ask what to cook, hear storage tips, and add items hands-free.
-
 ## Built with
 
 [Next.js](https://nextjs.org) on [Vercel](https://vercel.com), [Convex](https://convex.dev), [Claude](https://www.anthropic.com/claude), [Gemini](https://ai.google.dev), [Apify](https://apify.com), [Figma](https://www.figma.com), and a [GoDaddy](https://www.godaddy.com) domain.
@@ -157,3 +148,14 @@ On the technical side, we learned to build a full app on Convex (schema, server 
 - [Matthew Lu Diep](https://devpost.com/matthewdiep)
 
 Fueled by Red Bull, madeleines, and oranges.
+
+## What's next
+
+Food loss and waste cause 8 to 10% of global greenhouse gas emissions, almost five times the emissions from aviation, and households waste 60% of it ([UNEP Food Waste Index Report 2024](https://www.unep.org/resources/publication/food-waste-index-report-2024)). Here's where we want to take freshly:
+
+- **Local shops and farmers markets.** Connect people with nearby growers and grocers, with recommendations sized to what they'll actually finish. That makes freshly a two-sided marketplace: users get fresher, local food in the right amounts, and vendors get anonymous, neighborhood-level data on what people buy, finish, and throw away, so they can stock smarter and waste less too. freshly could earn referral fees or sponsored listings without charging users, and small vendors get a way to compete with big grocery chains.
+- **Location-aware nudges.** At a restaurant, Freshy reminds you what's about to expire at home. At the grocery store, it suggests what to buy to go with what's already in your fridge.
+- **Ask Leeky.** A food safety and storage assistant for questions like "can I freeze cream cheese?" It answers from the FDA and USDA FoodKeeper data we already use, and says when a question is outside what that data covers.
+- **Waste Wrapped.** A shareable monthly recap of food and money saved, so one person's progress turns into a conversation with friends.
+- **A visual freshness model.** Snap your produce and get a prediction of how many days it has left from its color and ripeness. This goes after our biggest challenge: instead of relying only on general shelf-life ranges, freshly could estimate freshness from the item in front of you, so good food stops getting tossed because of a date and spoiled food gets caught sooner. Every swipe would help train the model.
+- **Speech accessibility.** Ask what to cook next, hear storage tips read aloud, and add items without a receipt, all without touching your phone. That helps when your hands are messy and makes freshly usable for people with limited vision or mobility.
