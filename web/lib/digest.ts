@@ -87,7 +87,8 @@ export function buildDigest<Id extends string>(
 
   return {
     title,
-    body: sentences.join(" "),
+    // One line per group, so a push reads "In 3 days: …" and "In a week: …" on separate lines.
+    body: sentences.join("\n"),
     itemIds: due.flatMap((g) => g.items.map((i) => i._id)),
     ...(nudgeUndated ? { undatedCount } : {}),
   };

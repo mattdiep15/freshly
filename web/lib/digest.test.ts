@@ -40,7 +40,7 @@ describe("buildDigest", () => {
     const digest = buildDigest(items, 0, 0, NOW, PDT);
     expect(digest?.itemIds).toEqual(["d1", "d3", "d7"]);
     expect(digest?.title).toBe("3 things to use soon");
-    expect(digest?.body).toBe("Expiring tomorrow: d1. In 3 days: d3. In a week: d7.");
+    expect(digest?.body).toBe("Expiring tomorrow: d1.\nIn 3 days: d3.\nIn a week: d7.");
   });
 
   test("an item bought with 3 days of shelf life gets the 3 and 1 day reminders only", () => {
@@ -56,7 +56,7 @@ describe("buildDigest", () => {
     const digest = buildDigest([item("Spinach", 1), item("Ground beef", 1), item("Eggs", 3)], 2, 0, NOW, PDT);
     expect(digest).toEqual({
       title: "3 things to use soon",
-      body: "Expiring tomorrow: Spinach and Ground beef. In 3 days: Eggs. 2 items need a swipe.",
+      body: "Expiring tomorrow: Spinach and Ground beef.\nIn 3 days: Eggs.\n2 items need a swipe.",
       itemIds: ["Spinach", "Ground beef", "Eggs"],
     });
   });
