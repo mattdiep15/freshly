@@ -1,6 +1,5 @@
-<!-- TODO: replace media/hero.gif with the branded animation. An .mp4 cannot play from a repo path, so either export it as a GIF or drag the .mp4 into this file in GitHub's web editor and replace the <img> line with the user-attachments URL it inserts. -->
 <div align="center">
-  <img src="media/hero.gif" alt="freshly" width="720"/>
+  <img src="media/hero.gif" alt="freshly logo animation: a fridge opens to show the leek mascot, then shrinks into the freshly wordmark" width="480"/>
 </div>
 
 <h1 align="center">freshly</h1>
