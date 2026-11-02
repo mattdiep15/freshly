@@ -16,11 +16,18 @@ p1-01 to p1-03 cover the backend only. Each ends with Convex functions the front
 | [p2-03-community-and-streaks.md](p2-03-community-and-streaks.md) | P2 | Friends by invite code, weekly leaderboard and streak on the `/community` page (friends and my numbers views) | Done for the demo user and seeded friends; friends between real accounts wait on sign-in | ~4-5 h |
 | [p2-04-recipe-suggestions.md](p2-04-recipe-suggestions.md) | P2 | Recipes for use-soon items from web pages (Apify + Gemini), fixed recipes as fallback | Done; checked end to end on team dev (a run takes about 98 s) | ~3-4 h |
 | [p2-05-push-for-real-users.md](p2-05-push-for-real-users.md) | P2 | Prod VAPID keys, designed push opt-in, per-user digest hour, cron that scans only due users, removing dev push triggers | Not started; the demo triggers pushes by hand (`docs/DEMO.md`) | ~3-4 h |
+| [launch-00-free-tier-overview.md](launch-00-free-tier-overview.md) | Launch | Which services stay after the hackathon, their free tiers, cost at 100 users, and the order of launch-01 to launch-04 | Proposal | ~30 min of spend guards, then the plans below |
+| [launch-01-accounts-and-auth.md](launch-01-accounts-and-auth.md) | Launch | Google and email-code sign-in on Convex Auth, profile on first sign-in, account deletion, demo user off on prod | Proposal | ~1.5-2 days |
+| [launch-02-model-costs.md](launch-02-model-costs.md) | Launch | Receipts on Claude Haiku 5.5, token logging, no receipt images on Gemini's free tier, per-user parse cap | Proposal | ~2-3 h |
+| [launch-03-web-lookups.md](launch-03-web-lookups.md) | Launch | StillTasty snapshot, recipe searches shared across users, daily Apify budget inside the $5 free credit | Proposal | ~4-6 h |
+| [launch-04-convex-free-plan-fit.md](launch-04-convex-free-plan-fit.md) | Launch | Stay on Convex's free plan: stop full `foods` reads, delete receipt files after use | Proposal | ~3-4 h |
 | [p3-integrations.md](p3-integrations.md) | P3 | Store and farmers market connections, food recall alerts, speech, Wrapped Waste, image-based spoilage model; grocery hints, estimated prices, location reminders, and takeout leftovers moved from P2 | Draft | not estimated |
 
 p1-02 and p1-03 both depend on p1-01 and can run in parallel after it lands. p1-01 defines the whole P1 schema up front so the two do not edit `convex/schema.ts` at the same time. p1-04 depends on all three.
 
 P2 follows the screens the designer is drawing: community (stats and friends tabs), grocery list, and recipes. Merge the v5 frontend branch (`claude/frontend-prototype-v5-19a533`) first, since p2-03 and p2-04 build on its tabs. p2-01 then adds every P2 table in one change, and p2-02, p2-03, and p2-04 can run in parallel after it. If one person builds all of P2, skip p2-01 and add each table in its own plan. Real sign-in is a prerequisite for friends between real accounts (see p2-03), but not for the demo, which uses the demo user and seeded friends.
+
+The launch plans come after the Cal Hacks 13.0 submission and prepare Freshly for real users on free tiers. Start with launch-00. launch-02, launch-03, and launch-04 touch different files and can run in parallel; launch-01 blocks p2-03's friends between real accounts and p2-05's per-user push. The P3 features wait until the launch plans are done.
 
 "Clean, demo-ready UI" is a P1 goal in the spec. p1-04 covers it for every page except friends, which waits for P2.
 
