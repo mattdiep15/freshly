@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="media/hero.gif" alt="freshly logo animation: a fridge opens to show the leek mascot, then shrinks into the freshly wordmark" width="480"/>
+  <img src="media/cover.png" alt="The freshly wordmark ringed by hand-drawn pasta, a strawberry, the leek mascot, a milk carton, spinach, and a fridge" width="400"/>
 </div>
 
 <h1 align="center">freshly</h1>
