@@ -12,7 +12,8 @@
   <a href="https://freshly.cooking/fridge"><b>Try it</b></a> ·
   <a href="https://devpost.com/software/freshly-m8zl9k"><b>Devpost</b></a> ·
   <a href="https://www.youtube.com/watch?v=BmtE5FegmVM"><b>Demo video</b></a> ·
-  <a href="https://www.figma.com/deck/qz3jiYgXsa4t36d2Sec4CA"><b>Pitch deck</b></a> ·
+  <a href="media/CalHacks.pdf"><b>Pitch deck</b></a> ·
+  <a href="https://www.figma.com/deck/qz3jiYgXsa4t36d2Sec4CA"><b>Design methodology</b></a> ·
   <a href="QUICKSTART.md"><b>Quickstart</b></a>
 </p>
 
